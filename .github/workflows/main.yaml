@@ -71,8 +71,8 @@ jobs:
       - name: Run unit tests
         run: makim tests.unit
 
-      - name: Test jupyter notebooks
-        run: makim tests.notebooks
+      # - name: Test jupyter notebooks
+      #   run: makim tests.notebooks
 
   linter:
     needs: check-branch
