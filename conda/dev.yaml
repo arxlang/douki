@@ -10,3 +10,4 @@ dependencies:
   - pip:
       # distlib issue
       - paginate==0.5.6
+      - virtualenv<=20.25.1
