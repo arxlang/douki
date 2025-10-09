@@ -16,7 +16,7 @@ def _schema() -> dict[str, Any]:
     global _schema_cache
 
     if _schema_cache is None:
-        with files('doxs').joinpath('schema.json').open() as fh:
+        with files('douki').joinpath('schema.json').open() as fh:
             _schema_cache = json.load(fh)
     return _schema_cache
 
@@ -26,5 +26,5 @@ def validate_schema(doc: dict[str, Any]) -> None:
         validate(instance=doc, schema=_schema())
     except ValidationError as err:
         raise ValueError(
-            f'Docstring YAML does not follow doxs schema: {err.message}'
+            f'Docstring YAML does not follow douki schema: {err.message}'
         ) from err

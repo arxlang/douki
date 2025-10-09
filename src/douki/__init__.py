@@ -26,9 +26,9 @@ DocString = core.DocString
 class _CallableModule(types.ModuleType):
     """A module that can also be used as a decorator."""
 
-    # allow @doxs(...)
+    # allow @douki(...)
     def __call__(self, _obj: Any = None, **kwargs: Any) -> Any:
-        """Allow calling the module with @doxs"""
+        """Allow calling the module with @douki"""
         return apply(_obj, **kwargs)
 
 

@@ -6,7 +6,7 @@ Turns YAML-formatted docstrings into enriched *numpydoc* sections.
 Example
 -------
 ```python
-@doxs  # or simply ``@doxs`` if you re-export apply at top level
+@douki  # or simply ``@douki`` if you re-export apply at top level
 def add(x: int, y: int) -> int:
     """
     title: Return the sum of two integers
