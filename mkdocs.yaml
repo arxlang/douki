@@ -1,6 +1,6 @@
-site_name: Doxs
-site_url: https://osl-incubator.github.io/doxs
-repo_url: https://github.com/xmnlab/doxs.git
+site_name: Douki
+site_url: https://osl-incubator.github.io/douki
+repo_url: https://github.com/osl-incubator/douki.git
 docs_dir: ./docs/
 site_dir: ./build/
 # extra_css:
@@ -113,23 +113,23 @@ markdown_extensions:
   - tables
   - toc
 extra:
-  project_name: "Doxs"
+  project_name: "Douki"
   team:
     - name: "Active maintainers"
       members:
-        - xmnlab
+        - osl-incubator
     - name: "Former maintainers"
       members:
-        - xmnlab
+        - osl-incubator
   social:
     - icon: fontawesome/brands/twitter
-      link: https://twitter.com/xmnlab
+      link: https://twitter.com/osl-incubator
     - icon: fontawesome/brands/github
-      link: https://github.com/xmnlab/doxs.git
+      link: https://github.com/osl-incubator/douki.git
   support_levels:
     supported:
       icon: :material-check-decagram:{ .verified }
-      description: Tested in CI. If this doesn't work for you, please [file an issue](https://github.com/xmnlab/doxs.git/issues/new).
+      description: Tested in CI. If this doesn't work for you, please [file an issue](https://github.com/osl-incubator/douki.git/issues/new).
     bug:
       icon: :material-bug:{ .bug }
       description: Should work but doesn't because upstream is broken. Supported on a best-effort basis.
@@ -137,4 +137,4 @@ extra:
       icon: :material-cancel:{ .cancel }
       description: Unlikely to ever be supported or no upstream support.
 
-copyright: "Copyright &copy; 2022, Doxs Team"
+copyright: "Copyright &copy; 2022, Douki Team"

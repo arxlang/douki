@@ -1,4 +1,4 @@
-"""example.py - showcase for YAML-first *doxs*
+"""example.py - showcase for YAML-first *douki*
 
 Run with:
     python -m tests/example.py
@@ -10,12 +10,12 @@ from __future__ import annotations
 
 from typing import Annotated, Any, Generator, Iterable
 
-import doxs
+import douki
 
-from doxs import DocString
+from douki import DocString
 
 
-@doxs
+@douki
 def add(x: int, y: int) -> int:
     """
     title: Add two integers
@@ -39,7 +39,7 @@ def add(x: int, y: int) -> int:
     return x + y
 
 
-@doxs
+@douki
 def identity(value: Any) -> Any:
     """
     title: Identity (deprecated)
@@ -55,7 +55,7 @@ def identity(value: Any) -> Any:
     return value
 
 
-@doxs
+@douki
 def fib(n: int) -> Generator[int, None, None]:
     """
     title: Fibonacci generator
@@ -72,7 +72,7 @@ def fib(n: int) -> Generator[int, None, None]:
         a, b = b, a + b
 
 
-@doxs
+@douki
 def accumulate(values: Iterable[int]) -> int:
     """
     title: Sum an iterable
@@ -82,7 +82,7 @@ def accumulate(values: Iterable[int]) -> int:
     return sum(values)
 
 
-@doxs(class_vars={'a': 'Alpha', 'b': 'Bravo'})
+@douki(class_vars={'a': 'Alpha', 'b': 'Bravo'})
 class BasicCalculator:
     """
     title: Very small demo calculator
@@ -102,7 +102,7 @@ class BasicCalculator:
         """
         return self.a + self.b
 
-    @doxs(params={'scalar': 'Factor'}, returns='Scaled sum')
+    @douki(params={'scalar': 'Factor'}, returns='Scaled sum')
     def multiply(self, scalar: int) -> int:
         """
         title: Multiply by *scalar*
@@ -112,7 +112,7 @@ class BasicCalculator:
         return (self.a + self.b) * scalar
 
 
-@doxs
+@douki
 class FancyCalculator:
     """
     title: Annotated attribute demo

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://example.com/doxs/schema.json",
-  "title": "doxs YAML docstring",
+  "$id": "https://example.com/douki/schema.json",
+  "title": "douki YAML docstring",
   "type": "object",
   "additionalProperties": false,
 

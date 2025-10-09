@@ -30,9 +30,10 @@ jobs:
           miniforge-version: latest
           environment-file: conda/dev.yaml
           channels: conda-forge,nodefaults
-          activate-environment: doxs
+          activate-environment: douki
           auto-update-conda: true
           conda-solver: libmamba
+          python-version: "3.13"
 
       - name: Install deps
         run: |

@@ -1,1 +1,1 @@
-"""Unit test package for doxs."""
+"""Unit test package for douki."""

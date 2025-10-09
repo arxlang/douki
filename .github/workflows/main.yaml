@@ -10,13 +10,13 @@ jobs:
   check-branch:
     if: ${{ github.event_name == 'pull_request' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 2
+    timeout-minutes: 10
     concurrency:
       group: check-pr-${{ github.ref }}
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -26,11 +26,24 @@ jobs:
           remote_branch: origin/main
           pr_sha: ${{ github.event.pull_request.head.sha }}
 
-  test:
-    runs-on: ubuntu-latest
+  tests:
     timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python_version:
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
+        os:
+          - "ubuntu"
+          - "macos"
+          - "windows"
+
+    runs-on: ${{ matrix.os }}-latest
     concurrency:
-      group: ci-${{ github.event_name }}-${{ github.ref }}
+      group: ci-tests-${{ matrix.os }}-${{ matrix.python_version }}-${{ github.ref }}
       cancel-in-progress: true
 
     defaults:
@@ -40,36 +53,64 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Cache Conda Packages
-        uses: actions/cache@v3
-        with:
-          path: ~/.conda/envs/doxs
-          key: ubuntu-latest-conda-${{ hashFiles('conda/dev.yaml') }}
-          restore-keys: |
-            ubuntu-latest-conda-
-
       - uses: conda-incubator/setup-miniconda@v3
         with:
-          miniforge-version: latest
+          miniconda-version: "latest"
           environment-file: conda/dev.yaml
           channels: conda-forge,nodefaults
-          activate-environment: doxs
+          activate-environment: douki
           auto-update-conda: true
           conda-solver: libmamba
+          python-version: "${{ matrix.python_version }}"
 
       - name: Install dependencies
         run: |
+          poetry check
           poetry install
 
-      - name: Run tests
-        run: |
-          makim tests.unit
+      - name: Run unit tests
+        run: makim tests.unit
 
-      - name: Run example
-        run: python tests/example.py
+      # - name: Test jupyter notebooks
+      #   run: makim tests.notebooks
+
+  linter:
+    needs: check-branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    concurrency:
+      group: ci-linter-${{ matrix.os }}-${{ matrix.python_version }}-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniconda-version: "latest"
+          environment-file: conda/dev.yaml
+          channels: conda-forge,nodefaults
+          activate-environment: douki
+          auto-update-conda: true
+          conda-solver: libmamba
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.create false
+          poetry install
 
       - name: Run style checks
         if: success() || failure()
         run: |
           pre-commit install
           makim tests.linter
+
+      - name: Setup tmate session
+        if: "${{ failure() && (contains(github.event.pull_request.labels.*.name, 'ci:enable-debugging')) }}"
+        uses: mxschmitt/action-tmate@v3

@@ -1,5 +1,5 @@
 [project]
-name = "doxs"
+name = "douki"
 version = "0.5.0"  # semantic-release
 description = "Documetatio from annotations"
 readme = "README.md"
@@ -19,11 +19,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [
-  {include = "doxs", from="src"},
+  {include = "douki", from="src"},
 ]
 include = [
-  "src/doxs/py.typed",
-  "src/doxs/schema.json",
+  "src/douki/py.typed",
+  "src/douki/schema.json",
 ]
 exclude = [
   ".git/*",
@@ -42,7 +42,6 @@ vulture = ">=2.7"
 mccabe = ">=0.6.1"
 ipython = "<8"
 ipykernel = ">=6.0.0"
-
 Jinja2 = ">=3.1.2"
 mkdocs = ">=1.4.3"
 mkdocs-exclude = ">=1.0.2"
@@ -53,7 +52,7 @@ mkdocs-material = ">=9.1.15"
 mkdocstrings = ">=0.21.2"
 mkdocstrings-python = ">= 1.1.2"
 mkdocs-gen-files = ">=0.5.0"
-makim = "1.20.0"
+makim = "1.27.0"
 # 'PosixPath' object has no attribute 'endswith'
 virtualenv = "<=20.25.1"
 

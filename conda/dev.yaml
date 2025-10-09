@@ -1,12 +1,13 @@
-name: doxs
+name: douki
 channels:
   - nodefaults
   - conda-forge
 dependencies:
-  - python >=3.9,<=3.12
+  - python
   - pip
   - poetry
   - nodejs # used by semantic-release
   - pip:
       # distlib issue
       - paginate==0.5.6
+      - virtualenv<=20.25.1

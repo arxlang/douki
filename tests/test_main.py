@@ -1,4 +1,4 @@
-"""tests/test_core.py - unit tests for YAML-first *doxs*
+"""tests/test_core.py - unit tests for YAML-first *douki*
 Verify that:
 * YAML docstrings are converted to numpydoc blocks.
 * Generic type printing works (`list[int]`).
@@ -11,10 +11,10 @@ from __future__ import annotations
 
 from typing import Annotated
 
-import doxs
+import douki
 import pytest
 
-from doxs import DocString
+from douki import DocString
 
 
 def _strip(text: str) -> str:
@@ -25,7 +25,7 @@ def _strip(text: str) -> str:
 def test_function_parameters_and_returns():
     """Decorator should inject Parameters / Returns blocks."""
 
-    @doxs(params={'x': 'The x value'}, returns='x squared')
+    @douki(params={'x': 'The x value'}, returns='x squared')
     def square(x: int) -> int:
         """
         title: square a value
@@ -42,7 +42,7 @@ def test_function_parameters_and_returns():
 
 
 def test_generic_type_rendering():
-    @doxs
+    @douki
     def give_first(values: list[int]) -> int:
         """title: generic list example"""
         return values[0]
@@ -51,7 +51,7 @@ def test_generic_type_rendering():
 
 
 def test_annotated_descriptions_and_defaults():
-    @doxs
+    @douki
     def add(
         x: Annotated[int, DocString('first term')] = 2,
         y: Annotated[int, 'second term'] = 3,
@@ -66,7 +66,7 @@ def test_annotated_descriptions_and_defaults():
 
 
 def test_class_attributes_and_methods():
-    @doxs(class_vars={'a': 'Alpha', 'b': 'Bravo'})
+    @douki(class_vars={'a': 'Alpha', 'b': 'Bravo'})
     class Demo:
         """title: demo class"""
 
@@ -92,13 +92,13 @@ def test_class_attributes_and_methods():
 
 
 def test_idempotency():
-    @doxs
+    @douki
     def mul(x: int, y: int) -> int:
         """title: multiply two ints"""
         return x * y
 
     first = mul.__doc__ or ''
-    doxs(mul)
+    douki(mul)
     second = mul.__doc__ or ''
     assert first == second and first.count('Parameters') == 1
 
@@ -109,7 +109,7 @@ def test_invalid_yaml_docstring_raises():
     # YAML lacks the required 'title:' field
     with pytest.raises(ValueError):
 
-        @doxs
+        @douki
         def bad(x: int) -> int:
             """
             parameters:
