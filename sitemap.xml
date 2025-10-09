@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-         <loc>https://osl-incubator.github.io/doxs/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/changelog/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/changelog/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/contributing/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/contributing/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/example/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/example/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/installation/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/installation/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/api/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/api/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/api/SUMMARY/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/api/SUMMARY/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
     <url>
-         <loc>https://osl-incubator.github.io/doxs/api/core/</loc>
-         <lastmod>2025-08-01</lastmod>
+         <loc>https://osl-incubator.github.io/douki/api/core/</loc>
+         <lastmod>2025-10-09</lastmod>
     </url>
 </urlset>
