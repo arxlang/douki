@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+# [0.6.0](https://github.com/osl-incubator/douki/compare/0.5.0...0.6.0) (2025-10-09)
+
+
+### Features
+
+* **refactoring:** Rename package to douki ([#9](https://github.com/osl-incubator/douki/issues/9)) ([62125c9](https://github.com/osl-incubator/douki/commit/62125c91c157a29ea4777b90851a1878a08476ee))
+
 # [0.5.0](https://github.com/osl-incubator/douki/compare/0.4.0...0.5.0) (2025-08-01)
 
 
