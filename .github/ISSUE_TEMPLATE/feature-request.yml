@@ -17,7 +17,7 @@ body:
         already be implemented in a development release.
 
 
-        [issue search]: https://github.com/xmnlab/douki.git/issues?q=is%3Aopen+is%3Aissue+label%3Afeat%2Fenhancement
+        [issue search]: https://github.com/osl-incubator/douki.git/issues?q=is%3Aopen+is%3Aissue+label%3Afeat%2Fenhancement
 
   - type: textarea
     attributes:
@@ -72,7 +72,7 @@ body:
       description: |
         Read the [`Douki` Code of Conduct][CoC] first.
 
-        [CoC]: https://github.com/xmnlab/douki.git/coc/CODE_OF_CONDUCT.md
+        [CoC]: https://github.com/osl-incubator/douki.git/coc/CODE_OF_CONDUCT.md
       options:
         - label: I agree to follow the Code of Conduct
           required: true

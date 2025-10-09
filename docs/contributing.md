@@ -26,7 +26,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/xmnlab/douki.git/issues.
+Report bugs at https://github.com/osl-incubator/douki.git/issues.
 
 If you are reporting a bug, please include:
 
@@ -52,7 +52,7 @@ docs, in docstrings, or even on the web in blog posts, articles, and such.
 ### Submit Feedback
 
 The best way to send feedback is to file an issue at
-https://github.com/xmnlab/douki.git/issues.
+https://github.com/osl-incubator/douki.git/issues.
 
 If you are proposing a feature:
 
@@ -76,7 +76,7 @@ $ cd douki/
 Also, create a remote to the upstream repository, you will need that later:
 
 ```bash
-$ git remote add upstream https://github.com/xmnlab/douki.git
+$ git remote add upstream https://github.com/osl-incubator/douki.git
 $ git fetch --all
 ```
 

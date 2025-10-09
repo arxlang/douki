@@ -18,18 +18,18 @@ can guide you through the process.
 ## From sources
 
 The sources for Douki can be downloaded from the
-[Github repo](https://github.com/xmnlab/douki.git).
+[Github repo](https://github.com/osl-incubator/douki.git).
 
 You can either clone the public repository:
 
 ```bash
-git clone https://github.com/xmnlab/douki.git
+git clone https://github.com/osl-incubator/douki.git
 ```
 
-Or download the [tarball](https://github.com/xmnlab/douki.git/tarball/main):
+Or download the [tarball](https://github.com/osl-incubator/douki.git/tarball/main):
 
 ```bash
-curl -OJL https://github.com/xmnlab/douki.git/tarball/main
+curl -OJL https://github.com/osl-incubator/douki.git/tarball/main
 ```
 
 Once you have a copy of the source, you can install it with:
