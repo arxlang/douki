@@ -57,7 +57,7 @@ groups:
         backend: bash
         run: |
           pytest \
-            --cov=doxs \
+            --cov=douki \
             --cov-fail-under=94 \
             --cov-report term-missing \
             --no-cov-on-fail ${{ args.path }} ${{ args.params }}

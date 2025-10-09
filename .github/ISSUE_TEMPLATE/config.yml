@@ -2,14 +2,14 @@
 blank_issues_enabled: true
 contact_links:
   - name: 🙋  Usage Questions
-    url: https://github.com/xmnlab/doxs.git/discussions
+    url: https://github.com/xmnlab/douki.git/discussions
     about: |
-      Use Doxs's GitHub Discussions to ask "How do I do X with Doxs?".
+      Use Douki's GitHub Discussions to ask "How do I do X with Douki?".
   - name: 📖  Tutorial
-    url: https://github.com/xmnlab/doxs.git
+    url: https://github.com/xmnlab/douki.git
     about: |
-      The Doxs tutorial is continually updated and provides an in depth walkthrough
-      of how to use the latest release of Doxs.
-  - name: 📝  Doxs Code of Conduct
-    url: https://github.com/xmnlab/doxs.git/coc/CODE_OF_CONDUCT.md
-    about: Expectations for how people will interact with each other on Doxs's GitHub.
+      The Douki tutorial is continually updated and provides an in depth walkthrough
+      of how to use the latest release of Douki.
+  - name: 📝  Douki Code of Conduct
+    url: https://github.com/xmnlab/douki.git/coc/CODE_OF_CONDUCT.md
+    about: Expectations for how people will interact with each other on Douki's GitHub.

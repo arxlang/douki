@@ -1,5 +1,5 @@
 [project]
-name = "doxs"
+name = "douki"
 version = "0.5.0"  # semantic-release
 description = "Documetatio from annotations"
 readme = "README.md"
@@ -19,11 +19,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 packages = [
-  {include = "doxs", from="src"},
+  {include = "douki", from="src"},
 ]
 include = [
-  "src/doxs/py.typed",
-  "src/doxs/schema.json",
+  "src/douki/py.typed",
+  "src/douki/schema.json",
 ]
 exclude = [
   ".git/*",

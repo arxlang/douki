@@ -2,13 +2,13 @@
 
 ## Stable release
 
-To install Doxs, run this command in your terminal:
+To install Douki, run this command in your terminal:
 
 ```bash
-pip install doxs
+pip install douki
 ```
 
-This is the preferred method to install Doxs, as it will always install the most
+This is the preferred method to install Douki, as it will always install the most
 recent stable release.
 
 If you don't have [pip](https://pip.pypa.io) installed, this
@@ -17,19 +17,19 @@ can guide you through the process.
 
 ## From sources
 
-The sources for Doxs can be downloaded from the
-[Github repo](https://github.com/xmnlab/doxs.git).
+The sources for Douki can be downloaded from the
+[Github repo](https://github.com/xmnlab/douki.git).
 
 You can either clone the public repository:
 
 ```bash
-git clone https://github.com/xmnlab/doxs.git
+git clone https://github.com/xmnlab/douki.git
 ```
 
-Or download the [tarball](https://github.com/xmnlab/doxs.git/tarball/main):
+Or download the [tarball](https://github.com/xmnlab/douki.git/tarball/main):
 
 ```bash
-curl -OJL https://github.com/xmnlab/doxs.git/tarball/main
+curl -OJL https://github.com/xmnlab/douki.git/tarball/main
 ```
 
 Once you have a copy of the source, you can install it with:

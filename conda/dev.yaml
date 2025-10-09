@@ -1,4 +1,4 @@
-name: doxs
+name: douki
 channels:
   - nodefaults
   - conda-forge

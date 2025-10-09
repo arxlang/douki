@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: >
-        **Thank you for wanting to report a bug in Doxs!**
+        **Thank you for wanting to report a bug in Douki!**
 
 
         ⚠
@@ -15,7 +15,7 @@ body:
         GitHub][issue search].
 
 
-        [issue search]: https://github.com/xmnlab/doxs.git/issues?q=is%3Aopen+is%3Aissue+label%3Abug
+        [issue search]: https://github.com/xmnlab/douki.git/issues?q=is%3Aopen+is%3Aissue+label%3Abug
 
   - type: textarea
     attributes:
@@ -124,14 +124,14 @@ body:
 
   - type: textarea
     attributes:
-      # label: Doxs version
+      # label: Douki version
       # description: >-
-      # Paste verbatim output from `Doxs --version` below, under the prompt line.
+      # Paste verbatim output from `Douki --version` below, under the prompt line.
       # Don't wrap it with triple backticks &mdash; your whole input will be
       # turned into a code snippet automatically.
       render: console
       placeholder: |
-        python -m pip show Doxs
+        python -m pip show Douki
     validations:
       required: true
 
@@ -139,9 +139,9 @@ body:
     attributes:
       label: Code of Conduct
       description: |
-        Read the [`Doxs` Code of Conduct][CoC] first.
+        Read the [`Douki` Code of Conduct][CoC] first.
 
-        [CoC]: https://github.com/xmnlab/doxs.git/coc/CODE_OF_CONDUCT.md
+        [CoC]: https://github.com/xmnlab/douki.git/coc/CODE_OF_CONDUCT.md
       options:
         - label: I agree to follow the Code of Conduct
           required: true

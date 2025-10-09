@@ -1,5 +1,5 @@
 '''
-Doxs core library - YAML-first flavour.
+Douki core library - YAML-first flavour.
 
 Turns YAML-formatted docstrings into enriched *numpydoc* sections.
 
@@ -60,7 +60,7 @@ import yaml
 from typing_extensions import ParamSpec
 from typing_extensions import get_type_hints as get_type_hints_ext
 
-from doxs._validation import validate_schema
+from douki._validation import validate_schema
 
 __all__ = ['DocString', 'apply']
 _SENTINEL = '__doxs_applied__'

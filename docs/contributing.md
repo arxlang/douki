@@ -4,7 +4,7 @@ In order to be able to contribute, it is important that you understand the
 project layout.
 
 This project uses the _src layout_, which means that the package code is located
-at `./src/doxs`.
+at `./src/douki`.
 
 For my information, check the official documentation:
 <https://packaging.python.org/en/latest/discussions/src-layout-vs-flat-layout/>
@@ -26,7 +26,7 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at https://github.com/xmnlab/doxs.git/issues.
+Report bugs at https://github.com/xmnlab/douki.git/issues.
 
 If you are reporting a bug, please include:
 
@@ -46,13 +46,13 @@ and “help wanted” is open to whoever wants to implement it.
 
 ### Write Documentation
 
-Doxs could always use more documentation, whether as part of the official Doxs
+Douki could always use more documentation, whether as part of the official Douki
 docs, in docstrings, or even on the web in blog posts, articles, and such.
 
 ### Submit Feedback
 
 The best way to send feedback is to file an issue at
-https://github.com/xmnlab/doxs.git/issues.
+https://github.com/xmnlab/douki.git/issues.
 
 If you are proposing a feature:
 
@@ -63,20 +63,20 @@ If you are proposing a feature:
 
 ## Get Started
 
-Ready to contribute? Here’s how to set up `doxs` for local development.
+Ready to contribute? Here’s how to set up `douki` for local development.
 
-1. Fork the `doxs` repo on GitHub.
+1. Fork the `douki` repo on GitHub.
 2. Clone your fork locally and change to the directory of your project:
 
 ```bash
-$ git clone git@github.com:your_name_here/doxs.git
-$ cd doxs/
+$ git clone git@github.com:your_name_here/douki.git
+$ cd douki/
 ```
 
 Also, create a remote to the upstream repository, you will need that later:
 
 ```bash
-$ git remote add upstream https://github.com/xmnlab/doxs.git
+$ git remote add upstream https://github.com/xmnlab/douki.git
 $ git fetch --all
 ```
 
@@ -89,7 +89,7 @@ that, ensure that conda is already available in your terminal session and run:
 
 ```bash
 $ conda env create env create --file conda/dev.yaml
-$ conda activate doxs
+$ conda activate douki
 ```
 
 Note: you can use `mamba env create` instead, if you have it already installed,
@@ -115,7 +115,7 @@ You are now ready to implement your changes or improvements.
 
 ### Install and Use Pre-commit Hooks
 
-- `doxs` uses a set of `pre-commit` hooks to improve code quality. The hooks can
+- `douki` uses a set of `pre-commit` hooks to improve code quality. The hooks can
   be installed locally using:
 
 ```bash
@@ -163,7 +163,7 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Running tests locally
 
-The tests can be executed using the `test` dependencies of `doxs` in the
+The tests can be executed using the `test` dependencies of `douki` in the
 following way:
 
 ```bash
@@ -176,7 +176,7 @@ The coverage value can be obtained while running the tests using `pytest-cov` in
 the following way:
 
 ```bash
-$ python -m pytest --cov=doxs tests/
+$ python -m pytest --cov=douki tests/
 ```
 
 A much more detailed guide on testing with `pytest` is available

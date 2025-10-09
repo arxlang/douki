@@ -43,7 +43,7 @@ jobs:
       - name: Cache Conda Packages
         uses: actions/cache@v3
         with:
-          path: ~/.conda/envs/doxs
+          path: ~/.conda/envs/douki
           key: ubuntu-latest-conda-${{ hashFiles('conda/dev.yaml') }}
           restore-keys: |
             ubuntu-latest-conda-
@@ -53,7 +53,7 @@ jobs:
           miniforge-version: latest
           environment-file: conda/dev.yaml
           channels: conda-forge,nodefaults
-          activate-environment: doxs
+          activate-environment: douki
           auto-update-conda: true
           conda-solver: libmamba
 

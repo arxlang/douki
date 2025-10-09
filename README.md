@@ -1,4 +1,4 @@
-# Doxs
+# Douki
 
 [![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)![Mkdocs](https://img.shields.io/badge/Documentation%20engine-Mkdocs-orange)
 [![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/)
@@ -15,7 +15,7 @@ Documetatio from annotations
 
 - Software License: BSD 3 Clause
 
-- Documentation: https://osl-incubator.github.io/doxs
+- Documentation: https://osl-incubator.github.io/douki
 
 ## Features
 

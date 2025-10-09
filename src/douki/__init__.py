@@ -1,4 +1,4 @@
-"""Doxs."""
+"""Douki."""
 
 from __future__ import annotations
 
