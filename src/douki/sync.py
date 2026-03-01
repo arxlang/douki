@@ -332,8 +332,15 @@ def _yaml_scalar(value: Any) -> str:
     if isinstance(value, str):
         # Quote if it contains special chars
         if any(c in value for c in ':{}[]&*!|>\\\'"#%@`'):
-            # Use the yaml dumper for safety
-            return yaml.dump(value, default_flow_style=True).strip()
+            # yaml.dump appends doc-end marker '...\n'
+            dumped = yaml.dump(
+                value,
+                default_flow_style=True,
+            )
+            # Strip trailing doc-end marker and whitespace
+            dumped = dumped.removesuffix('\n')
+            dumped = dumped.removesuffix('...')
+            return dumped.strip()
         return value
     return str(value)
 

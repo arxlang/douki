@@ -104,6 +104,8 @@ def sync(
     """Apply docstring sync changes to files in-place."""
     py_files = _resolve_files(files)
     errors = False
+    changed = 0
+    unchanged = 0
 
     for filepath in py_files:
         try:
@@ -127,13 +129,23 @@ def sync(
         if original != updated:
             filepath.write_text(updated, encoding='utf-8')
             console.print(f'[green]Updated[/] {filepath}')
+            changed += 1
         else:
             console.print(
                 f'[dim]No changes[/] {filepath}',
             )
+            unchanged += 1
+
+    # Summary
+    console.print()
+    console.print(
+        f'[bold]{changed} updated[/], {unchanged} unchanged',
+    )
 
     if errors:
         raise typer.Exit(code=2)
+    if changed:
+        raise typer.Exit(code=1)
     raise typer.Exit(code=0)
 
 

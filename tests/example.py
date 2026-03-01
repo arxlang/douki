@@ -43,8 +43,10 @@ def add(x: int, y: int) -> int:
 def identity(value: Any) -> Any:
     """
     title: Identity (deprecated)
-    deprecated: Use ``copy.deepcopy`` instead.
     summary: Returns *value* unchanged.
+    deprecated: Use ``copy.deepcopy`` instead.
+    parameters:
+        value: (Any)
     returns: the input value as-is
     warnings:
         RuntimeWarning: Passing mutable objects returns a reference.
@@ -61,6 +63,7 @@ def fib(n: int) -> Generator[int, None, None]:
     title: Fibonacci generator
     parameters:
         n: Number of terms to generate
+    returns: (Generator[int, None, None])
     yields: successive Fibonacci numbers up to *n*
     examples: |
         >>> list(fib(5))
@@ -76,8 +79,10 @@ def fib(n: int) -> Generator[int, None, None]:
 def accumulate(values: Iterable[int]) -> int:
     """
     title: Sum an iterable
-    receives: iterable of integers
+    parameters:
+        values: (Iterable[int])
     returns: total sum
+    receives: iterable of integers
     """
     return sum(values)
 
@@ -108,6 +113,7 @@ class BasicCalculator:
         title: Multiply by *scalar*
         parameters:
             scalar: Number to multiply by (overridden by decorator)
+        returns: (int)
         """
         return (self.a + self.b) * scalar
 

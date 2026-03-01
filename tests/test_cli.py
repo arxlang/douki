@@ -91,7 +91,7 @@ def test_sync_updates_file(tmp_path: Path) -> None:
         ''',
     )
     result = runner.invoke(app, ['sync', str(p)])
-    assert result.exit_code == 0
+    assert result.exit_code == 1
     content = p.read_text(encoding='utf-8')
     assert 'parameters' in content
 

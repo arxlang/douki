@@ -30,8 +30,8 @@ def test_function_parameters_and_returns():
         """
         title: square a value
         parameters:
-            x: placeholder  # will be overridden
-        returns: placeholder  # will be overridden
+            x: placeholder
+        returns: placeholder
         """
         return x * x
 
@@ -44,7 +44,12 @@ def test_function_parameters_and_returns():
 def test_generic_type_rendering():
     @douki
     def give_first(values: list[int]) -> int:
-        """title: generic list example"""
+        """
+        title: generic list example
+        parameters:
+            values: (list[int])
+        returns: (int)
+        """
         return values[0]
 
     assert 'values : list[int]' in (give_first.__doc__ or '')
@@ -56,7 +61,13 @@ def test_annotated_descriptions_and_defaults():
         x: Annotated[int, DocString('first term')] = 2,
         y: Annotated[int, 'second term'] = 3,
     ) -> Annotated[int, DocString('sum')]:
-        """title: add two numbers"""
+        """
+        title: add two numbers
+        parameters:
+            x: (Annotated[int, DocString('first term')])
+            y: (Annotated[int, second term])
+        returns: (Annotated[int, DocString('sum')])
+        """
         return x + y
 
     doc = _strip(add.__doc__ or '')
@@ -74,7 +85,12 @@ def test_class_attributes_and_methods():
         b: int = 2
 
         def add(self, value: int) -> int:
-            """title: add internal attrs"""
+            """
+            title: add internal attrs
+            parameters:
+                value: (int)
+            returns: (int)
+            """
             return self.a + self.b + value
 
     cls_doc = _strip(Demo.__doc__ or '')
@@ -94,7 +110,13 @@ def test_class_attributes_and_methods():
 def test_idempotency():
     @douki
     def mul(x: int, y: int) -> int:
-        """title: multiply two ints"""
+        """
+        title: multiply two ints
+        parameters:
+            x: (int)
+            y: (int)
+        returns: (int)
+        """
         return x * y
 
     first = mul.__doc__ or ''
