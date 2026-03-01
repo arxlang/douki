@@ -19,20 +19,23 @@ Documetatio from annotations
 
 ## Features
 
-### CLI — `douki sync`
+### CLI — `douki sync` / `douki check`
 
 Synchronize Douki YAML docstrings with Python function
 signatures. Designed to run standalone or as a **pre-commit hook**.
 
 ```bash
 # Show what would change (exit 1 if diffs exist)
-douki sync src/**/*.py
+douki check src/
 
-# Update files in-place
-douki sync src/**/*.py --apply
+# Apply changes in-place
+douki sync src/
+
+# Specific files
+douki check path/to/file.py
 ```
 
-Flags `--diff` (default) and `--apply` are mutually exclusive.
+Without arguments, both commands default to the current directory.
 
 #### Pre-commit integration
 
@@ -42,9 +45,9 @@ repos:
   - repo: https://github.com/osl-incubator/douki
     rev: v0.6.0 # pin to a release tag
     hooks:
-      - id: douki-sync
-        name: douki sync
-        entry: douki sync --diff
+      - id: douki-check
+        name: douki check
+        entry: douki check
         language: python
         types: [python]
 ```

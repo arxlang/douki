@@ -1,8 +1,9 @@
-"""Douki CLI — ``douki sync`` command.
+"""Douki CLI — ``douki sync`` and ``douki check`` commands.
 
 Usage::
 
-    douki sync FILE [FILE ...] [--diff | --apply]
+    douki sync  [FILES...]   # apply changes in-place
+    douki check [FILES...]   # print diff, exit 1 if changes needed
 """
 
 from __future__ import annotations
@@ -10,7 +11,7 @@ from __future__ import annotations
 import difflib
 
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 import typer
 
@@ -28,8 +29,43 @@ console = Console(stderr=True)
 out_console = Console()  # stdout
 
 
-def _print_diff(path: Path, original: str, updated: str) -> bool:
-    """Print a coloured unified diff. Return True if there is a diff."""
+@app.callback()
+def _main() -> None:
+    """Douki — language-agnostic YAML docstring toolkit."""
+
+
+def _collect_py_files(paths: List[Path]) -> List[Path]:
+    """Expand directories to ``.py`` files and filter non-py."""
+    result: List[Path] = []
+    for p in paths:
+        if p.is_dir():
+            result.extend(sorted(p.rglob('*.py')))
+        elif p.suffix == '.py':
+            result.append(p)
+    return sorted(set(result))
+
+
+def _resolve_files(
+    files: Optional[List[Path]],
+) -> List[Path]:
+    """Turn the optional argument into a list of .py paths."""
+    raw = files if files else [Path('.')]
+    py_files = _collect_py_files(raw)
+    if not py_files:
+        console.print('[dim]No .py files found.[/]')
+        raise typer.Exit(code=0)
+    return py_files
+
+
+def _print_diff(
+    path: Path,
+    original: str,
+    updated: str,
+) -> bool:
+    """Print a coloured unified diff.
+
+    Return True if there is a diff.
+    """
     if original == updated:
         return False
 
@@ -60,77 +96,85 @@ def _print_diff(path: Path, original: str, updated: str) -> bool:
 
 @app.command()
 def sync(
-    files: List[Path] = typer.Argument(
-        ...,
-        help='Python files to synchronize.',
-        exists=True,
-        readable=True,
-    ),
-    diff: bool = typer.Option(
-        False,
-        '--diff',
-        help='Print a unified diff; do not modify files.',
-    ),
-    apply: bool = typer.Option(
-        False,
-        '--apply',
-        help='Write changes back to files in-place.',
+    files: Optional[List[Path]] = typer.Argument(
+        default=None,
+        help='Python files or directories (default: ".").',
     ),
 ) -> None:
-    """Synchronize Douki YAML docstrings with function signatures."""
-    if diff and apply:
-        console.print(
-            '[bold red]Error:[/] --diff and --apply are mutually exclusive.',
-        )
-        raise typer.Exit(code=2)
-
-    # Default to diff mode when neither flag is given
-    mode = 'apply' if apply else 'diff'
-
-    # Sort for deterministic output
-    sorted_files = sorted(set(files))
-
-    any_diff = False
+    """Apply docstring sync changes to files in-place."""
+    py_files = _resolve_files(files)
     errors = False
 
-    for filepath in sorted_files:
-        if filepath.suffix != '.py':
-            console.print(
-                f'[yellow]Skipping[/] {filepath} (not a .py file)',
-            )
-            continue
-
+    for filepath in py_files:
         try:
             original = filepath.read_text(encoding='utf-8')
         except OSError as exc:
-            console.print(f'[red]Error reading {filepath}:[/] {exc}')
+            console.print(
+                f'[red]Error reading {filepath}:[/] {exc}',
+            )
             errors = True
             continue
 
         try:
             updated = sync_source(original)
         except Exception as exc:
-            console.print(f'[red]Error processing {filepath}:[/] {exc}')
+            console.print(
+                f'[red]Error processing {filepath}:[/] {exc}',
+            )
             errors = True
             continue
 
-        if mode == 'diff':
-            if _print_diff(filepath, original, updated):
-                any_diff = True
+        if original != updated:
+            filepath.write_text(updated, encoding='utf-8')
+            console.print(f'[green]Updated[/] {filepath}')
         else:
-            # apply mode
-            if original != updated:
-                filepath.write_text(updated, encoding='utf-8')
-                console.print(f'[green]Updated[/] {filepath}')
-            else:
-                console.print(f'[dim]No changes[/] {filepath}')
+            console.print(
+                f'[dim]No changes[/] {filepath}',
+            )
 
     if errors:
         raise typer.Exit(code=2)
+    raise typer.Exit(code=0)
 
-    if mode == 'diff' and any_diff:
+
+@app.command()
+def check(
+    files: Optional[List[Path]] = typer.Argument(
+        default=None,
+        help='Python files or directories (default: ".").',
+    ),
+) -> None:
+    """Print a diff of proposed changes. Exit 1 if any."""
+    py_files = _resolve_files(files)
+    any_diff = False
+    errors = False
+
+    for filepath in py_files:
+        try:
+            original = filepath.read_text(encoding='utf-8')
+        except OSError as exc:
+            console.print(
+                f'[red]Error reading {filepath}:[/] {exc}',
+            )
+            errors = True
+            continue
+
+        try:
+            updated = sync_source(original)
+        except Exception as exc:
+            console.print(
+                f'[red]Error processing {filepath}:[/] {exc}',
+            )
+            errors = True
+            continue
+
+        if _print_diff(filepath, original, updated):
+            any_diff = True
+
+    if errors:
+        raise typer.Exit(code=2)
+    if any_diff:
         raise typer.Exit(code=1)
-
     raise typer.Exit(code=0)
 
 

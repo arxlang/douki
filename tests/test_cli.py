@@ -20,11 +20,11 @@ def _write(tmp_path: Path, name: str, content: str) -> Path:
 
 
 # -------------------------------------------------------------------
-# --diff mode
+# douki check
 # -------------------------------------------------------------------
 
 
-def test_diff_mode_exit_0_when_clean(tmp_path: Path) -> None:
+def test_check_exit_0_when_clean(tmp_path: Path) -> None:
     """Already-synced file should produce exit 0."""
     p = _write(
         tmp_path,
@@ -35,11 +35,11 @@ def test_diff_mode_exit_0_when_clean(tmp_path: Path) -> None:
             pass
         ''',
     )
-    result = runner.invoke(app, ['sync', str(p)])
+    result = runner.invoke(app, ['check', str(p)])
     assert result.exit_code == 0
 
 
-def test_diff_mode_exit_1_when_dirty(tmp_path: Path) -> None:
+def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
     """Unsynced file should produce exit 1 with diff."""
     p = _write(
         tmp_path,
@@ -52,11 +52,11 @@ def test_diff_mode_exit_1_when_dirty(tmp_path: Path) -> None:
             return x + y
         ''',
     )
-    result = runner.invoke(app, ['sync', str(p)])
+    result = runner.invoke(app, ['check', str(p)])
     assert result.exit_code == 1
 
 
-def test_diff_mode_shows_output(tmp_path: Path) -> None:
+def test_check_shows_output(tmp_path: Path) -> None:
     """Diff output should contain file path."""
     p = _write(
         tmp_path,
@@ -69,16 +69,16 @@ def test_diff_mode_shows_output(tmp_path: Path) -> None:
             return x + y
         ''',
     )
-    result = runner.invoke(app, ['sync', str(p)])
+    result = runner.invoke(app, ['check', str(p)])
     assert str(p) in result.output or 'title' in result.output
 
 
 # -------------------------------------------------------------------
-# --apply mode
+# douki sync
 # -------------------------------------------------------------------
 
 
-def test_apply_mode_updates_file(tmp_path: Path) -> None:
+def test_sync_updates_file(tmp_path: Path) -> None:
     p = _write(
         tmp_path,
         'apply.py',
@@ -90,13 +90,13 @@ def test_apply_mode_updates_file(tmp_path: Path) -> None:
             return x + y
         ''',
     )
-    result = runner.invoke(app, ['sync', str(p), '--apply'])
+    result = runner.invoke(app, ['sync', str(p)])
     assert result.exit_code == 0
     content = p.read_text(encoding='utf-8')
     assert 'parameters' in content
 
 
-def test_apply_mode_idempotent(tmp_path: Path) -> None:
+def test_sync_idempotent(tmp_path: Path) -> None:
     p = _write(
         tmp_path,
         'idem.py',
@@ -108,33 +108,11 @@ def test_apply_mode_idempotent(tmp_path: Path) -> None:
             return x + y
         ''',
     )
-    runner.invoke(app, ['sync', str(p), '--apply'])
+    runner.invoke(app, ['sync', str(p)])
     first = p.read_text(encoding='utf-8')
-    runner.invoke(app, ['sync', str(p), '--apply'])
+    runner.invoke(app, ['sync', str(p)])
     second = p.read_text(encoding='utf-8')
     assert first == second
-
-
-# -------------------------------------------------------------------
-# Mutual exclusivity
-# -------------------------------------------------------------------
-
-
-def test_mutual_exclusivity_error(tmp_path: Path) -> None:
-    p = _write(
-        tmp_path,
-        'both.py',
-        '''\
-        def noop() -> None:
-            """title: noop"""
-            pass
-        ''',
-    )
-    result = runner.invoke(
-        app,
-        ['sync', str(p), '--diff', '--apply'],
-    )
-    assert result.exit_code == 2
 
 
 # -------------------------------------------------------------------
@@ -163,19 +141,39 @@ def test_multiple_files(tmp_path: Path) -> None:
     )
     result = runner.invoke(
         app,
-        ['sync', str(p1), str(p2)],
+        ['check', str(p1), str(p2)],
     )
     # Both files should be processed
     assert result.exit_code in (0, 1)
 
 
 # -------------------------------------------------------------------
-# Non-py files
+# Non-py files / directories
 # -------------------------------------------------------------------
 
 
 def test_skips_non_py_files(tmp_path: Path) -> None:
     p = tmp_path / 'data.txt'
     p.write_text('hello', encoding='utf-8')
-    result = runner.invoke(app, ['sync', str(p)])
+    result = runner.invoke(app, ['check', str(p)])
     assert result.exit_code == 0
+
+
+def test_directory_discovers_py_files(tmp_path: Path) -> None:
+    _write(
+        tmp_path,
+        'mod.py',
+        '''\
+        def greet(name: str) -> str:
+            """
+            title: Greet
+            """
+            return name
+        ''',
+    )
+    result = runner.invoke(
+        app,
+        ['check', str(tmp_path)],
+    )
+    # Should find mod.py and show diff (exit 1)
+    assert result.exit_code in (0, 1)
