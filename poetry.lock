@@ -1009,6 +1009,18 @@ files = [
 pypi = ["pip (>=24.0)", "platformdirs (>=4.2)", "wheel (>=0.42)"]
 
 [[package]]
+name = "hjson"
+version = "3.1.0"
+description = "Hjson, a user interface for JSON."
+optional = false
+python-versions = "*"
+groups = ["dev"]
+files = [
+    {file = "hjson-3.1.0-py3-none-any.whl", hash = "sha256:65713cdcf13214fb554eb8b4ef803419733f4f5e551047c9b711098ab7186b89"},
+    {file = "hjson-3.1.0.tar.gz", hash = "sha256:55af475a27cf83a7969c808399d7bccdec8fb836a07ddbd574587593b9cdcf75"},
+]
+
+[[package]]
 name = "identify"
 version = "2.6.16"
 description = "File identification library for Python"
@@ -1864,25 +1876,31 @@ mkdocs = ">=1.4.1"
 
 [[package]]
 name = "mkdocs-macros-plugin"
-version = "0.7.0"
+version = "1.5.0"
 description = "Unleash the power of MkDocs with macros and variables"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "mkdocs-macros-plugin-0.7.0.tar.gz", hash = "sha256:9e64e1cabcf6925359de29fe54f62d5847fb455c2528c440b87f8f1240650608"},
-    {file = "mkdocs_macros_plugin-0.7.0-py3-none-any.whl", hash = "sha256:96bdabeb98b96139544f0048ea2f5cb80c7befde6b21e94c6d4596c22774cbcf"},
+    {file = "mkdocs_macros_plugin-1.5.0-py3-none-any.whl", hash = "sha256:c10fabd812bf50f9170609d0ed518e54f1f0e12c334ac29141723a83c881dd6f"},
+    {file = "mkdocs_macros_plugin-1.5.0.tar.gz", hash = "sha256:12aa45ce7ecb7a445c66b9f649f3dd05e9b92e8af6bc65e4acd91d26f878c01f"},
 ]
 
 [package.dependencies]
+hjson = "*"
 jinja2 = "*"
 mkdocs = ">=0.17"
+packaging = "*"
+pathspec = "*"
 python-dateutil = "*"
 pyyaml = "*"
+requests = "*"
+super-collections = ">=0.6.2"
 termcolor = "*"
 
 [package.extras]
-test = ["mkdocs-include-markdown-plugin", "mkdocs-macros-test", "mkdocs-material (>=6.2)"]
+doc = ["mkdocs-mermaid2-plugin"]
+test = ["mkdocs-d2-plugin", "mkdocs-include-markdown-plugin", "mkdocs-macros-test", "mkdocs-material (>=6.2)", "mkdocs-test (>=0.6.0)", "pytest"]
 
 [[package]]
 name = "mkdocs-material"
@@ -2530,6 +2548,26 @@ files = [
 
 [package.dependencies]
 six = ">=1.5"
+
+[[package]]
+name = "python-discovery"
+version = "1.1.0"
+description = "Python interpreter discovery"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "python_discovery-1.1.0-py3-none-any.whl", hash = "sha256:a162893b8809727f54594a99ad2179d2ede4bf953e12d4c7abc3cc9cdbd1437b"},
+    {file = "python_discovery-1.1.0.tar.gz", hash = "sha256:447941ba1aed8cc2ab7ee3cb91be5fc137c5bdbb05b7e6ea62fbdcb66e50b268"},
+]
+
+[package.dependencies]
+filelock = ">=3.15.4"
+platformdirs = ">=4.3.6,<5"
+
+[package.extras]
+docs = ["furo (>=2025.12.19)", "sphinx (>=9.1)", "sphinx-autodoc-typehints (>=3.6.3)", "sphinxcontrib-mermaid (>=2)"]
+testing = ["covdefaults (>=2.3)", "coverage (>=7.5.4)", "pytest (>=8.3.5)", "pytest-mock (>=3.14)", "setuptools (>=75.1)"]
 
 [[package]]
 name = "python-dotenv"
@@ -3256,6 +3294,24 @@ files = [
 ]
 
 [[package]]
+name = "super-collections"
+version = "0.6.2"
+description = "file: README.md"
+optional = false
+python-versions = ">=3.8"
+groups = ["dev"]
+files = [
+    {file = "super_collections-0.6.2-py3-none-any.whl", hash = "sha256:291b74d26299e9051d69ad9d89e61b07b6646f86a57a2f5ab3063d206eee9c56"},
+    {file = "super_collections-0.6.2.tar.gz", hash = "sha256:0c8d8abacd9fad2c7c1c715f036c29f5db213f8cac65f24d45ecba12b4da187a"},
+]
+
+[package.dependencies]
+hjson = "*"
+
+[package.extras]
+test = ["pytest (>=7.0)", "pyyaml", "rich"]
+
+[[package]]
 name = "termcolor"
 version = "3.3.0"
 description = "ANSI color formatting for output in terminal"
@@ -3508,24 +3564,22 @@ zstd = ["backports-zstd (>=1.0.0) ; python_version < \"3.14\""]
 
 [[package]]
 name = "virtualenv"
-version = "20.25.1"
+version = "21.1.0"
 description = "Virtual Python Environment builder"
 optional = false
-python-versions = ">=3.7"
+python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "virtualenv-20.25.1-py3-none-any.whl", hash = "sha256:961c026ac520bac5f69acb8ea063e8a4f071bcc9457b9c1f28f6b085c511583a"},
-    {file = "virtualenv-20.25.1.tar.gz", hash = "sha256:e08e13ecdca7a0bd53798f356d5831434afa5b07b93f0abdf0797b7a06ffe197"},
+    {file = "virtualenv-21.1.0-py3-none-any.whl", hash = "sha256:164f5e14c5587d170cf98e60378eb91ea35bf037be313811905d3a24ea33cc07"},
+    {file = "virtualenv-21.1.0.tar.gz", hash = "sha256:1990a0188c8f16b6b9cf65c9183049007375b26aad415514d377ccacf1e4fb44"},
 ]
 
 [package.dependencies]
 distlib = ">=0.3.7,<1"
-filelock = ">=3.12.2,<4"
+filelock = {version = ">=3.24.2,<4", markers = "python_version >= \"3.10\""}
 platformdirs = ">=3.9.1,<5"
-
-[package.extras]
-docs = ["furo (>=2023.7.26)", "proselint (>=0.13)", "sphinx (>=7.1.2)", "sphinx-argparse (>=0.4)", "sphinxcontrib-towncrier (>=0.2.1a0)", "towncrier (>=23.6)"]
-test = ["covdefaults (>=2.3)", "coverage (>=7.2.7)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=23.1)", "pytest (>=7.4)", "pytest-env (>=0.8.2)", "pytest-freezer (>=0.4.8) ; platform_python_implementation == \"PyPy\"", "pytest-mock (>=3.11.1)", "pytest-randomly (>=3.12)", "pytest-timeout (>=2.1)", "setuptools (>=68)", "time-machine (>=2.10) ; platform_python_implementation == \"CPython\""]
+python-discovery = ">=1"
+typing-extensions = {version = ">=4.13.2", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "vulture"
@@ -3655,4 +3709,4 @@ test = ["coverage (>=5.3.1)", "prompt-toolkit (>=3.0.29)", "pygments (>=2.2)", "
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4"
-content-hash = "4fb4ebce923d9742a2882b5f5be6e04894ad0173a2f04bf0cfbb194c7d3749fd"
+content-hash = "7a0abb05370eba0df8be265da655f3fe26cd8f9c0dbc5ae9b52c48945980e743"
