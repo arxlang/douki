@@ -37,6 +37,18 @@ douki check path/to/file.py
 
 Without arguments, both commands default to the current directory.
 
+#### Migrating from NumPy docstrings
+
+Convert existing NumPy-style docstrings to Douki YAML:
+
+```bash
+# Preview what the migration would look like
+douki check --migrate numpy src/
+
+# Apply the migration
+douki sync --migrate numpy src/
+```
+
 #### Pre-commit integration
 
 ```yaml

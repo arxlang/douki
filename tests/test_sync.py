@@ -288,3 +288,77 @@ def test_sync_source_no_functions() -> None:
     src = 'X = 42\n'
     result = sync_source(src)
     assert result == src
+
+
+# -------------------------------------------------------------------
+# sync_source with migrate='numpy'
+# -------------------------------------------------------------------
+
+
+def test_sync_source_migrate_numpy() -> None:
+    src = '''\
+def add(x, y):
+    """Add two numbers.
+
+    Parameters
+    ----------
+    x : int
+        First operand.
+    y : int
+        Second operand.
+
+    Returns
+    -------
+    int
+        The sum.
+    """
+    return x + y
+'''
+    result = sync_source(src, migrate='numpy')
+    assert 'title:' in result
+    assert 'parameters:' in result
+    assert 'returns:' in result
+
+
+def test_sync_source_migrate_leaves_yaml_alone() -> None:
+    src = '''\
+def greet(name: str) -> str:
+    """
+    title: Greet someone
+    parameters:
+        name: The name
+    returns: greeting
+    """
+    return f"Hello {name}"
+'''
+    result = sync_source(src, migrate='numpy')
+    # Should be idempotent — YAML docstrings untouched
+    second = sync_source(result, migrate='numpy')
+    assert result == second
+
+
+def test_sync_source_migrate_then_sync() -> None:
+    src = '''\
+def add(x: int, y: int) -> int:
+    """Add two numbers.
+
+    Parameters
+    ----------
+    x : int
+        First operand.
+    y : int
+        Second operand.
+
+    Returns
+    -------
+    int
+        The sum.
+    """
+    return x + y
+'''
+    # Migration + sync should produce Douki YAML
+    result = sync_source(src, migrate='numpy')
+    assert 'title:' in result
+    # Running sync again without migrate should be idempotent
+    second = sync_source(result)
+    assert result == second

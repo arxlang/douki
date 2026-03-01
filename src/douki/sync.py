@@ -350,11 +350,27 @@ def _yaml_scalar(value: Any) -> str:
 # ---------------------------------------------------------------------------
 
 
-def sync_source(source: str) -> str:
-    """Synchronize all Douki YAML docstrings in *source* with their signatures.
+def sync_source(
+    source: str,
+    *,
+    migrate: Optional[str] = None,
+) -> str:
+    """Synchronize all Douki YAML docstrings in *source*.
+
+    Parameters
+    ----------
+    source : str
+        Python source code.
+    migrate : str, optional
+        If ``'numpy'``, convert NumPy docstrings to Douki
+        YAML before syncing.
 
     Returns the (possibly modified) source string.
     """
+    # Optional migration pass first
+    if migrate == 'numpy':
+        source = _migrate_numpy(source)
+
     try:
         funcs = extract_functions(source)
     except SyntaxError:
@@ -364,7 +380,7 @@ def sync_source(source: str) -> str:
         return source
 
     lines = source.splitlines(keepends=True)
-    # Process in reverse line order so that edits don't shift earlier indices.
+    # Process in reverse line order so edits don't shift indices.
     funcs_with_ds = [f for f in funcs if f.docstring_node is not None]
     funcs_with_ds.sort(
         key=lambda f: f.docstring_node.lineno,  # type: ignore[union-attr]
@@ -412,7 +428,7 @@ def sync_source(source: str) -> str:
         # Detect content indent from existing lines
         content_indent = indent
         ds_lines = raw.split('\n')
-        for dl in ds_lines[1:]:  # skip first (often empty after triple-quote)
+        for dl in ds_lines[1:]:
             if dl.strip():
                 leading = len(dl) - len(dl.lstrip())
                 content_indent = ' ' * leading
@@ -428,16 +444,96 @@ def sync_source(source: str) -> str:
                 formatted_lines.append('')
         new_content = '\n'.join(formatted_lines)
 
-        # Build the full replacement
-        # Detect style: is the opening quote on its own line or inline?
-        # From the douki examples, the pattern is:
-        #   """
-        #   title: ...
-        #   """
-        # The first line after def is:  <indent>"""
-        # The closing triple-quote is:  <indent>"""
         new_docstring = f'{indent}{quote}\n{new_content}\n{indent}{quote}\n'
 
         lines[ds_start:ds_end] = [new_docstring]
+
+    return ''.join(lines)
+
+
+def _migrate_numpy(source: str) -> str:
+    """Replace NumPy-style docstrings with Douki YAML."""
+    from douki.migrate import numpy_to_douki_yaml
+
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return source
+
+    lines = source.splitlines(keepends=True)
+
+    # Collect all docstring nodes
+    ds_nodes: List[ast.Constant] = []
+    for node in ast.walk(tree):
+        if isinstance(
+            node,
+            (
+                ast.FunctionDef,
+                ast.AsyncFunctionDef,
+                ast.ClassDef,
+                ast.Module,
+            ),
+        ):
+            if (
+                node.body
+                and isinstance(node.body[0], ast.Expr)
+                and isinstance(node.body[0].value, ast.Constant)
+                and isinstance(node.body[0].value.value, str)
+            ):
+                ds_nodes.append(node.body[0].value)
+
+    # Process in reverse order
+    ds_nodes.sort(
+        key=lambda n: n.lineno,
+        reverse=True,
+    )
+
+    for ds_node in ds_nodes:
+        raw = str(ds_node.value)
+        # Skip if already Douki YAML
+        if _is_douki_yaml(raw):
+            continue
+
+        converted = numpy_to_douki_yaml(raw)
+        if converted == raw:
+            continue  # not a numpy docstring
+
+        ds_start = ds_node.lineno - 1
+        ds_end = ds_node.end_lineno
+        if ds_end is None:
+            continue
+
+        original_region = ''.join(lines[ds_start:ds_end])
+        stripped_first = lines[ds_start].lstrip()
+        indent = lines[ds_start][: len(lines[ds_start]) - len(stripped_first)]
+
+        quote_match = re.search(
+            r'(\"\"\"|\'\'\')',
+            original_region,
+        )
+        if not quote_match:
+            continue  # pragma: no cover
+        quote = quote_match.group(1)
+
+        # Use body indent (4 spaces deeper than def)
+        body_indent = indent
+        raw_lines = raw.split('\n')
+        for rl in raw_lines[1:]:
+            if rl.strip():
+                leading = len(rl) - len(rl.lstrip())
+                body_indent = ' ' * leading
+                break
+
+        conv_lines = converted.splitlines()
+        formatted = []
+        for cl in conv_lines:
+            if cl.strip():
+                formatted.append(body_indent + cl)
+            else:
+                formatted.append('')
+        new_content = '\n'.join(formatted)
+
+        new_ds = f'{indent}{quote}\n{new_content}\n{indent}{quote}\n'
+        lines[ds_start:ds_end] = [new_ds]
 
     return ''.join(lines)

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import difflib
 
+from enum import Enum
 from pathlib import Path
 from typing import List, Optional
 
@@ -18,6 +19,13 @@ import typer
 from rich.console import Console
 
 from douki.sync import sync_source
+
+
+class MigrateFormat(str, Enum):
+    """Supported migration source formats."""
+
+    numpy = 'numpy'
+
 
 app = typer.Typer(
     name='douki',
@@ -100,8 +108,14 @@ def sync(
         default=None,
         help='Python files or directories (default: ".").',
     ),
+    migrate: Optional[MigrateFormat] = typer.Option(
+        None,
+        '--migrate',
+        help='Migrate from another docstring format.',
+    ),
 ) -> None:
     """Apply docstring sync changes to files in-place."""
+    migrate_val = migrate.value if migrate else None
     py_files = _resolve_files(files)
     errors = False
     changed = 0
@@ -118,7 +132,10 @@ def sync(
             continue
 
         try:
-            updated = sync_source(original)
+            updated = sync_source(
+                original,
+                migrate=migrate_val,
+            )
         except Exception as exc:
             console.print(
                 f'[red]Error processing {filepath}:[/] {exc}',
@@ -155,8 +172,14 @@ def check(
         default=None,
         help='Python files or directories (default: ".").',
     ),
+    migrate: Optional[MigrateFormat] = typer.Option(
+        None,
+        '--migrate',
+        help='Migrate from another docstring format.',
+    ),
 ) -> None:
     """Print a diff of proposed changes. Exit 1 if any."""
+    migrate_val = migrate.value if migrate else None
     py_files = _resolve_files(files)
     any_diff = False
     errors = False
@@ -172,7 +195,10 @@ def check(
             continue
 
         try:
-            updated = sync_source(original)
+            updated = sync_source(
+                original,
+                migrate=migrate_val,
+            )
         except Exception as exc:
             console.print(
                 f'[red]Error processing {filepath}:[/] {exc}',

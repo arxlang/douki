@@ -177,3 +177,71 @@ def test_directory_discovers_py_files(tmp_path: Path) -> None:
     )
     # Should find mod.py and show diff (exit 1)
     assert result.exit_code in (0, 1)
+
+
+# -------------------------------------------------------------------
+# --migrate numpy
+# -------------------------------------------------------------------
+
+
+def test_check_migrate_numpy(tmp_path: Path) -> None:
+    p = _write(
+        tmp_path,
+        'numpy.py',
+        '''\
+        def add(x, y):
+            """Add two numbers.
+
+            Parameters
+            ----------
+            x : int
+                First operand.
+            y : int
+                Second operand.
+
+            Returns
+            -------
+            int
+                The sum.
+            """
+            return x + y
+        ''',
+    )
+    result = runner.invoke(
+        app,
+        ['check', '--migrate', 'numpy', str(p)],
+    )
+    assert result.exit_code == 1
+
+
+def test_sync_migrate_numpy(tmp_path: Path) -> None:
+    p = _write(
+        tmp_path,
+        'numpy.py',
+        '''\
+        def add(x, y):
+            """Add two numbers.
+
+            Parameters
+            ----------
+            x : int
+                First operand.
+            y : int
+                Second operand.
+
+            Returns
+            -------
+            int
+                The sum.
+            """
+            return x + y
+        ''',
+    )
+    result = runner.invoke(
+        app,
+        ['sync', '--migrate', 'numpy', str(p)],
+    )
+    assert result.exit_code == 1
+    content = p.read_text(encoding='utf-8')
+    assert 'title:' in content
+    assert 'parameters:' in content
