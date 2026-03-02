@@ -78,7 +78,7 @@ douki sync --migrate numpy src/
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/osl-incubator/douki
-    rev: v0.6.0 # pin to a release tag
+    rev: v0.7.0 # pin to a release tag
     hooks:
       - id: douki-check
         name: douki check
@@ -87,7 +87,17 @@ repos:
         types: [python]
 ```
 
-## Credits
+Or you can use the `douki sync` command instead:
 
-This package was created with
-[scicookie](https://github.com/osl-incubator/scicookie) project template.
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/osl-incubator/douki
+    rev: v0.7.0 # pin to a release tag
+    hooks:
+      - id: douki-sync
+        name: douki sync
+        entry: douki sync
+        language: python
+        types: [python]
+```

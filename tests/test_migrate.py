@@ -106,3 +106,57 @@ def test_numpy_with_summary() -> None:
     result = numpy_to_douki_yaml(ds)
     assert 'title: Title line' in result
     assert 'summary:' in result
+
+
+def test_parse_map_no_type() -> None:
+    """Entry without ': type' should have no type key."""
+    body = 'x\n    The x value.'
+    result = _parse_map_section(body)
+    assert 'x' in result
+    assert 'type' not in result['x']
+    assert result['x']['description'] == 'The x value.'
+
+
+def test_parse_map_no_description() -> None:
+    """Entry with type but empty description should omit it."""
+    body = 'x : int'
+    result = _parse_map_section(body)
+    assert result['x'] == {'type': 'int'}
+
+
+def test_numpy_no_narrative() -> None:
+    """Docstring with no summary line at all."""
+    ds = '\n\nParameters\n----------\nx : int\n    Desc.\n'
+    result = numpy_to_douki_yaml(ds)
+    assert 'title:' in result
+
+
+def test_numpy_yields_section() -> None:
+    ds = 'Generate stuff.\n\nYields\n------\nint\n    A number.\n'
+    result = numpy_to_douki_yaml(ds)
+    assert 'yields:' in result
+
+
+def test_numpy_warnings_section() -> None:
+    ds = (
+        'Do risky things.\n\n'
+        'Warnings\n--------\n'
+        'RuntimeWarning\n    Could be slow.\n'
+    )
+    result = numpy_to_douki_yaml(ds)
+    assert 'warnings:' in result
+    assert 'RuntimeWarning' in result
+
+
+def test_numpy_notes_section() -> None:
+    ds = 'Some function.\n\nNotes\n-----\nThis is a note.\nMulti-line note.\n'
+    result = numpy_to_douki_yaml(ds)
+    assert 'notes:' in result
+
+
+def test_numpy_unknown_section_ignored() -> None:
+    """Unknown sections should be silently skipped."""
+    ds = 'Title.\n\nCustom Section\n--------------\nblah blah\n'
+    result = numpy_to_douki_yaml(ds)
+    assert 'title: Title' in result
+    assert 'custom' not in result.lower()

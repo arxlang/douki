@@ -9,9 +9,8 @@ authors = [
 license = "BSD 3 Clause"
 requires-python = ">=3.10,<4"
 dependencies = [
-  "types-pyyaml >=6",
-  "typing-extensions >=4.14.1",
-  "typeguard (>=4)",
+  "pyyaml >=6",
+  "jsonschema >=4",
   "typer >=0.9",
   "rich >=13",
 ]
