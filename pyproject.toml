@@ -12,7 +12,12 @@ dependencies = [
   "types-pyyaml >=6",
   "typing-extensions >=4.14.1",
   "typeguard (>=4)",
+  "typer >=0.9",
+  "rich >=13",
 ]
+
+[project.scripts]
+douki = "douki.cli:app"
 
 [build-system]
 requires = ["poetry-core>=2", "poetry>=2"]

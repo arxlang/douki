@@ -30,8 +30,12 @@ def test_function_parameters_and_returns():
         """
         title: square a value
         parameters:
-            x: placeholder  # will be overridden
-        returns: placeholder  # will be overridden
+          x:
+            type: int
+            description: placeholder
+        returns:
+          - type: int
+            description: placeholder
         """
         return x * x
 
@@ -44,7 +48,16 @@ def test_function_parameters_and_returns():
 def test_generic_type_rendering():
     @douki
     def give_first(values: list[int]) -> int:
-        """title: generic list example"""
+        """
+        title: generic list example
+        parameters:
+          values:
+            type: list[int]
+            description: input list of integers
+        returns:
+          - type: int
+            description: first element
+        """
         return values[0]
 
     assert 'values : list[int]' in (give_first.__doc__ or '')
@@ -56,7 +69,19 @@ def test_annotated_descriptions_and_defaults():
         x: Annotated[int, DocString('first term')] = 2,
         y: Annotated[int, 'second term'] = 3,
     ) -> Annotated[int, DocString('sum')]:
-        """title: add two numbers"""
+        """
+        title: add two numbers
+        parameters:
+          x:
+            type: Annotated[int, DocString('first term')]
+            description: first term
+          y:
+            type: Annotated[int, second term]
+            description: second term
+        returns:
+          - type: Annotated[int, DocString('sum')]
+            description: sum
+        """
         return x + y
 
     doc = _strip(add.__doc__ or '')
@@ -74,7 +99,16 @@ def test_class_attributes_and_methods():
         b: int = 2
 
         def add(self, value: int) -> int:
-            """title: add internal attrs"""
+            """
+            title: add internal attrs
+            parameters:
+              value:
+                type: int
+                description: extra value to add
+            returns:
+              - type: int
+                description: sum of a, b, and value
+            """
             return self.a + self.b + value
 
     cls_doc = _strip(Demo.__doc__ or '')
@@ -94,7 +128,19 @@ def test_class_attributes_and_methods():
 def test_idempotency():
     @douki
     def mul(x: int, y: int) -> int:
-        """title: multiply two ints"""
+        """
+        title: multiply two ints
+        parameters:
+          x:
+            type: int
+            description: left operand
+          y:
+            type: int
+            description: right operand
+        returns:
+          - type: int
+            description: product of x and y
+        """
         return x * y
 
     first = mul.__doc__ or ''
@@ -113,7 +159,11 @@ def test_invalid_yaml_docstring_raises():
         def bad(x: int) -> int:
             """
             parameters:
-                x: just a number
-            returns: the same number
+              x:
+                type: int
+                description: just a number
+            returns:
+              - type: int
+                description: the same number
             """
             return x

@@ -17,9 +17,75 @@ Documetatio from annotations
 
 - Documentation: https://osl-incubator.github.io/douki
 
-## Features
+### Douki YAML Format
 
-TBD
+```python
+def add(a: int, b: int = 0) -> int:
+    """
+    title: Add two integers
+    parameters:
+      a:
+        type: int
+        description: First value.
+      b:
+        type: int
+        description: Second value.
+        default: 0
+    returns:
+      - type: int
+        description: Sum of a and b.
+    """
+    return a + b
+```
+
+Fields like `visibility` (default: `public`), `mutability` (default: `mutable`),
+and `scope` (default: `static` for functions, `instance` for methods) are
+omitted when they match their Python defaults.
+
+### CLI — `douki sync` / `douki check`
+
+Synchronize Douki YAML docstrings with Python function
+signatures. Designed to run standalone or as a **pre-commit hook**.
+
+```bash
+# Show what would change (exit 1 if diffs exist)
+douki check src/
+
+# Apply changes in-place
+douki sync src/
+
+# Specific files
+douki check path/to/file.py
+```
+
+Without arguments, both commands default to the current directory.
+
+#### Migrating from NumPy docstrings
+
+Convert existing NumPy-style docstrings to Douki YAML:
+
+```bash
+# Preview what the migration would look like
+douki check --migrate numpy src/
+
+# Apply the migration
+douki sync --migrate numpy src/
+```
+
+#### Pre-commit integration
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/osl-incubator/douki
+    rev: v0.6.0 # pin to a release tag
+    hooks:
+      - id: douki-check
+        name: douki check
+        entry: douki check
+        language: python
+        types: [python]
+```
 
 ## Credits
 

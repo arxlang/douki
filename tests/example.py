@@ -20,19 +20,26 @@ def add(x: int, y: int) -> int:
     """
     title: Add two integers
     summary: |
-        Returns the sum of *x* and *y*.
+      Returns the sum of *x* and *y*.
     parameters:
-        x: first operand
-        y: second operand
-    returns: the arithmetic sum
+      x:
+        type: int
+        description: first operand
+      y:
+        type: int
+        description: second operand
+    returns:
+      - type: int
+        description: the arithmetic sum
     raises:
-        ValueError: If either operand is negative.
+      - type: ValueError
+        description: If either operand is negative.
     see_also: identity, multiply
     notes: |
-        This is a trivial example.
+      This is a trivial example.
     examples: |
-        >>> add(2, 3)
-        5
+      >>> add(2, 3)
+      5
     """
     if x < 0 or y < 0:
         raise ValueError
@@ -43,14 +50,21 @@ def add(x: int, y: int) -> int:
 def identity(value: Any) -> Any:
     """
     title: Identity (deprecated)
-    deprecated: Use ``copy.deepcopy`` instead.
     summary: Returns *value* unchanged.
-    returns: the input value as-is
+    deprecated: Use ``copy.deepcopy`` instead.
+    parameters:
+      value:
+        type: Any
+        description: the value to return unchanged
+    returns:
+      - type: Any
+        description: the input value as-is
     warnings:
-        RuntimeWarning: Passing mutable objects returns a reference.
+      - type: RuntimeWarning
+        description: Passing mutable objects returns a reference.
     examples: |
-        >>> identity(5)
-        5
+      >>> identity(5)
+      5
     """
     return value
 
@@ -60,11 +74,16 @@ def fib(n: int) -> Generator[int, None, None]:
     """
     title: Fibonacci generator
     parameters:
-        n: Number of terms to generate
+      n:
+        type: int
+        description: Number of terms to generate
+    returns:
+      - type: Generator[int, None, None]
+        description: a generator of Fibonacci numbers
     yields: successive Fibonacci numbers up to *n*
     examples: |
-        >>> list(fib(5))
-        [0, 1, 1, 2, 3]
+      >>> list(fib(5))
+      [0, 1, 1, 2, 3]
     """
     a, b = 0, 1
     for _ in range(n):
@@ -76,8 +95,14 @@ def fib(n: int) -> Generator[int, None, None]:
 def accumulate(values: Iterable[int]) -> int:
     """
     title: Sum an iterable
+    parameters:
+      values:
+        type: Iterable[int]
+        description: integers to sum
+    returns:
+      - type: int
+        description: total sum
     receives: iterable of integers
-    returns: total sum
     """
     return sum(values)
 
@@ -87,8 +112,8 @@ class BasicCalculator:
     """
     title: Very small demo calculator
     attributes:
-        a: First term of internal state
-        b: Second term of internal state
+      a: First term of internal state
+      b: Second term of internal state
     methods: add, multiply
     """
 
@@ -98,7 +123,9 @@ class BasicCalculator:
     def add(self) -> int:
         """
         title: Sum of internal operands
-        returns: Sum of *self.a* and *self.b*
+        returns:
+          - type: int
+            description: Sum of *self.a* and *self.b*
         """
         return self.a + self.b
 
@@ -107,7 +134,12 @@ class BasicCalculator:
         """
         title: Multiply by *scalar*
         parameters:
-            scalar: Number to multiply by (overridden by decorator)
+          scalar:
+            type: int
+            description: Number to multiply by (overridden by decorator)
+        returns:
+          - type: int
+            description: the scaled sum
         """
         return (self.a + self.b) * scalar
 
@@ -129,9 +161,15 @@ class FancyCalculator:
         """
         title: Raise *base* to *exp*
         parameters:
-            base: the base number
-            exp: the exponent value
-        returns: result of ``base ** exp``
+          base:
+            type: Annotated[float, DocString('Base')]
+            description: the base number
+          exp:
+            type: Annotated[float, Exponent]
+            description: the exponent value
+        returns:
+          - type: Annotated[float, DocString('base ** exp')]
+            description: result of ``base ** exp``
         """
         return base**exp
 
