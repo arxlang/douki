@@ -548,13 +548,12 @@ def _rebuild_yaml(data: Dict[str, Any], content_indent: int = 4) -> str:
             if value == _PYTHON_DEFAULTS[key]:
                 continue
 
-        if key == 'parameters':
-            _emit_parameters(lines, value, content_indent)
+        if key in ('parameters', 'attributes'):
+            _emit_parameters(lines, key, value, content_indent)
         elif key in (
             'see_also',
             'references',
             'methods',
-            'attributes',
         ):
             _emit_typed_list(lines, key, value, content_indent)
         elif key in ('raises', 'warnings'):
@@ -646,20 +645,23 @@ def _emit_key_value(
 
 def _emit_parameters(
     lines: List[str],
+    key: str,
     params: Dict[str, Any],
     content_indent: int = 4,
 ) -> None:
     """
-    title: Emit ``parameters:`` section.
+    title: Emit ``parameters:`` or ``attributes:`` section.
     parameters:
       lines:
         type: List[str]
+      key:
+        type: str
       params:
         type: Dict[str, Any]
       content_indent:
         type: int
     """
-    lines.append('parameters:')
+    lines.append(f'{key}:')
     for name, entry in params.items():
         if isinstance(entry, str):
             # Old flat format — still support it

@@ -1163,3 +1163,181 @@ def test_sync_param_optional_null_skipped() -> None:
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, '')
     assert 'optional' not in result
+
+
+# -------------------------------------------------------------------
+# Coverage: class + method sync_source integration
+# -------------------------------------------------------------------
+
+
+def test_sync_source_class_with_methods() -> None:
+    """
+    title: Class docstring and method docstrings all get synced.
+    """
+    src = '''\
+class Calculator:
+    """
+    title: A simple calculator.
+    """
+
+    def add(self, a: int, b: int) -> int:
+        """
+        title: Add two numbers.
+        """
+        return a + b
+
+    def sub(self, a: int, b: int) -> int:
+        """
+        title: Subtract b from a.
+        """
+        return a - b
+'''
+    result = sync_source(src)
+    # Class docstring preserved
+    assert 'A simple calculator' in result
+    # Both methods get parameters synced (self excluded)
+    assert result.count('parameters:') == 2
+    assert 'a:' in result
+    assert 'b:' in result
+    # Return types synced
+    assert 'returns:' in result
+
+
+def test_sync_source_class_with_init() -> None:
+    """
+    title: Class with __init__ gets init params synced.
+    """
+    src = '''\
+class Point:
+    """
+    title: A 2D point.
+    """
+
+    def __init__(self, x: float, y: float) -> None:
+        """
+        title: Create a new Point.
+        """
+        self.x = x
+        self.y = y
+'''
+    result = sync_source(src)
+    assert 'A 2D point' in result
+    assert 'Create a new Point' in result
+    assert 'x:' in result
+    assert 'y:' in result
+    assert 'type: float' in result
+    # __init__ returns None → no returns section
+    assert result.count('returns:') == 0
+
+
+def test_sync_source_staticmethod() -> None:
+    """
+    title: Static method has no self/cls to skip.
+    """
+    src = '''\
+class Utils:
+    """
+    title: Utility class.
+    """
+
+    @staticmethod
+    def clamp(value: int, lo: int, hi: int) -> int:
+        """
+        title: Clamp value between lo and hi.
+        """
+        return max(lo, min(value, hi))
+'''
+    result = sync_source(src)
+    assert 'value:' in result
+    assert 'lo:' in result
+    assert 'hi:' in result
+    assert 'type: int' in result
+
+
+def test_sync_source_class_with_attributes() -> None:
+    """
+    title: Class docstring with attributes section preserved.
+    """
+    src = '''\
+class Config:
+    """
+    title: App configuration.
+    attributes:
+      debug:
+        type: bool
+        description: Enable debug mode.
+      timeout:
+        type: int
+        description: Request timeout in seconds.
+    """
+
+    debug: bool = False
+    timeout: int = 30
+'''
+    result = sync_source(src)
+    assert 'attributes:' in result
+    assert 'debug:' in result
+    assert 'timeout:' in result
+    assert 'Enable debug mode' in result
+
+
+def test_sync_source_class_idempotent() -> None:
+    """
+    title: Class sync is idempotent.
+    """
+    src = '''\
+class Greeter:
+    """
+    title: A greeter.
+    """
+
+    def greet(self, name: str) -> str:
+        """
+        title: Greet someone.
+        parameters:
+          name:
+            type: str
+            description: The name.
+        returns:
+          type: str
+          description: The greeting.
+        """
+        return f"Hello {name}"
+'''
+    first = sync_source(src)
+    second = sync_source(first)
+    assert first == second
+
+
+def test_sync_source_class_multiple_methods_all_lines_79() -> None:
+    """
+    title: Class with methods stays within 79 char limit.
+    """
+    src = '''\
+class MyService:
+    """
+    title: A service with long descriptions.
+    """
+
+    def process(
+        self,
+        items: list,
+        configuration: dict,
+    ) -> dict:
+        """
+        title: Process items with configuration.
+        """
+        return {}
+
+    def validate(
+        self,
+        data: dict,
+    ) -> bool:
+        """
+        title: Validate data against schema.
+        """
+        return True
+'''
+    result = sync_source(src)
+    for i, line in enumerate(result.splitlines(), 1):
+        assert len(line) <= 79, f'Line {i} too long ({len(line)}): {line!r}'
