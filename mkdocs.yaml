@@ -9,11 +9,11 @@ site_dir: ./build/
 nav:
   - index.md
   - Installation: installation.md
+  - Usage Guide: usage.md
   - Changelog: changelog.md
   - Contributing: contributing.md
   # from gen-files
   - API: api/
-  - Notebook page: example.ipynb
 theme:
   name: material
 

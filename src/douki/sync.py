@@ -16,6 +16,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import yaml
 
+from douki._validation import validate_schema
+
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
@@ -213,7 +215,13 @@ def _is_douki_yaml(raw: str) -> bool:
         data = yaml.safe_load(textwrap.dedent(raw))
     except yaml.YAMLError:
         return False
-    return isinstance(data, dict) and 'title' in data
+    if not isinstance(data, dict) or 'title' not in data:
+        return False
+    try:
+        validate_schema(data)
+    except ValueError:
+        return False
+    return True
 
 
 def _param_name_for_yaml(p: ParamInfo) -> str:
@@ -556,6 +564,7 @@ def sync_source(
             raw,
             func.params,
             func.return_annotation,
+            is_method=func.is_method,
         )
         if synced == raw:
             continue

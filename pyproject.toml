@@ -9,11 +9,11 @@ authors = [
 license = "BSD 3 Clause"
 requires-python = ">=3.10,<4"
 dependencies = [
-  "types-pyyaml >=6",
-  "typing-extensions >=4.14.1",
-  "typeguard (>=4)",
+  "pyyaml >=6",
+  "jsonschema >=4",
   "typer >=0.9",
   "rich >=13",
+  "tomli >=2.0.0; python_version < '3.11'",
 ]
 
 [project.scripts]
@@ -60,6 +60,7 @@ mkdocstrings = {version=">=0.19.0", extras=["python"]}
 mkdocstrings-python = "<2"
 mkdocs-gen-files = ">=0.5.0"
 makim = "1.27.0"
+types-pyyaml = "^6.0.12.20250915"
 
 
 [tool.bandit]
@@ -67,7 +68,7 @@ exclude_dirs = ["tests"]
 targets = "./"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.10"
 check_untyped_defs = true
 strict = true
 ignore_missing_imports = true
@@ -119,3 +120,8 @@ min_confidence = 80
 paths = ["./"]
 sort_by_size = true
 verbose = false
+
+[tool.douki]
+exclude = [
+  "tests/smoke/*"
+]

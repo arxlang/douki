@@ -388,3 +388,274 @@ def add(x: int, y: int) -> int:
     assert 'title:' in result
     second = sync_source(result)
     assert result == second
+
+
+# -------------------------------------------------------------------
+# Coverage: annotation converters
+# -------------------------------------------------------------------
+
+
+def test_extract_forward_ref_annotation() -> None:
+    src = '''\
+def foo(x: 'MyClass') -> 'MyClass':
+    """
+    title: forward ref test
+    """
+    pass
+'''
+    result = sync_source(src)
+    assert 'MyClass' in result
+
+
+def test_extract_union_annotation() -> None:
+    src = '''\
+def foo(x: int | str) -> int | None:
+    """
+    title: union test
+    """
+    pass
+'''
+    result = sync_source(src)
+    assert 'int | str' in result
+
+
+def test_extract_attribute_annotation() -> None:
+    src = '''\
+import os
+
+def foo(x: os.PathLike) -> None:
+    """
+    title: attribute test
+    """
+    pass
+'''
+    result = sync_source(src)
+    assert 'os.PathLike' in result
+
+
+def test_extract_tuple_annotation() -> None:
+    src = '''\
+def foo(x: tuple[int, str]) -> None:
+    """
+    title: tuple test
+    """
+    pass
+'''
+    result = sync_source(src)
+    assert 'tuple' in result
+
+
+def test_extract_list_annotation_bare() -> None:
+    src = '''\
+def foo(x: list[int]) -> None:
+    """
+    title: list test
+    """
+    pass
+'''
+    result = sync_source(src)
+    assert 'list' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: _param_kind
+# -------------------------------------------------------------------
+
+
+def test_extract_positional_only() -> None:
+    src = '''\
+def foo(x: int, /, y: int) -> None:
+    """
+    title: positional only test
+    """
+    pass
+'''
+    funcs = extract_functions(src)
+    assert len(funcs) == 1
+    kinds = {p.name: p.kind for p in funcs[0].params}
+    assert kinds['x'] == 'positional_only'
+    assert kinds['y'] == 'regular'
+
+
+def test_extract_keyword_only() -> None:
+    src = '''\
+def foo(*, key: str) -> None:
+    """
+    title: keyword only test
+    """
+    pass
+'''
+    funcs = extract_functions(src)
+    assert len(funcs) == 1
+    kinds = {p.name: p.kind for p in funcs[0].params}
+    assert kinds['key'] == 'keyword_only'
+
+
+# -------------------------------------------------------------------
+# Coverage: _extract_returns_desc edge cases
+# -------------------------------------------------------------------
+
+
+def test_sync_returns_list_string_items() -> None:
+    raw = 'title: test\nreturns:\n  - type: int\n'
+    params = [_p('x', 'int')]
+    result = sync_docstring(raw, params, 'int')
+    assert 'returns:' in result
+
+
+def test_sync_preserves_old_flat_returns() -> None:
+    raw = 'title: test\nreturns: the result\n'
+    result = sync_docstring(raw, [], 'int')
+    assert 'the result' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: _is_douki_yaml rejects invalid schema
+# -------------------------------------------------------------------
+
+
+def test_is_douki_yaml_invalid_schema() -> None:
+    # Has title but unknown field should fail schema validation
+    assert not _is_douki_yaml(
+        'title: test\nunknown_field: bad',
+    )
+
+
+# -------------------------------------------------------------------
+# Coverage: _rebuild_yaml branches
+# -------------------------------------------------------------------
+
+
+def test_sync_with_multiline_summary() -> None:
+    raw = 'title: test\nsummary: |\n  Line one\n  Line two\n'
+    result = sync_docstring(raw, [], '')
+    assert 'Line one' in result
+    assert 'Line two' in result
+
+
+def test_sync_with_raises_list() -> None:
+    raw = 'title: test\nraises:\n  - type: ValueError\n    description: bad\n'
+    result = sync_docstring(raw, [], '')
+    assert 'ValueError' in result
+    assert 'bad' in result
+
+
+def test_sync_with_examples_list() -> None:
+    raw = 'title: test\nexamples:\n  - code: |\n      add(1, 2)\n'
+    result = sync_docstring(raw, [], '')
+    assert 'examples:' in result
+    assert 'add(1, 2)' in result
+
+
+def test_sync_with_visibility_non_default() -> None:
+    raw = 'title: test\nvisibility: private\n'
+    result = sync_docstring(raw, [], '')
+    assert 'visibility: private' in result
+
+
+def test_sync_omits_default_visibility() -> None:
+    raw = 'title: test\nvisibility: public\n'
+    result = sync_docstring(raw, [], '')
+    assert 'visibility' not in result
+
+
+def test_sync_with_extra_keys() -> None:
+    raw = 'title: test\nnotes: important note\n'
+    result = sync_docstring(raw, [], '')
+    assert 'notes: important note' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: _yaml_scalar edge cases
+# -------------------------------------------------------------------
+
+
+def test_sync_param_with_optional_true() -> None:
+    raw = 'title: test\nparameters:\n  x:\n    type: int\n    optional: true\n'
+    params = [_p('x', 'int')]
+    result = sync_docstring(raw, params, '')
+    assert 'optional: true' in result
+
+
+def test_sync_param_with_default_value() -> None:
+    raw = 'title: test\nparameters:\n  x:\n    type: int\n    default: 42\n'
+    params = [_p('x', 'int')]
+    result = sync_docstring(raw, params, '')
+    assert 'default: 42' in result
+
+
+def test_sync_param_with_special_chars_desc() -> None:
+    raw = (
+        'title: test\n'
+        'parameters:\n'
+        '  x:\n'
+        '    type: int\n'
+        '    description: "value: important"\n'
+    )
+    params = [_p('x', 'int')]
+    result = sync_docstring(raw, params, '')
+    assert 'important' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: method detection
+# -------------------------------------------------------------------
+
+
+def test_extract_classmethod() -> None:
+    src = '''\
+class Foo:
+    @classmethod
+    def create(cls, x: int) -> 'Foo':
+        """
+        title: Factory method
+        """
+        return cls()
+'''
+    funcs = extract_functions(src)
+    # cls should be excluded
+    for f in funcs:
+        if f.name == 'create':
+            assert all(p.name != 'cls' for p in f.params)
+
+
+def test_sync_source_multiple_functions() -> None:
+    src = '''\
+def add(x: int, y: int) -> int:
+    """
+    title: Add
+    """
+    return x + y
+
+def sub(x: int, y: int) -> int:
+    """
+    title: Subtract
+    """
+    return x - y
+'''
+    result = sync_source(src)
+    assert 'parameters:' in result
+    # Both functions should be synced
+    assert result.count('parameters:') == 2
+
+
+def test_sync_source_with_no_return_annotation() -> None:
+    src = '''\
+def foo(x: int):
+    """
+    title: No return
+    """
+    pass
+'''
+    result = sync_source(src)
+    assert 'x:' in result
+    # No return annotation → no returns section
+    assert 'returns:' not in result
+
+
+def test_sync_with_old_flat_params_preserved() -> None:
+    """Ensure old flat string params still work."""
+    raw = 'title: test\nparameters:\n  x: my description\n'
+    params = [_p('x', 'int')]
+    result = sync_docstring(raw, params, '')
+    assert 'my description' in result

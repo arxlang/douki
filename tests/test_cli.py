@@ -6,6 +6,8 @@ import textwrap
 
 from pathlib import Path
 
+import pytest
+
 from douki.cli import app
 from typer.testing import CliRunner
 
@@ -245,3 +247,143 @@ def test_sync_migrate_numpy(tmp_path: Path) -> None:
     content = p.read_text(encoding='utf-8')
     assert 'title:' in content
     assert 'parameters:' in content
+
+
+# -------------------------------------------------------------------
+# Coverage: error paths
+# -------------------------------------------------------------------
+
+
+def test_sync_exit_0_when_no_changes(tmp_path: Path) -> None:
+    """Already-synced file should produce exit 0."""
+    p = _write(
+        tmp_path,
+        'clean.py',
+        '''\
+        def hello() -> None:
+            """Just a plain docstring."""
+            pass
+        ''',
+    )
+    result = runner.invoke(app, ['sync', str(p)])
+    assert result.exit_code == 0
+
+
+def test_sync_unreadable_file(tmp_path: Path) -> None:
+    """sync on a missing file should exit 2."""
+    missing = tmp_path / 'does_not_exist.py'
+    result = runner.invoke(
+        app,
+        ['sync', str(missing)],
+    )
+    assert result.exit_code == 2
+    assert 'Error' in result.output
+
+
+def test_check_unreadable_file(tmp_path: Path) -> None:
+    """check on a missing file should exit 2."""
+    missing = tmp_path / 'does_not_exist.py'
+    result = runner.invoke(
+        app,
+        ['check', str(missing)],
+    )
+    assert result.exit_code == 2
+    assert 'Error' in result.output
+
+
+def test_sync_empty_directory(tmp_path: Path) -> None:
+    """sync on empty dir should exit 0."""
+    result = runner.invoke(
+        app,
+        ['sync', str(tmp_path)],
+    )
+    assert result.exit_code == 0
+
+
+def test_check_empty_directory(tmp_path: Path) -> None:
+    """check on empty dir should exit 0."""
+    result = runner.invoke(
+        app,
+        ['check', str(tmp_path)],
+    )
+    assert result.exit_code == 0
+
+
+def test_help_output() -> None:
+    result = runner.invoke(app, ['--help'])
+    assert result.exit_code == 0
+    assert 'douki' in result.output.lower()
+
+
+def test_sync_help_output() -> None:
+    result = runner.invoke(app, ['sync', '--help'])
+    assert result.exit_code == 0
+    assert 'sync' in result.output.lower()
+
+
+def test_check_help_output() -> None:
+    result = runner.invoke(app, ['check', '--help'])
+    assert result.exit_code == 0
+    assert 'check' in result.output.lower()
+
+
+# -------------------------------------------------------------------
+# Coverage: pyproject.toml configuration
+# -------------------------------------------------------------------
+
+
+def test_exclude_files_via_pyproject(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    _write(
+        tmp_path,
+        'pyproject.toml',
+        """\
+        [tool.douki]
+        exclude = ["ignored.py", "tests/smoke/*"]
+        """,
+    )
+
+    _write(
+        tmp_path,
+        'clean.py',
+        '''\
+        def good() -> None:
+            """
+            title: good
+            """
+            pass
+        ''',
+    )
+    p_ignored = _write(
+        tmp_path,
+        'ignored.py',
+        """\
+        def bad() -> None:
+            pass
+        """,
+    )
+
+    smoke_dir = tmp_path / 'tests' / 'smoke'
+    smoke_dir.mkdir(parents=True)
+    _write(
+        smoke_dir,
+        'dirty.py',
+        """\
+        def dirty() -> None:
+            pass
+        """,
+    )
+
+    result = runner.invoke(app, ['check'])
+    print('OUTPUT WAS:', result.output)
+    # Because clean.py is clean, and ignored.py/dirty.py are excluded,
+    # it should exit 0
+    assert result.exit_code == 0
+
+    # Even if passed explicitly, it should be excluded (like black/ruff)
+    result2 = runner.invoke(app, ['check', str(p_ignored)])
+    assert result2.exit_code == 0
+    assert 'No .py files found' in result2.output

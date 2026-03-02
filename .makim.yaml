@@ -58,7 +58,7 @@ groups:
         run: |
           pytest \
             --cov=douki \
-            --cov-fail-under=85 \
+            --cov-fail-under=90 \
             --cov-report term-missing \
             --no-cov-on-fail ${{ args.path }} ${{ args.params }}
 
@@ -94,14 +94,20 @@ groups:
         help: Test douki check on an already-synced file
         backend: bash
         run: |
-          douki check tests/smoke/clean_file.py
+          TMPDIR=$(mktemp -d)
+          cp tests/smoke/clean_file.py "$TMPDIR/clean.py"
+          douki check "$TMPDIR/clean.py"
+          rm -rf "$TMPDIR"
 
       check-dirty:
         help: Test douki check on an unsynced file (exit 1)
         backend: bash
         run: |
+          TMPDIR=$(mktemp -d)
+          cp tests/smoke/dirty_file.py "$TMPDIR/dirty.py"
           # douki check should exit 1 when changes are needed
-          douki check tests/smoke/dirty_file.py && exit 1 || true
+          douki check "$TMPDIR/dirty.py" && exit 1 || true
+          rm -rf "$TMPDIR"
 
       sync-and-idempotent:
         help: Test douki sync applies changes and is idempotent
