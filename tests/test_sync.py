@@ -124,10 +124,15 @@ def test_sync_adds_missing_param() -> None:
     result = sync_docstring(raw, params, 'int')
     assert 'x:' in result
     assert 'y:' in result
+    assert 'type: int' in result
 
 
 def test_sync_removes_stale_param() -> None:
-    raw = 'title: test\nparameters:\n    x: old param\n    z: stale param\n'
+    raw = (
+        'title: test\nparameters:\n'
+        '  x:\n    type: int\n    description: old\n'
+        '  z:\n    type: str\n    description: stale\n'
+    )
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, 'int')
     assert 'x:' in result
@@ -135,7 +140,11 @@ def test_sync_removes_stale_param() -> None:
 
 
 def test_sync_preserves_descriptions() -> None:
-    raw = 'title: test\nparameters:\n    x: My custom description\n'
+    raw = (
+        'title: test\nparameters:\n'
+        '  x:\n    type: int\n'
+        '    description: My custom description\n'
+    )
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, 'int')
     assert 'My custom description' in result
@@ -145,6 +154,7 @@ def test_sync_updates_return_type() -> None:
     raw = 'title: test\n'
     result = sync_docstring(raw, [], 'float')
     assert 'returns:' in result
+    assert 'type: float' in result
 
 
 def test_sync_skips_non_yaml() -> None:
@@ -154,7 +164,16 @@ def test_sync_skips_non_yaml() -> None:
 
 
 def test_sync_idempotent() -> None:
-    raw = 'title: test\nparameters:\n    x: the x value\nreturns: the result\n'
+    raw = (
+        'title: test\n'
+        'parameters:\n'
+        '  x:\n'
+        '    type: int\n'
+        '    description: the x value\n'
+        'returns:\n'
+        '  - type: int\n'
+        '    description: the result\n'
+    )
     params = [_p('x', 'int')]
     first = sync_docstring(raw, params, 'int')
     second = sync_docstring(first, params, 'int')
@@ -173,7 +192,7 @@ def test_sync_handles_star_args() -> None:
 
 
 def test_sync_removes_returns_for_none() -> None:
-    raw = 'title: test\nreturns: old return\n'
+    raw = 'title: test\nreturns:\n  - type: str\n    description: old\n'
     result = sync_docstring(raw, [], 'None')
     assert 'returns' not in result
 
@@ -183,12 +202,13 @@ def test_sync_preserves_other_sections() -> None:
         'title: test\n'
         'summary: A summary\n'
         'raises:\n'
-        '    ValueError: bad value\n'
+        '  - type: ValueError\n'
+        '    description: bad value\n'
         'notes: some notes\n'
     )
     result = sync_docstring(raw, [], 'None')
     assert 'summary:' in result
-    assert 'ValueError:' in result
+    assert 'ValueError' in result
     assert 'notes:' in result
 
 
@@ -209,6 +229,7 @@ def add(x: int, y: int) -> int:
     assert 'parameters:' in result
     assert 'x:' in result
     assert 'y:' in result
+    assert 'type: int' in result
 
 
 def test_sync_source_skips_non_yaml_docstring() -> None:
@@ -236,8 +257,12 @@ def greet(name: str) -> str:
     """
     title: Greet someone
     parameters:
-        name: The name
-    returns: greeting
+      name:
+        type: str
+        description: The name
+    returns:
+      - type: str
+        description: greeting
     """
     return f"Hello {name}"
 '''
@@ -326,13 +351,16 @@ def greet(name: str) -> str:
     """
     title: Greet someone
     parameters:
-        name: The name
-    returns: greeting
+      name:
+        type: str
+        description: The name
+    returns:
+      - type: str
+        description: greeting
     """
     return f"Hello {name}"
 '''
     result = sync_source(src, migrate='numpy')
-    # Should be idempotent — YAML docstrings untouched
     second = sync_source(result, migrate='numpy')
     assert result == second
 
@@ -356,9 +384,7 @@ def add(x: int, y: int) -> int:
     """
     return x + y
 '''
-    # Migration + sync should produce Douki YAML
     result = sync_source(src, migrate='numpy')
     assert 'title:' in result
-    # Running sync again without migrate should be idempotent
     second = sync_source(result)
     assert result == second

@@ -2,8 +2,12 @@ def greet(name: str) -> str:
     """
     title: Greet someone
     parameters:
-        name: The person's name
-    returns: a greeting string
+      name:
+        type: str
+        description: The person's name
+    returns:
+      - type: str
+        description: a greeting string
     """
     return f'Hello {name}'
 
@@ -11,6 +15,13 @@ def greet(name: str) -> str:
 def add(x: int, y: int) -> int:
     """
     title: Add two integers
+    parameters:
+      x:
+        type: int
+      y:
+        type: int
+    returns:
+      - type: int
     """
     return x + y
 
@@ -24,8 +35,14 @@ class Calculator:
         """
         title: Multiply two numbers
         parameters:
-            a: first operand
-            b: second operand
-        returns: the product
+          a:
+            type: int
+            description: first operand
+          b:
+            type: int
+            description: second operand
+        returns:
+          - type: int
+            description: the product
         """
         return a * b

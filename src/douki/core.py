@@ -217,21 +217,77 @@ def _decorate_func(
     yaml_dict = _parse_yaml(inspect.getdoc(func) or '')
     narrative = _narrative(yaml_dict)
 
-    params_map = {**yaml_dict.get('parameters', {}), **param_over}
-    returns_txt = (
-        returns_over
-        if returns_over is not None
-        else yaml_dict.get('returns', '')
-    )
+    # Build params_map: name -> description (string)
+    raw_params = yaml_dict.get('parameters', {})
+    params_map: Dict[str, str] = {}
+    if isinstance(raw_params, dict):
+        for k, v in raw_params.items():
+            if isinstance(v, dict):
+                params_map[k] = str(v.get('description', ''))
+            else:
+                params_map[k] = str(v) if v else ''
+    params_map.update(param_over)
+
+    # Returns: accept string or list-of-dicts
+    raw_returns = yaml_dict.get('returns', '')
+    if returns_over is not None:
+        returns_txt = returns_over
+    elif isinstance(raw_returns, list) and raw_returns:
+        parts = []
+        for item in raw_returns:
+            if isinstance(item, dict):
+                parts.append(
+                    str(item.get('description', '')),
+                )
+            else:
+                parts.append(str(item))
+        returns_txt = '; '.join(p for p in parts if p)
+    else:
+        returns_txt = raw_returns if raw_returns else ''
+
     yields_txt = yaml_dict.get('yields', '')
     receives = yaml_dict.get('receives', '')
-    raises_map = yaml_dict.get('raises', {})
-    warns_map = yaml_dict.get('warnings', {})
+
+    # Raises/warnings: accept dict or list-of-dicts
+    raw_raises = yaml_dict.get('raises', {})
+    if isinstance(raw_raises, list):
+        raises_map = {}
+        for item in raw_raises:
+            if isinstance(item, dict):
+                raises_map[str(item.get('type', ''))] = str(
+                    item.get('description', ''),
+                )
+    else:
+        raises_map = raw_raises or {}
+
+    raw_warns = yaml_dict.get('warnings', {})
+    if isinstance(raw_warns, list):
+        warns_map = {}
+        for item in raw_warns:
+            if isinstance(item, dict):
+                warns_map[str(item.get('type', ''))] = str(
+                    item.get('description', ''),
+                )
+    else:
+        warns_map = raw_warns or {}
+
     deprecated = yaml_dict.get('deprecated', '')
     see_also = yaml_dict.get('see_also', '')
     notes = yaml_dict.get('notes', '')
     refs = yaml_dict.get('references', '')
-    examples = yaml_dict.get('examples', '')
+
+    # Examples: accept string or list-of-dicts
+    raw_examples = yaml_dict.get('examples', '')
+    if isinstance(raw_examples, list):
+        ex_parts = []
+        for item in raw_examples:
+            if isinstance(item, dict):
+                ex_parts.append(str(item.get('code', '')))
+            else:
+                ex_parts.append(str(item))
+        examples = '\n'.join(ex_parts)
+    else:
+        examples = raw_examples if raw_examples else ''
 
     sig = inspect.signature(func)
     hints = get_type_hints(func, include_extras=True)

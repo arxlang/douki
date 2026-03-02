@@ -30,8 +30,12 @@ def test_function_parameters_and_returns():
         """
         title: square a value
         parameters:
-            x: placeholder
-        returns: placeholder
+          x:
+            type: int
+            description: placeholder
+        returns:
+          - type: int
+            description: placeholder
         """
         return x * x
 
@@ -47,8 +51,12 @@ def test_generic_type_rendering():
         """
         title: generic list example
         parameters:
-            values: (list[int])
-        returns: (int)
+          values:
+            type: list[int]
+            description: input list of integers
+        returns:
+          - type: int
+            description: first element
         """
         return values[0]
 
@@ -64,9 +72,15 @@ def test_annotated_descriptions_and_defaults():
         """
         title: add two numbers
         parameters:
-            x: (Annotated[int, DocString('first term')])
-            y: (Annotated[int, second term])
-        returns: (Annotated[int, DocString('sum')])
+          x:
+            type: int
+            description: first term
+          y:
+            type: int
+            description: second term
+        returns:
+          - type: int
+            description: sum
         """
         return x + y
 
@@ -88,8 +102,12 @@ def test_class_attributes_and_methods():
             """
             title: add internal attrs
             parameters:
-                value: (int)
-            returns: (int)
+              value:
+                type: int
+                description: extra value to add
+            returns:
+              - type: int
+                description: sum of a, b, and value
             """
             return self.a + self.b + value
 
@@ -113,9 +131,15 @@ def test_idempotency():
         """
         title: multiply two ints
         parameters:
-            x: (int)
-            y: (int)
-        returns: (int)
+          x:
+            type: int
+            description: left operand
+          y:
+            type: int
+            description: right operand
+        returns:
+          - type: int
+            description: product of x and y
         """
         return x * y
 
@@ -135,7 +159,11 @@ def test_invalid_yaml_docstring_raises():
         def bad(x: int) -> int:
             """
             parameters:
-                x: just a number
-            returns: the same number
+              x:
+                type: int
+                description: just a number
+            returns:
+              - type: int
+                description: the same number
             """
             return x

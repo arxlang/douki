@@ -225,62 +225,96 @@ def _param_name_for_yaml(p: ParamInfo) -> str:
     return p.name
 
 
+def _extract_param_desc(entry: Any) -> str:
+    """Read the description from an old flat or new nested param."""
+    if isinstance(entry, dict):
+        return str(entry.get('description', ''))
+    if isinstance(entry, str):
+        return entry
+    return ''
+
+
+def _extract_returns_desc(entry: Any) -> str:
+    """Read description from old flat or new list returns."""
+    if isinstance(entry, list) and entry:
+        first = entry[0]
+        if isinstance(first, dict):
+            return str(first.get('description', ''))
+        return str(first)
+    if isinstance(entry, str):
+        return entry
+    return ''
+
+
 def sync_docstring(
     raw_docstring: str,
     params: Sequence[ParamInfo],
     return_annotation: str,
+    *,
+    is_method: bool = False,
 ) -> str:
-    """Merge signature information into an existing Douki YAML docstring.
+    """Merge signature info into a Douki YAML docstring.
 
-    Returns the updated YAML string (without surrounding triple-quotes).
-    If the docstring is not valid Douki YAML, returns it unchanged.
+    Returns the updated YAML (without surrounding triple-quotes).
+    If not valid Douki YAML, returns it unchanged.
     """
     if not _is_douki_yaml(raw_docstring):
         return raw_docstring
 
-    data: Dict[str, Any] = yaml.safe_load(textwrap.dedent(raw_docstring))
+    data: Dict[str, Any] = yaml.safe_load(
+        textwrap.dedent(raw_docstring),
+    )
 
-    # --- parameters --------------------------------------------------------
+    # --- parameters ---
     if params:
-        existing_params: Dict[str, str] = data.get('parameters', {}) or {}
-        new_params: Dict[str, str] = {}
+        existing: Dict[str, Any] = data.get('parameters', {}) or {}
+        new_params: Dict[str, Any] = {}
         for p in params:
             yaml_key = _param_name_for_yaml(p)
-            # Preserve existing description
-            desc = existing_params.get(yaml_key, '')
-            # Build a description that includes the type annotation
+            old = existing.get(yaml_key, None)
+            desc = _extract_param_desc(old)
+
+            entry: Dict[str, Any] = {}
             if p.annotation:
-                # If there is already a description, keep it
-                if desc:
-                    new_params[yaml_key] = desc
-                else:
-                    new_params[yaml_key] = f'({p.annotation})'
-            else:
-                new_params[yaml_key] = desc if desc else ''
+                entry['type'] = p.annotation
+            if desc:
+                entry['description'] = desc
+
+            # Carry forward optional/default if nested
+            if isinstance(old, dict):
+                if 'optional' in old and old['optional'] is not None:
+                    entry['optional'] = old['optional']
+                if 'default' in old and old['default'] is not None:
+                    entry['default'] = old['default']
+
+            new_params[yaml_key] = entry
         data['parameters'] = new_params
     else:
-        # No params in signature → remove parameters section if it exists
         data.pop('parameters', None)
 
-    # --- returns -----------------------------------------------------------
+    # --- returns ---
     if return_annotation and return_annotation != 'None':
-        existing_returns = data.get('returns', '')
-        if not existing_returns:
-            data['returns'] = f'({return_annotation})'
-        else:
-            data['returns'] = existing_returns
+        existing_ret = data.get('returns')
+        desc = _extract_returns_desc(existing_ret)
+        ret_entry: Dict[str, Any] = {'type': return_annotation}
+        if desc:
+            ret_entry['description'] = desc
+        data['returns'] = [ret_entry]
     elif return_annotation == 'None':
         data.pop('returns', None)
 
-    # Rebuild YAML in a canonical key order
+    # Rebuild YAML in canonical key order
     return _rebuild_yaml(data)
 
 
-# Canonical key ordering matching numpydoc section order
+# Canonical key ordering
 _KEY_ORDER = [
     'title',
     'summary',
     'deprecated',
+    'visibility',
+    'mutability',
+    'scope',
     'parameters',
     'returns',
     'yields',
@@ -295,53 +329,176 @@ _KEY_ORDER = [
     'methods',
 ]
 
+# Python defaults: fields with these values are omitted
+_PYTHON_DEFAULTS: Dict[str, Any] = {
+    'visibility': 'public',
+    'mutability': 'mutable',
+    'scope': 'static',
+}
+
+# Sub-keys omitted when they match these defaults
+_PARAM_DEFAULTS: Dict[str, Any] = {
+    'optional': None,
+    'default': None,
+}
+
 
 def _rebuild_yaml(data: Dict[str, Any]) -> str:
-    """Serialize *data* back to YAML with canonical key order."""
+    """Serialize *data* to YAML with canonical key order.
+
+    Omits fields that match Python defaults.
+    """
     ordered: List[Tuple[str, Any]] = []
     for key in _KEY_ORDER:
         if key in data:
             ordered.append((key, data[key]))
-    # Any extra keys not in our list (future-proofing)
     for key in data:
         if key not in _KEY_ORDER:
             ordered.append((key, data[key]))
 
     lines: List[str] = []
     for key, value in ordered:
+        # Skip None / empty values
         if value is None or value == '' or value == {}:
             continue
-        if isinstance(value, dict):
+        # Skip Python defaults
+        if key in _PYTHON_DEFAULTS:
+            if value == _PYTHON_DEFAULTS[key]:
+                continue
+
+        if key == 'parameters':
+            _emit_parameters(lines, value)
+        elif key in ('returns', 'yields', 'receives'):
+            _emit_typed_list(lines, key, value)
+        elif key in ('raises', 'warnings'):
+            _emit_raises(lines, key, value)
+        elif key == 'examples' and isinstance(value, list):
+            _emit_examples(lines, value)
+        elif isinstance(value, dict):
             lines.append(f'{key}:')
             for k, v in value.items():
-                lines.append(f'    {k}: {_yaml_scalar(v)}')
-        elif isinstance(value, list):
-            dumped = yaml.dump({key: value}, default_flow_style=False).strip()
-            lines.append(dumped)
+                lines.append(
+                    f'  {k}: {_yaml_scalar(v)}',
+                )
         elif isinstance(value, str) and '\n' in value:
             lines.append(f'{key}: |')
             for ln in value.splitlines():
-                lines.append(f'    {ln}')
+                lines.append(f'  {ln}')
         else:
             lines.append(f'{key}: {_yaml_scalar(value)}')
     return '\n'.join(lines) + '\n'
 
 
+def _emit_parameters(
+    lines: List[str],
+    params: Dict[str, Any],
+) -> None:
+    """Emit ``parameters:`` section."""
+    lines.append('parameters:')
+    for name, entry in params.items():
+        if isinstance(entry, str):
+            # Old flat format — still support it
+            lines.append(f'  {name}: {_yaml_scalar(entry)}')
+        elif isinstance(entry, dict):
+            lines.append(f'  {name}:')
+            for sub_key in ('type', 'optional', 'description', 'default'):
+                if sub_key not in entry:
+                    continue
+                val = entry[sub_key]
+                if sub_key in _PARAM_DEFAULTS:
+                    if val == _PARAM_DEFAULTS[sub_key]:
+                        continue
+                lines.append(
+                    f'    {sub_key}: {_yaml_scalar(val)}',
+                )
+
+
+def _emit_typed_list(
+    lines: List[str],
+    key: str,
+    value: Any,
+) -> None:
+    """Emit returns/yields/receives as list."""
+    if isinstance(value, str):
+        lines.append(f'{key}: {_yaml_scalar(value)}')
+        return
+    if isinstance(value, list):
+        lines.append(f'{key}:')
+        for item in value:
+            if isinstance(item, dict):
+                first = True
+                for sk in ('type', 'description'):
+                    if sk in item:
+                        prefix = '- ' if first else '  '
+                        lines.append(
+                            f'  {prefix}{sk}: {_yaml_scalar(item[sk])}',
+                        )
+                        first = False
+            else:
+                lines.append(f'  - {_yaml_scalar(item)}')
+
+
+def _emit_raises(
+    lines: List[str],
+    key: str,
+    value: Any,
+) -> None:
+    """Emit raises/warnings (dict or list format)."""
+    if isinstance(value, dict):
+        lines.append(f'{key}:')
+        for k, v in value.items():
+            lines.append(f'  {k}: {_yaml_scalar(v)}')
+    elif isinstance(value, list):
+        lines.append(f'{key}:')
+        for item in value:
+            if isinstance(item, dict):
+                first = True
+                for sk in ('type', 'description'):
+                    if sk in item:
+                        prefix = '- ' if first else '  '
+                        lines.append(
+                            f'  {prefix}{sk}: {_yaml_scalar(item[sk])}',
+                        )
+                        first = False
+            else:
+                lines.append(f'  - {_yaml_scalar(item)}')
+
+
+def _emit_examples(
+    lines: List[str],
+    value: List[Any],
+) -> None:
+    """Emit examples as list."""
+    lines.append('examples:')
+    for item in value:
+        if isinstance(item, dict) and 'code' in item:
+            lines.append('  - code: |')
+            for ln in str(item['code']).splitlines():
+                lines.append(f'      {ln}')
+            if 'description' in item:
+                lines.append(
+                    f'    description: {_yaml_scalar(item["description"])}',
+                )
+        elif isinstance(item, str):
+            lines.append(f'  - {_yaml_scalar(item)}')
+
+
 def _yaml_scalar(value: Any) -> str:
     """Format a simple scalar for inline YAML."""
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
     if isinstance(value, str):
-        # Quote if it contains special chars
         if any(c in value for c in ':{}[]&*!|>\\\'"#%@`'):
-            # yaml.dump appends doc-end marker '...\n'
             dumped = yaml.dump(
                 value,
                 default_flow_style=True,
             )
-            # Strip trailing doc-end marker and whitespace
             dumped = dumped.removesuffix('\n')
             dumped = dumped.removesuffix('...')
             return dumped.strip()
         return value
+    if value is None:
+        return 'null'
     return str(value)
 
 

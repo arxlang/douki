@@ -56,8 +56,8 @@ def test_parse_map_section() -> None:
     body = 'x : int\n    The x value.\ny : str\n    The y value.'
     result = _parse_map_section(body)
     assert result == {
-        'x': 'The x value.',
-        'y': 'The y value.',
+        'x': {'type': 'int', 'description': 'The x value.'},
+        'y': {'type': 'str', 'description': 'The y value.'},
     }
 
 
@@ -79,6 +79,8 @@ def test_numpy_to_douki_basic() -> None:
     assert 'title:' in result
     assert 'parameters:' in result
     assert 'returns:' in result
+    # New format: nested params with type
+    assert 'type: int' in result
 
 
 def test_numpy_preserves_non_numpy() -> None:

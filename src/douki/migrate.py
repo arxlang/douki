@@ -100,7 +100,9 @@ def _split_sections(
     return narrative, sections
 
 
-def _parse_map_section(body: str) -> Dict[str, str]:
+def _parse_map_section(
+    body: str,
+) -> Dict[str, Dict[str, str]]:
     """Parse a numpy map section (Parameters, Raises, etc).
 
     Format::
@@ -111,26 +113,31 @@ def _parse_map_section(body: str) -> Dict[str, str]:
         name2 : type2
             Description
 
-    Returns a dict of {name: description}.
+    Returns a dict of ``{name: {type: ..., description: ...}}``.
     """
-    result: Dict[str, str] = {}
+    result: Dict[str, Dict[str, str]] = {}
     current_name: Optional[str] = None
+    current_type: str = ''
     current_desc_lines: List[str] = []
 
     for line in body.splitlines():
-        # Check if this is a parameter header: "name : type"
-        # or just "name" at start of line (no leading space)
         if line and not line[0].isspace():
             # Save previous entry
             if current_name is not None:
                 desc = ' '.join(
                     ln.strip() for ln in current_desc_lines
                 ).strip()
-                result[current_name] = desc
+                entry: Dict[str, str] = {}
+                if current_type:
+                    entry['type'] = current_type
+                if desc:
+                    entry['description'] = desc
+                result[current_name] = entry
 
-            # Parse new entry
+            # Parse new entry: "name : type"
             parts = line.split(':', 1)
             current_name = parts[0].strip()
+            current_type = parts[1].strip() if len(parts) > 1 else ''
             current_desc_lines = []
         elif current_name is not None:
             stripped = line.strip()
@@ -140,7 +147,12 @@ def _parse_map_section(body: str) -> Dict[str, str]:
     # Save last entry
     if current_name is not None:
         desc = ' '.join(ln.strip() for ln in current_desc_lines).strip()
-        result[current_name] = desc
+        entry2: Dict[str, str] = {}
+        if current_type:
+            entry2['type'] = current_type
+        if desc:
+            entry2['description'] = desc
+        result[current_name] = entry2
 
     return result
 
@@ -179,22 +191,50 @@ def numpy_to_douki_yaml(raw: str) -> str:
     for header, body in sections:
         douki_key = _NUMPY_SECTION_MAP.get(header)
         if douki_key is None:
-            continue  # skip unknown sections
+            continue
 
-        if douki_key in _MAP_SECTIONS:
+        if douki_key == 'parameters':
             data[douki_key] = _parse_map_section(body)
+        elif douki_key in ('raises', 'warnings'):
+            # Build list of {type, description}
+            parsed = _parse_map_section(body)
+            items: List[Dict[str, str]] = []
+            for name, info in parsed.items():
+                item: Dict[str, str] = {'type': name}
+                desc = info.get('description', '')
+                if desc:
+                    item['description'] = desc
+                items.append(item)
+            data[douki_key] = items
+        elif douki_key in ('returns', 'yields', 'receives'):
+            # Build list of {type, description}
+            parsed = _parse_map_section(body)
+            items2: List[Dict[str, str]] = []
+            for type_name, info in parsed.items():
+                it: Dict[str, str] = {'type': type_name}
+                desc = info.get('description', '')
+                if desc:
+                    it['description'] = desc
+                items2.append(it)
+            if items2:
+                data[douki_key] = items2
+            else:
+                # Simple text
+                data[douki_key] = _parse_simple_section(body)
         else:
             data[douki_key] = _parse_simple_section(body)
 
-    # Serialize to YAML
     return _serialize_douki_yaml(data)
 
 
-# Canonical key ordering matching numpydoc section order
+# Canonical key ordering
 _KEY_ORDER = [
     'title',
     'summary',
     'deprecated',
+    'visibility',
+    'mutability',
+    'scope',
     'parameters',
     'returns',
     'yields',
@@ -220,17 +260,34 @@ def _serialize_douki_yaml(data: Dict[str, Any]) -> str:
         if value is None or value == '' or value == {}:
             continue
 
-        if isinstance(value, dict):
-            lines.append(f'{key}:')
+        if key == 'parameters':
+            lines.append('parameters:')
             for k, v in value.items():
-                if v:
-                    lines.append(f'    {k}: {v}')
+                if isinstance(v, dict):
+                    lines.append(f'  {k}:')
+                    for sk in ('type', 'description'):
+                        if sk in v:
+                            lines.append(f'    {sk}: {v[sk]}')
+                elif v:
+                    lines.append(f'  {k}: {v}')
                 else:
-                    lines.append(f'    {k}:')
+                    lines.append(f'  {k}:')
+        elif isinstance(value, list):
+            lines.append(f'{key}:')
+            for item in value:
+                if isinstance(item, dict):
+                    first = True
+                    for sk in ('type', 'description', 'code'):
+                        if sk in item:
+                            prefix = '- ' if first else '  '
+                            lines.append(f'  {prefix}{sk}: {item[sk]}')
+                            first = False
+                else:
+                    lines.append(f'  - {item}')
         elif isinstance(value, str) and '\n' in value:
             lines.append(f'{key}: |')
             for ln in value.splitlines():
-                lines.append(f'    {ln}')
+                lines.append(f'  {ln}')
         else:
             lines.append(f'{key}: {value}')
 

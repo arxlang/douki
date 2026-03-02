@@ -5,34 +5,124 @@
   "type": "object",
   "additionalProperties": false,
 
+  "definitions": {
+    "param_entry": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type":        { "type": "string" },
+            "optional":    { "type": ["boolean", "null"] },
+            "description": { "type": "string" },
+            "default":     {}
+          }
+        }
+      ]
+    },
+    "typed_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type":        { "type": "string" },
+        "description": { "type": "string" }
+      }
+    },
+    "example_entry": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code":        { "type": "string" },
+            "description": { "type": "string" }
+          }
+        }
+      ]
+    }
+  },
+
   "properties": {
     "title":        { "type": "string" },
-    "summary":      { "type": "string" },
+    "summary":      { "type": ["string", "null"] },
     "deprecated":   { "type": "string" },
+
+    "visibility": {
+      "type": "string",
+      "enum": ["public", "private", "protected", "internal"]
+    },
+    "mutability": {
+      "type": "string",
+      "enum": ["mutable", "immutable", "constant"]
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["instance", "static", "class"]
+    },
 
     "parameters": {
       "type": "object",
-      "additionalProperties": { "type": "string" },
-      "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }
+      "additionalProperties": { "$ref": "#/definitions/param_entry" }
     },
 
-    "returns":      { "type": "string" },
-    "yields":       { "type": "string" },
-    "receives":     { "type": "string" },
+    "returns": {
+      "oneOf": [
+        { "type": "string" },
+        { "type": ["string", "null"] },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/typed_entry" }
+        }
+      ]
+    },
+    "yields": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/typed_entry" }
+        }
+      ]
+    },
+    "receives": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/typed_entry" }
+        }
+      ]
+    },
 
     "raises": {
-      "type": "object",
-      "additionalProperties": { "type": "string" },
-      "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/typed_entry" }
+        }
+      ]
     },
 
     "warnings": {
-      "type": "object",
-      "additionalProperties": { "type": "string" },
-      "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/typed_entry" }
+        }
+      ]
     },
 
-    "see_also":  {
+    "see_also": {
       "oneOf": [
         { "type": "string" },
         {
@@ -42,14 +132,22 @@
       ]
     },
 
-    "notes":       { "type": "string" },
-    "references":  { "type": "string" },
-    "examples":    { "type": "string" },
+    "notes":       { "type": ["string", "null"] },
+    "references":  { "type": ["string", "null"] },
+
+    "examples": {
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "$ref": "#/definitions/example_entry" }
+        }
+      ]
+    },
 
     "attributes": {
       "type": "object",
-      "additionalProperties": { "type": "string" },
-      "propertyNames": { "pattern": "^[A-Za-z_][A-Za-z0-9_]*$" }
+      "additionalProperties": { "$ref": "#/definitions/param_entry" }
     },
 
     "methods": {

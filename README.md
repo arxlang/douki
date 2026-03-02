@@ -17,7 +17,30 @@ Documetatio from annotations
 
 - Documentation: https://osl-incubator.github.io/douki
 
-## Features
+### Douki YAML Format
+
+```python
+def add(a: int, b: int = 0) -> int:
+    """
+    title: Add two integers
+    parameters:
+      a:
+        type: int
+        description: First value.
+      b:
+        type: int
+        description: Second value.
+        default: 0
+    returns:
+      - type: int
+        description: Sum of a and b.
+    """
+    return a + b
+```
+
+Fields like `visibility` (default: `public`), `mutability` (default: `mutable`),
+and `scope` (default: `static` for functions, `instance` for methods) are
+omitted when they match their Python defaults.
 
 ### CLI — `douki sync` / `douki check`
 
