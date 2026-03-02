@@ -321,6 +321,7 @@ def sync_docstring(
     *,
     is_method: bool = False,
     func_name: str = '<unknown>',
+    content_indent: int = 4,
 ) -> str:
     """Merge signature info into a Douki YAML docstring.
 
@@ -373,7 +374,7 @@ def sync_docstring(
         data.pop('returns', None)
 
     # Rebuild YAML in canonical key order
-    return _rebuild_yaml(data)
+    return _rebuild_yaml(data, content_indent)
 
 
 # Canonical key ordering
@@ -412,7 +413,7 @@ _PARAM_DEFAULTS: Dict[str, Any] = {
 }
 
 
-def _rebuild_yaml(data: Dict[str, Any]) -> str:
+def _rebuild_yaml(data: Dict[str, Any], content_indent: int = 4) -> str:
     """
     title: Serialize *data* to YAML with canonical key order.
     summary: Omits fields that match Python defaults.
@@ -436,38 +437,43 @@ def _rebuild_yaml(data: Dict[str, Any]) -> str:
                 continue
 
         if key == 'parameters':
-            _emit_parameters(lines, value)
+            _emit_parameters(lines, value, content_indent)
         elif key in (
             'see_also',
             'references',
             'methods',
             'attributes',
         ):
-            _emit_typed_list(lines, key, value)
+            _emit_typed_list(lines, key, value, content_indent)
         elif key in ('raises', 'warnings'):
-            _emit_raises(lines, key, value)
+            _emit_raises(lines, key, value, content_indent)
         elif key in ('returns', 'yields', 'receives'):
-            _emit_typed_entry(lines, key, value)
+            _emit_typed_entry(lines, key, value, content_indent)
         elif key == 'examples' and isinstance(value, list):
-            _emit_examples(lines, value)
+            _emit_examples(lines, value, content_indent)
         elif isinstance(value, dict):
             lines.append(f'{key}:')
             for k, v in value.items():
-                _emit_key_value(lines, '  ', k, v)
+                _emit_key_value(lines, '  ', k, v, content_indent)
         else:
-            _emit_key_value(lines, '', key, value)
+            _emit_key_value(lines, '', key, value, content_indent)
     return '\n'.join(lines) + '\n'
 
 
 def _emit_key_value(
-    lines: List[str], indent_str: str, key: str, value: Any
+    lines: List[str], indent_str: str, key: str, value: Any, content_indent: int = 4
 ) -> None:
     """Safely emit a key-value pair, folding long strings into block scalars."""
     if isinstance(value, str):
-        if len(indent_str) + len(key) + len(value) > 75 and '\n' not in value:
+        prefix_len = content_indent + len(indent_str) + len(key) + 2
+        if prefix_len + len(value) > 79 and '\n' not in value:
             import textwrap
 
-            wrapped = textwrap.fill(value, width=78 - len(indent_str) - 2)
+            wrap_width = 79 - (content_indent + len(indent_str) + 2)
+            if wrap_width < 20: 
+                wrap_width = 20
+                
+            wrapped = textwrap.fill(value, width=wrap_width)
             lines.append(f'{indent_str}{key}: >')
             for ln in wrapped.splitlines():
                 lines.append(f'{indent_str}  {ln}')
@@ -484,6 +490,7 @@ def _emit_key_value(
 def _emit_parameters(
     lines: List[str],
     params: Dict[str, Any],
+    content_indent: int = 4,
 ) -> None:
     """title: Emit ``parameters:`` section."""
     lines.append('parameters:')
@@ -500,13 +507,14 @@ def _emit_parameters(
                 if sub_key in _PARAM_DEFAULTS:
                     if val == _PARAM_DEFAULTS[sub_key]:
                         continue
-                _emit_key_value(lines, '    ', sub_key, val)
+                _emit_key_value(lines, '    ', sub_key, val, content_indent)
 
 
 def _emit_typed_list(
     lines: List[str],
     key: str,
     value: Any,
+    content_indent: int = 4,
 ) -> None:
     """title: Emit list-based types (methods, attributes)."""
     if isinstance(value, str):
@@ -520,16 +528,17 @@ def _emit_typed_list(
                 for sk in ('type', 'description'):
                     if sk in item:
                         prefix = '- ' if first else '  '
-                        _emit_key_value(lines, '  ', f'{prefix}{sk}', item[sk])
+                        _emit_key_value(lines, '  ', f'{prefix}{sk}', item[sk], content_indent)
                         first = False
             else:
-                _emit_key_value(lines, '  ', '-', item)
+                _emit_key_value(lines, '  ', '-', item, content_indent)
 
 
 def _emit_typed_entry(
     lines: List[str],
     key: str,
     value: Any,
+    content_indent: int = 4,
 ) -> None:
     """title: Emit returns/yields/receives as a single dictionary."""
     if isinstance(value, str):
@@ -542,19 +551,20 @@ def _emit_typed_entry(
         lines.append(f'{key}:')
         for sk in ('type', 'description'):
             if sk in value:
-                _emit_key_value(lines, '  ', sk, value[sk])
+                _emit_key_value(lines, '  ', sk, value[sk], content_indent)
 
 
 def _emit_raises(
     lines: List[str],
     key: str,
     value: Any,
+    content_indent: int = 4,
 ) -> None:
     """title: Emit raises/warnings (dict or list format)."""
     if isinstance(value, dict):
         lines.append(f'{key}:')
         for k, v in value.items():
-            _emit_key_value(lines, '  ', k, v)
+            _emit_key_value(lines, '  ', k, v, content_indent)
     elif isinstance(value, list):
         lines.append(f'{key}:')
         for item in value:
@@ -563,15 +573,16 @@ def _emit_raises(
                 for sk in ('type', 'description'):
                     if sk in item:
                         prefix = '- ' if first else '  '
-                        _emit_key_value(lines, '  ', f'{prefix}{sk}', item[sk])
+                        _emit_key_value(lines, '  ', f'{prefix}{sk}', item[sk], content_indent)
                         first = False
             else:
-                _emit_key_value(lines, '  ', '-', item)
+                _emit_key_value(lines, '  ', '-', item, content_indent)
 
 
 def _emit_examples(
     lines: List[str],
     value: List[Any],
+    content_indent: int = 4,
 ) -> None:
     """title: Emit examples as list."""
     lines.append('examples:')
@@ -582,10 +593,10 @@ def _emit_examples(
                 lines.append(f'      {ln}')
             if 'description' in item:
                 _emit_key_value(
-                    lines, '    ', 'description', item['description']
+                    lines, '    ', 'description', item['description'], content_indent
                 )
         elif isinstance(item, str):
-            _emit_key_value(lines, '  ', '-', item)
+            _emit_key_value(lines, '  ', '-', item, content_indent)
 
 
 def _yaml_scalar(value: Any) -> str:
@@ -668,24 +679,6 @@ def sync_source(
                 errors.append(f'- {prefix}: {e}')
                 continue
 
-        try:
-            synced = sync_docstring(
-                raw,
-                func.params,
-                func.return_annotation,
-                is_method=func.is_method,
-                func_name=func.name,
-            )
-        except ValueError as e:
-            prefix = (
-                '<module>' if func.name == '<module>' else f"'{func.name}'"
-            )
-            errors.append(f'- {prefix}: {e}')
-            continue
-
-        if synced == raw:
-            continue
-
         # We need the start/end lines of the docstring.
         ds_start = ds_node.lineno - 1  # 0-based
         ds_end = ds_node.end_lineno
@@ -716,6 +709,28 @@ def sync_source(
                 leading = len(dl) - len(dl.lstrip())
                 content_indent = ' ' * leading
                 break
+                
+        if content_indent == indent:
+            content_indent = indent + '    '
+
+        try:
+            synced = sync_docstring(
+                raw,
+                func.params,
+                func.return_annotation,
+                is_method=func.is_method,
+                func_name=func.name,
+                content_indent=len(content_indent),
+            )
+        except ValueError as e:
+            prefix = (
+                '<module>' if func.name == '<module>' else f"'{func.name}'"
+            )
+            errors.append(f'- {prefix}: {e}')
+            continue
+
+        if synced == raw:
+            continue
 
         # Rebuild the docstring with proper indentation
         synced_lines = synced.splitlines()
