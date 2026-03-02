@@ -1,12 +1,12 @@
-"""Tests for douki.migrate — NumPy docstring conversion."""
+"""title: Tests for douki.migrate — NumPy docstring conversion."""
 
 from __future__ import annotations
 
 from douki.migrate import (
-    _is_numpy_docstring,
+    _is_numpydoc_docstring,
     _parse_map_section,
     _split_sections,
-    numpy_to_douki_yaml,
+    numpydoc_to_douki_yaml,
 )
 
 # -------------------------------------------------------------------
@@ -16,15 +16,15 @@ from douki.migrate import (
 
 def test_is_numpy_basic() -> None:
     ds = 'Summary.\n\nParameters\n----------\nx : int\n    Desc.\n'
-    assert _is_numpy_docstring(ds)
+    assert _is_numpydoc_docstring(ds)
 
 
 def test_is_numpy_false_for_plain() -> None:
-    assert not _is_numpy_docstring('Just a plain docstring.')
+    assert not _is_numpydoc_docstring('Just a plain docstring.')
 
 
 def test_is_numpy_false_for_yaml() -> None:
-    assert not _is_numpy_docstring('title: test\n')
+    assert not _is_numpydoc_docstring('title: test\n')
 
 
 # -------------------------------------------------------------------
@@ -75,7 +75,7 @@ def test_numpy_to_douki_basic() -> None:
         'Returns\n-------\n'
         'int\n    The sum.\n'
     )
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'title:' in result
     assert 'parameters:' in result
     assert 'returns:' in result
@@ -85,12 +85,12 @@ def test_numpy_to_douki_basic() -> None:
 
 def test_numpy_preserves_non_numpy() -> None:
     raw = 'Just a plain docstring.'
-    assert numpy_to_douki_yaml(raw) == raw
+    assert numpydoc_to_douki_yaml(raw) == raw
 
 
 def test_numpy_parses_raises() -> None:
     ds = 'Do something.\n\nRaises\n------\nValueError\n    If input is bad.\n'
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'raises:' in result
     assert 'ValueError' in result
 
@@ -103,13 +103,13 @@ def test_numpy_with_summary() -> None:
         'Parameters\n----------\n'
         'x : int\n    Desc.\n'
     )
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'title: Title line' in result
     assert 'summary:' in result
 
 
 def test_parse_map_no_type() -> None:
-    """Entry without ': type' should have no type key."""
+    """title: Entry without ': type' should have no type key."""
     body = 'x\n    The x value.'
     result = _parse_map_section(body)
     assert 'x' in result
@@ -118,22 +118,22 @@ def test_parse_map_no_type() -> None:
 
 
 def test_parse_map_no_description() -> None:
-    """Entry with type but empty description should omit it."""
+    """title: Entry with type but empty description should omit it."""
     body = 'x : int'
     result = _parse_map_section(body)
     assert result['x'] == {'type': 'int'}
 
 
 def test_numpy_no_narrative() -> None:
-    """Docstring with no summary line at all."""
+    """title: Docstring with no summary line at all."""
     ds = '\n\nParameters\n----------\nx : int\n    Desc.\n'
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'title:' in result
 
 
 def test_numpy_yields_section() -> None:
     ds = 'Generate stuff.\n\nYields\n------\nint\n    A number.\n'
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'yields:' in result
 
 
@@ -143,20 +143,20 @@ def test_numpy_warnings_section() -> None:
         'Warnings\n--------\n'
         'RuntimeWarning\n    Could be slow.\n'
     )
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'warnings:' in result
     assert 'RuntimeWarning' in result
 
 
 def test_numpy_notes_section() -> None:
     ds = 'Some function.\n\nNotes\n-----\nThis is a note.\nMulti-line note.\n'
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'notes:' in result
 
 
 def test_numpy_unknown_section_ignored() -> None:
-    """Unknown sections should be silently skipped."""
+    """title: Unknown sections should be silently skipped."""
     ds = 'Title.\n\nCustom Section\n--------------\nblah blah\n'
-    result = numpy_to_douki_yaml(ds)
+    result = numpydoc_to_douki_yaml(ds)
     assert 'title: Title' in result
     assert 'custom' not in result.lower()

@@ -13,10 +13,10 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "type":        { "type": "string" },
-            "optional":    { "type": ["boolean", "null"] },
+            "type": { "type": "string" },
+            "optional": { "type": ["boolean", "null"] },
             "description": { "type": "string" },
-            "default":     {}
+            "default": {}
           }
         }
       ]
@@ -25,7 +25,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type":        { "type": "string" },
+        "type": { "type": "string" },
         "description": { "type": "string" }
       }
     },
@@ -36,7 +36,7 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "code":        { "type": "string" },
+            "code": { "type": "string" },
             "description": { "type": "string" }
           }
         }
@@ -45,9 +45,9 @@
   },
 
   "properties": {
-    "title":        { "type": "string" },
-    "summary":      { "type": ["string", "null"] },
-    "deprecated":   { "type": "string" },
+    "title": { "type": "string" },
+    "summary": { "type": ["string", "null"] },
+    "deprecated": { "type": "string" },
 
     "visibility": {
       "type": "string",
@@ -71,28 +71,19 @@
       "oneOf": [
         { "type": "string" },
         { "type": ["string", "null"] },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
+        { "$ref": "#/definitions/typed_entry" }
       ]
     },
     "yields": {
       "oneOf": [
         { "type": "string" },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
+        { "$ref": "#/definitions/typed_entry" }
       ]
     },
     "receives": {
       "oneOf": [
         { "type": "string" },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
+        { "$ref": "#/definitions/typed_entry" }
       ]
     },
 
@@ -132,8 +123,16 @@
       ]
     },
 
-    "notes":       { "type": ["string", "null"] },
-    "references":  { "type": ["string", "null"] },
+    "notes": { "type": ["string", "null"] },
+    "references": {
+      "oneOf": [
+        { "type": ["string", "null"] },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
 
     "examples": {
       "oneOf": [

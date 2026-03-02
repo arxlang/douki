@@ -1,4 +1,6 @@
-"""Tests for douki.cli — Typer-based CLI."""
+"""
+title: Tests for douki.cli — Typer-based CLI.
+"""
 
 from __future__ import annotations
 
@@ -15,7 +17,18 @@ runner = CliRunner()
 
 
 def _write(tmp_path: Path, name: str, content: str) -> Path:
-    """Write *content* to *tmp_path/name* and return the path."""
+    """
+    title: Write *content* to *tmp_path/name* and return the path.
+    parameters:
+      tmp_path:
+        type: Path
+      name:
+        type: str
+      content:
+        type: str
+    returns:
+      - type: Path
+    """
     p = tmp_path / name
     p.write_text(textwrap.dedent(content), encoding='utf-8')
     return p
@@ -26,11 +39,16 @@ def _write(tmp_path: Path, name: str, content: str) -> Path:
 # -------------------------------------------------------------------
 
 
-def test_check_exit_0_when_clean(tmp_path: Path) -> None:
-    """Already-synced file should produce exit 0."""
+def test_check_exit_2_when_invalid(tmp_path: Path) -> None:
+    """
+    title: Invalid docstring should produce exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
-        'clean.py',
+        'invalid.py',
         '''\
         def hello() -> None:
             """Just a plain docstring."""
@@ -38,11 +56,16 @@ def test_check_exit_0_when_clean(tmp_path: Path) -> None:
         ''',
     )
     result = runner.invoke(app, ['check', str(p)])
-    assert result.exit_code == 0
+    assert result.exit_code == 2
 
 
 def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
-    """Unsynced file should produce exit 1 with diff."""
+    """
+    title: Unsynced file should produce exit 1 with diff.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
         'dirty.py',
@@ -59,7 +82,12 @@ def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
 
 
 def test_check_shows_output(tmp_path: Path) -> None:
-    """Diff output should contain file path."""
+    """
+    title: Diff output should contain file path.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
         'show.py',
@@ -186,7 +214,7 @@ def test_directory_discovers_py_files(tmp_path: Path) -> None:
 # -------------------------------------------------------------------
 
 
-def test_check_migrate_numpy(tmp_path: Path) -> None:
+def test_migrate_numpydoc(tmp_path: Path) -> None:
     p = _write(
         tmp_path,
         'numpy.py',
@@ -211,37 +239,7 @@ def test_check_migrate_numpy(tmp_path: Path) -> None:
     )
     result = runner.invoke(
         app,
-        ['check', '--migrate', 'numpy', str(p)],
-    )
-    assert result.exit_code == 1
-
-
-def test_sync_migrate_numpy(tmp_path: Path) -> None:
-    p = _write(
-        tmp_path,
-        'numpy.py',
-        '''\
-        def add(x, y):
-            """Add two numbers.
-
-            Parameters
-            ----------
-            x : int
-                First operand.
-            y : int
-                Second operand.
-
-            Returns
-            -------
-            int
-                The sum.
-            """
-            return x + y
-        ''',
-    )
-    result = runner.invoke(
-        app,
-        ['sync', '--migrate', 'numpy', str(p)],
+        ['migrate', '--from', 'numpydoc', str(p)],
     )
     assert result.exit_code == 1
     content = p.read_text(encoding='utf-8')
@@ -254,11 +252,16 @@ def test_sync_migrate_numpy(tmp_path: Path) -> None:
 # -------------------------------------------------------------------
 
 
-def test_sync_exit_0_when_no_changes(tmp_path: Path) -> None:
-    """Already-synced file should produce exit 0."""
+def test_sync_exit_2_when_invalid(tmp_path: Path) -> None:
+    """
+    title: Invalid docstring should produce exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
-        'clean.py',
+        'invalid.py',
         '''\
         def hello() -> None:
             """Just a plain docstring."""
@@ -266,11 +269,16 @@ def test_sync_exit_0_when_no_changes(tmp_path: Path) -> None:
         ''',
     )
     result = runner.invoke(app, ['sync', str(p)])
-    assert result.exit_code == 0
+    assert result.exit_code == 2
 
 
 def test_sync_unreadable_file(tmp_path: Path) -> None:
-    """sync on a missing file should exit 2."""
+    """
+    title: sync on a missing file should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     missing = tmp_path / 'does_not_exist.py'
     result = runner.invoke(
         app,
@@ -281,7 +289,12 @@ def test_sync_unreadable_file(tmp_path: Path) -> None:
 
 
 def test_check_unreadable_file(tmp_path: Path) -> None:
-    """check on a missing file should exit 2."""
+    """
+    title: check on a missing file should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     missing = tmp_path / 'does_not_exist.py'
     result = runner.invoke(
         app,
@@ -292,7 +305,12 @@ def test_check_unreadable_file(tmp_path: Path) -> None:
 
 
 def test_sync_empty_directory(tmp_path: Path) -> None:
-    """sync on empty dir should exit 0."""
+    """
+    title: sync on empty dir should exit 0.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     result = runner.invoke(
         app,
         ['sync', str(tmp_path)],
@@ -301,7 +319,12 @@ def test_sync_empty_directory(tmp_path: Path) -> None:
 
 
 def test_check_empty_directory(tmp_path: Path) -> None:
-    """check on empty dir should exit 0."""
+    """
+    title: check on empty dir should exit 0
+    parameters:
+      tmp_path:
+        type: Path
+    """
     result = runner.invoke(
         app,
         ['check', str(tmp_path)],

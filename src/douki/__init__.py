@@ -1,4 +1,6 @@
-"""Douki — language-agnostic YAML docstring toolkit."""
+"""
+title: Douki, the language-agnostic YAML docstring toolkit.
+"""
 
 from __future__ import annotations
 
@@ -6,7 +8,11 @@ from importlib import metadata as importlib_metadata
 
 
 def get_version() -> str:
-    """Return the program version."""
+    """
+    title: Return the program version.
+    returns:
+      - type: str
+    """
     try:
         return importlib_metadata.version(__name__)
     except importlib_metadata.PackageNotFoundError:  # pragma: no cover

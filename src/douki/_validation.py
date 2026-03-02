@@ -1,4 +1,6 @@
-"""Validate docstring YAML."""
+"""
+title: Validate docstring YAML.
+"""
 
 from __future__ import annotations
 

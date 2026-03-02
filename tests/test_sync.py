@@ -1,34 +1,41 @@
-"""Tests for douki.sync — the core sync engine."""
+"""
+title: Tests for douki.sync — the core sync engine.
+"""
 
 from __future__ import annotations
 
+# -------------------------------------------------------------------
+# validate_docstring
+# -------------------------------------------------------------------
+import pytest
+
 from douki.sync import (
     ParamInfo,
-    _is_douki_yaml,
     extract_functions,
     sync_docstring,
     sync_source,
+    validate_docstring,
 )
 
-# -------------------------------------------------------------------
-# _is_douki_yaml
-# -------------------------------------------------------------------
+
+def test_validate_docstring_valid() -> None:
+    assert validate_docstring('title: hello', 'test')
 
 
-def test_is_douki_yaml_valid() -> None:
-    assert _is_douki_yaml('title: hello')
+def test_validate_docstring_missing_title() -> None:
+    with pytest.raises(ValueError, match="Missing 'title' field"):
+        validate_docstring('summary: no title here', 'test')
 
 
-def test_is_douki_yaml_missing_title() -> None:
-    assert not _is_douki_yaml('summary: no title here')
+def test_validate_docstring_plain_text() -> None:
+    with pytest.raises(
+        ValueError, match='Docstring is not a valid Douki YAML dictionary'
+    ):
+        validate_docstring('Just a plain docstring.', 'test')
 
 
-def test_is_douki_yaml_plain_text() -> None:
-    assert not _is_douki_yaml('Just a plain docstring.')
-
-
-def test_is_douki_yaml_empty() -> None:
-    assert not _is_douki_yaml('')
+def test_validate_docstring_empty() -> None:
+    assert not validate_docstring('', 'test')
 
 
 # -------------------------------------------------------------------
@@ -157,10 +164,10 @@ def test_sync_updates_return_type() -> None:
     assert 'type: float' in result
 
 
-def test_sync_skips_non_yaml() -> None:
+def test_sync_raises_on_non_yaml() -> None:
     raw = 'Just a plain docstring.'
-    result = sync_docstring(raw, [_p('x', 'int')], 'int')
-    assert result == raw
+    with pytest.raises(ValueError, match='not a valid Douki YAML'):
+        sync_docstring(raw, [_p('x', 'int')], 'int')
 
 
 def test_sync_idempotent() -> None:
@@ -171,8 +178,8 @@ def test_sync_idempotent() -> None:
         '    type: int\n'
         '    description: the x value\n'
         'returns:\n'
-        '  - type: int\n'
-        '    description: the result\n'
+        '  type: int\n'
+        '  description: the result\n'
     )
     params = [_p('x', 'int')]
     first = sync_docstring(raw, params, 'int')
@@ -192,7 +199,7 @@ def test_sync_handles_star_args() -> None:
 
 
 def test_sync_removes_returns_for_none() -> None:
-    raw = 'title: test\nreturns:\n  - type: str\n    description: old\n'
+    raw = 'title: test\nreturns:\n  type: str\n  description: old\n'
     result = sync_docstring(raw, [], 'None')
     assert 'returns' not in result
 
@@ -232,14 +239,14 @@ def add(x: int, y: int) -> int:
     assert 'type: int' in result
 
 
-def test_sync_source_skips_non_yaml_docstring() -> None:
+def test_sync_source_raises_on_non_yaml_docstring() -> None:
     src = '''\
 def plain(x: int) -> int:
     """Just a plain docstring."""
     return x
 '''
-    result = sync_source(src)
-    assert result == src
+    with pytest.raises(ValueError, match='not a valid Douki YAML'):
+        sync_source(src)
 
 
 def test_sync_source_skips_no_docstring() -> None:
@@ -261,8 +268,8 @@ def greet(name: str) -> str:
         type: str
         description: The name
     returns:
-      - type: str
-        description: greeting
+      type: str
+      description: greeting
     """
     return f"Hello {name}"
 '''
@@ -316,11 +323,11 @@ def test_sync_source_no_functions() -> None:
 
 
 # -------------------------------------------------------------------
-# sync_source with migrate='numpy'
+# sync_source with migrate='numpydoc'
 # -------------------------------------------------------------------
 
 
-def test_sync_source_migrate_numpy() -> None:
+def test_sync_source_migrate_numpydoc() -> None:
     src = '''\
 def add(x, y):
     """Add two numbers.
@@ -339,7 +346,7 @@ def add(x, y):
     """
     return x + y
 '''
-    result = sync_source(src, migrate='numpy')
+    result = sync_source(src, migrate='numpydoc')
     assert 'title:' in result
     assert 'parameters:' in result
     assert 'returns:' in result
@@ -355,13 +362,13 @@ def greet(name: str) -> str:
         type: str
         description: The name
     returns:
-      - type: str
-        description: greeting
+      type: str
+      description: greeting
     """
     return f"Hello {name}"
 '''
-    result = sync_source(src, migrate='numpy')
-    second = sync_source(result, migrate='numpy')
+    result = sync_source(src, migrate='numpydoc')
+    second = sync_source(result, migrate='numpydoc')
     assert result == second
 
 
@@ -384,7 +391,7 @@ def add(x: int, y: int) -> int:
     """
     return x + y
 '''
-    result = sync_source(src, migrate='numpy')
+    result = sync_source(src, migrate='numpydoc')
     assert 'title:' in result
     second = sync_source(result)
     assert result == second
@@ -503,10 +510,12 @@ def test_sync_returns_list_string_items() -> None:
     assert 'returns:' in result
 
 
-def test_sync_preserves_old_flat_returns() -> None:
+def test_sync_raises_on_old_flat_returns() -> None:
     raw = 'title: test\nreturns: the result\n'
-    result = sync_docstring(raw, [], 'int')
-    assert 'the result' in result
+    with pytest.raises(
+        ValueError, match='Docstring YAML does not follow douki schema'
+    ):
+        sync_docstring(raw, [], 'int')
 
 
 # -------------------------------------------------------------------
@@ -516,9 +525,13 @@ def test_sync_preserves_old_flat_returns() -> None:
 
 def test_is_douki_yaml_invalid_schema() -> None:
     # Has title but unknown field should fail schema validation
-    assert not _is_douki_yaml(
-        'title: test\nunknown_field: bad',
-    )
+    with pytest.raises(
+        ValueError, match='Docstring YAML does not follow douki schema'
+    ):
+        validate_docstring(
+            'title: test\nunknown_field: bad',
+            'test',
+        )
 
 
 # -------------------------------------------------------------------
@@ -654,7 +667,9 @@ def foo(x: int):
 
 
 def test_sync_with_old_flat_params_preserved() -> None:
-    """Ensure old flat string params still work."""
+    """
+    title: Ensure old flat string params still work
+    """
     raw = 'title: test\nparameters:\n  x: my description\n'
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, '')

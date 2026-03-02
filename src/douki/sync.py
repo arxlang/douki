@@ -1,8 +1,9 @@
-"""Sync Douki YAML docstrings with function/class signatures.
-
-This module provides the core logic for comparing Python source code
-signatures against their Douki YAML docstrings and producing an
-updated source string.  It is intentionally pure — no file I/O.
+"""
+title: Sync Douki YAML docstrings with function/class signatures.
+summary: |
+  This module provides the core logic for comparing Python source code
+  signatures against their Douki YAML docstrings and producing an
+  updated source string.  It is intentionally pure — no file I/O.
 """
 
 from __future__ import annotations
@@ -23,9 +24,15 @@ from douki._validation import validate_schema
 # ---------------------------------------------------------------------------
 
 
+class DocstringValidationError(ValueError):
+    """title: 'Raised when one or more docstrings in a file fail validation.'"""
+
+    pass
+
+
 @dataclass
 class ParamInfo:
-    """A single parameter extracted from an ``ast`` signature."""
+    """title: 'A single parameter extracted from an ``ast`` signature.'"""
 
     name: str
     annotation: str  # '' when absent
@@ -36,10 +43,14 @@ class ParamInfo:
 
 @dataclass
 class FuncInfo:
-    """Everything we need to know about a single def / async def."""
+    """
+    title: >-
+      Everything we need to know about a single def /
+      async def / class / module.
+    """
 
     name: str
-    lineno: int  # 1-based line of the *def* keyword
+    lineno: int  # 1-based line of the *def* keyword, or 1 for module
     params: List[ParamInfo] = field(default_factory=list)
     return_annotation: str = ''
     docstring_node: Optional[ast.Constant] = None
@@ -52,7 +63,7 @@ class FuncInfo:
 
 
 def _annotation_to_str(node: Optional[ast.expr]) -> str:
-    """Convert an AST annotation node to a readable type string."""
+    """title: Convert an AST annotation node to a readable type string."""
     if node is None:
         return ''
 
@@ -124,7 +135,7 @@ def _extract_func(
     node: ast.FunctionDef | ast.AsyncFunctionDef,
     is_method: bool = False,
 ) -> FuncInfo:
-    """Build a *FuncInfo* from an AST function node."""
+    """title: Extract a FuncInfo from a FunctionDef/AsyncFunctionDef or ClassDef."""
     params: List[ParamInfo] = []
     all_args: list[ast.arg] = (
         node.args.posonlyargs + node.args.args + node.args.kwonlyargs
@@ -168,9 +179,27 @@ def _extract_func(
 
 
 def extract_functions(source: str) -> List[FuncInfo]:
-    """Parse *source* and return info about every function / method."""
+    """
+    title: Parse the Python source and return extracted functions/classes.
+    returns: List of FuncInfo objects in the order they appear.
+    """
     tree = ast.parse(source)
     results: List[FuncInfo] = []
+
+    # Module docstring
+    if (
+        tree.body
+        and isinstance(tree.body[0], ast.Expr)
+        and isinstance(tree.body[0].value, ast.Constant)
+        and isinstance(tree.body[0].value.value, str)
+    ):
+        results.append(
+            FuncInfo(
+                name='<module>',
+                lineno=1,
+                docstring_node=tree.body[0].value,
+            )
+        )
 
     for node in ast.walk(tree):
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
@@ -183,12 +212,31 @@ def extract_functions(source: str) -> List[FuncInfo]:
                         break
             results.append(_extract_func(node, is_method=is_method))
         elif isinstance(node, ast.ClassDef):
+            # Extract class docstring
+            ds_node = None
+            if (
+                node.body
+                and isinstance(node.body[0], ast.Expr)
+                and isinstance(node.body[0].value, ast.Constant)
+                and isinstance(node.body[0].value.value, str)
+            ):
+                ds_node = node.body[0].value
+
+            if ds_node is not None:
+                results.append(
+                    FuncInfo(
+                        name=node.name,
+                        lineno=node.lineno,
+                        docstring_node=ds_node,
+                    )
+                )
+
             for child in ast.iter_child_nodes(node):
                 if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     results.append(_extract_func(child, is_method=True))
 
     # Deduplicate (methods found by both walk and ClassDef iteration)
-    seen: set[int] = set()
+    seen: set[int | tuple[str, int]] = set()
     unique: List[FuncInfo] = []
     for fi in results:
         key = (
@@ -197,7 +245,7 @@ def extract_functions(source: str) -> List[FuncInfo]:
             else (fi.name, fi.lineno)
         )
         if key not in seen:
-            seen.add(key)  # type: ignore[arg-type]
+            seen.add(key)
             unique.append(fi)
     return unique
 
@@ -207,25 +255,35 @@ def extract_functions(source: str) -> List[FuncInfo]:
 # ---------------------------------------------------------------------------
 
 
-def _is_douki_yaml(raw: str) -> bool:
-    """Check if *raw* is valid Douki YAML with a ``title``."""
-    if not raw or ':' not in raw:
+def validate_docstring(raw: str, func_name: str) -> bool:
+    """
+    title: Synchronize a single docstring's YAML.
+    returns: True if it's a valid Douki YAML docstring.
+    """
+    if not raw or not raw.strip():
         return False
+
     try:
         data = yaml.safe_load(textwrap.dedent(raw))
     except yaml.YAMLError:
-        return False
-    if not isinstance(data, dict) or 'title' not in data:
-        return False
+        raise ValueError('Could not parse YAML')
+
+    if not isinstance(data, dict):
+        raise ValueError('Invalid Douki YAML')
+
+    if 'title' not in data:
+        raise ValueError("Missing 'title' field")
+
     try:
         validate_schema(data)
-    except ValueError:
-        return False
+    except ValueError as e:
+        raise ValueError(str(e))
+
     return True
 
 
 def _param_name_for_yaml(p: ParamInfo) -> str:
-    """Produce the YAML key for a parameter."""
+    """title: Produce the YAML key for a parameter."""
     if p.kind == 'var_positional':
         return f'*{p.name}'
     if p.kind == 'var_keyword':
@@ -234,7 +292,7 @@ def _param_name_for_yaml(p: ParamInfo) -> str:
 
 
 def _extract_param_desc(entry: Any) -> str:
-    """Read the description from an old flat or new nested param."""
+    """title: Read the description from an old flat or new nested param."""
     if isinstance(entry, dict):
         return str(entry.get('description', ''))
     if isinstance(entry, str):
@@ -243,12 +301,14 @@ def _extract_param_desc(entry: Any) -> str:
 
 
 def _extract_returns_desc(entry: Any) -> str:
-    """Read description from old flat or new list returns."""
+    """title: Extract the existing description for returns/yields."""
     if isinstance(entry, list) and entry:
         first = entry[0]
         if isinstance(first, dict):
             return str(first.get('description', ''))
         return str(first)
+    if isinstance(entry, dict):
+        return str(entry.get('description', ''))
     if isinstance(entry, str):
         return entry
     return ''
@@ -260,13 +320,14 @@ def sync_docstring(
     return_annotation: str,
     *,
     is_method: bool = False,
+    func_name: str = '<unknown>',
 ) -> str:
     """Merge signature info into a Douki YAML docstring.
 
     Returns the updated YAML (without surrounding triple-quotes).
-    If not valid Douki YAML, returns it unchanged.
+    If not valid Douki YAML, raises ValueError.
     """
-    if not _is_douki_yaml(raw_docstring):
+    if not validate_docstring(raw_docstring, func_name):
         return raw_docstring
 
     data: Dict[str, Any] = yaml.safe_load(
@@ -307,7 +368,7 @@ def sync_docstring(
         ret_entry: Dict[str, Any] = {'type': return_annotation}
         if desc:
             ret_entry['description'] = desc
-        data['returns'] = [ret_entry]
+        data['returns'] = ret_entry
     elif return_annotation == 'None':
         data.pop('returns', None)
 
@@ -352,9 +413,9 @@ _PARAM_DEFAULTS: Dict[str, Any] = {
 
 
 def _rebuild_yaml(data: Dict[str, Any]) -> str:
-    """Serialize *data* to YAML with canonical key order.
-
-    Omits fields that match Python defaults.
+    """
+    title: Serialize *data* to YAML with canonical key order.
+    summary: Omits fields that match Python defaults.
     """
     ordered: List[Tuple[str, Any]] = []
     for key in _KEY_ORDER:
@@ -376,32 +437,55 @@ def _rebuild_yaml(data: Dict[str, Any]) -> str:
 
         if key == 'parameters':
             _emit_parameters(lines, value)
-        elif key in ('returns', 'yields', 'receives'):
+        elif key in (
+            'see_also',
+            'references',
+            'methods',
+            'attributes',
+        ):
             _emit_typed_list(lines, key, value)
         elif key in ('raises', 'warnings'):
             _emit_raises(lines, key, value)
+        elif key in ('returns', 'yields', 'receives'):
+            _emit_typed_entry(lines, key, value)
         elif key == 'examples' and isinstance(value, list):
             _emit_examples(lines, value)
         elif isinstance(value, dict):
             lines.append(f'{key}:')
             for k, v in value.items():
-                lines.append(
-                    f'  {k}: {_yaml_scalar(v)}',
-                )
-        elif isinstance(value, str) and '\n' in value:
-            lines.append(f'{key}: |')
-            for ln in value.splitlines():
-                lines.append(f'  {ln}')
+                _emit_key_value(lines, '  ', k, v)
         else:
-            lines.append(f'{key}: {_yaml_scalar(value)}')
+            _emit_key_value(lines, '', key, value)
     return '\n'.join(lines) + '\n'
+
+
+def _emit_key_value(
+    lines: List[str], indent_str: str, key: str, value: Any
+) -> None:
+    """Safely emit a key-value pair, folding long strings into block scalars."""
+    if isinstance(value, str):
+        if len(indent_str) + len(key) + len(value) > 75 and '\n' not in value:
+            import textwrap
+
+            wrapped = textwrap.fill(value, width=78 - len(indent_str) - 2)
+            lines.append(f'{indent_str}{key}: >')
+            for ln in wrapped.splitlines():
+                lines.append(f'{indent_str}  {ln}')
+            return
+        elif '\n' in value:
+            lines.append(f'{indent_str}{key}: |')
+            for ln in value.splitlines():
+                lines.append(f'{indent_str}  {ln}')
+            return
+
+    lines.append(f'{indent_str}{key}: {_yaml_scalar(value)}')
 
 
 def _emit_parameters(
     lines: List[str],
     params: Dict[str, Any],
 ) -> None:
-    """Emit ``parameters:`` section."""
+    """title: Emit ``parameters:`` section."""
     lines.append('parameters:')
     for name, entry in params.items():
         if isinstance(entry, str):
@@ -416,9 +500,7 @@ def _emit_parameters(
                 if sub_key in _PARAM_DEFAULTS:
                     if val == _PARAM_DEFAULTS[sub_key]:
                         continue
-                lines.append(
-                    f'    {sub_key}: {_yaml_scalar(val)}',
-                )
+                _emit_key_value(lines, '    ', sub_key, val)
 
 
 def _emit_typed_list(
@@ -426,7 +508,7 @@ def _emit_typed_list(
     key: str,
     value: Any,
 ) -> None:
-    """Emit returns/yields/receives as list."""
+    """title: Emit list-based types (methods, attributes)."""
     if isinstance(value, str):
         lines.append(f'{key}: {_yaml_scalar(value)}')
         return
@@ -438,12 +520,29 @@ def _emit_typed_list(
                 for sk in ('type', 'description'):
                     if sk in item:
                         prefix = '- ' if first else '  '
-                        lines.append(
-                            f'  {prefix}{sk}: {_yaml_scalar(item[sk])}',
-                        )
+                        _emit_key_value(lines, '  ', f'{prefix}{sk}', item[sk])
                         first = False
             else:
-                lines.append(f'  - {_yaml_scalar(item)}')
+                _emit_key_value(lines, '  ', '-', item)
+
+
+def _emit_typed_entry(
+    lines: List[str],
+    key: str,
+    value: Any,
+) -> None:
+    """title: Emit returns/yields/receives as a single dictionary."""
+    if isinstance(value, str):
+        lines.append(f'{key}: {_yaml_scalar(value)}')
+        return
+    if isinstance(value, list) and value:
+        value = value[0]  # graceful downgrade from legacy list
+
+    if isinstance(value, dict):
+        lines.append(f'{key}:')
+        for sk in ('type', 'description'):
+            if sk in value:
+                _emit_key_value(lines, '  ', sk, value[sk])
 
 
 def _emit_raises(
@@ -451,11 +550,11 @@ def _emit_raises(
     key: str,
     value: Any,
 ) -> None:
-    """Emit raises/warnings (dict or list format)."""
+    """title: Emit raises/warnings (dict or list format)."""
     if isinstance(value, dict):
         lines.append(f'{key}:')
         for k, v in value.items():
-            lines.append(f'  {k}: {_yaml_scalar(v)}')
+            _emit_key_value(lines, '  ', k, v)
     elif isinstance(value, list):
         lines.append(f'{key}:')
         for item in value:
@@ -464,19 +563,17 @@ def _emit_raises(
                 for sk in ('type', 'description'):
                     if sk in item:
                         prefix = '- ' if first else '  '
-                        lines.append(
-                            f'  {prefix}{sk}: {_yaml_scalar(item[sk])}',
-                        )
+                        _emit_key_value(lines, '  ', f'{prefix}{sk}', item[sk])
                         first = False
             else:
-                lines.append(f'  - {_yaml_scalar(item)}')
+                _emit_key_value(lines, '  ', '-', item)
 
 
 def _emit_examples(
     lines: List[str],
     value: List[Any],
 ) -> None:
-    """Emit examples as list."""
+    """title: Emit examples as list."""
     lines.append('examples:')
     for item in value:
         if isinstance(item, dict) and 'code' in item:
@@ -484,22 +581,22 @@ def _emit_examples(
             for ln in str(item['code']).splitlines():
                 lines.append(f'      {ln}')
             if 'description' in item:
-                lines.append(
-                    f'    description: {_yaml_scalar(item["description"])}',
+                _emit_key_value(
+                    lines, '    ', 'description', item['description']
                 )
         elif isinstance(item, str):
-            lines.append(f'  - {_yaml_scalar(item)}')
+            _emit_key_value(lines, '  ', '-', item)
 
 
 def _yaml_scalar(value: Any) -> str:
-    """Format a simple scalar for inline YAML."""
+    """title: Format a simple scalar for inline YAML."""
     if isinstance(value, bool):
         return 'true' if value else 'false'
     if isinstance(value, str):
-        if any(c in value for c in ':{}[]&*!|>\\\'"#%@`'):
+        if any(c in value for c in ':{}[]&*!|>\\\'"#%@`\n'):
             dumped = yaml.dump(
                 value,
-                default_flow_style=True,
+                default_flow_style=False,  # Allow block style for multiline strings
             )
             dumped = dumped.removesuffix('\n')
             dumped = dumped.removesuffix('...')
@@ -520,21 +617,21 @@ def sync_source(
     *,
     migrate: Optional[str] = None,
 ) -> str:
-    """Synchronize all Douki YAML docstrings in *source*.
-
-    Parameters
-    ----------
-    source : str
-        Python source code.
-    migrate : str, optional
-        If ``'numpy'``, convert NumPy docstrings to Douki
-        YAML before syncing.
-
-    Returns the (possibly modified) source string.
+    """
+    title: Synchronize all Douki YAML docstrings in *source*.
+    parameters:
+      source:
+        type: str
+        description: Python source code.
+      migrate:
+        type: str
+        optional: true
+        description: If ``'numpydoc'``, convert NumPy docstrings to Douki YAML before syncing.
+    returns: The (possibly modified) source string.
     """
     # Optional migration pass first
-    if migrate == 'numpy':
-        source = _migrate_numpy(source)
+    if migrate == 'numpydoc':
+        source = _migrate_numpydoc(source)
 
     try:
         funcs = extract_functions(source)
@@ -552,20 +649,40 @@ def sync_source(
         reverse=True,
     )
 
+    errors = []
+
     for func in funcs_with_ds:
         ds_node = func.docstring_node
         assert ds_node is not None
 
         raw = str(ds_node.value)
-        if not _is_douki_yaml(raw):
+
+        # We enforce validation for every docstring that exists.
+        if raw.strip():
+            try:
+                validate_docstring(raw, func.name)
+            except ValueError as e:
+                prefix = (
+                    '<module>' if func.name == '<module>' else f"'{func.name}'"
+                )
+                errors.append(f'- {prefix}: {e}')
+                continue
+
+        try:
+            synced = sync_docstring(
+                raw,
+                func.params,
+                func.return_annotation,
+                is_method=func.is_method,
+                func_name=func.name,
+            )
+        except ValueError as e:
+            prefix = (
+                '<module>' if func.name == '<module>' else f"'{func.name}'"
+            )
+            errors.append(f'- {prefix}: {e}')
             continue
 
-        synced = sync_docstring(
-            raw,
-            func.params,
-            func.return_annotation,
-            is_method=func.is_method,
-        )
         if synced == raw:
             continue
 
@@ -614,12 +731,18 @@ def sync_source(
 
         lines[ds_start:ds_end] = [new_docstring]
 
+    if errors:
+        errors.reverse()
+        raise DocstringValidationError('\n'.join(errors))
+
     return ''.join(lines)
 
 
-def _migrate_numpy(source: str) -> str:
-    """Replace NumPy-style docstrings with Douki YAML."""
-    from douki.migrate import numpy_to_douki_yaml
+def _migrate_numpydoc(source: str) -> str:
+    """
+    title: Replace numpydoc-style docstrings with Douki YAML
+    """
+    from douki.migrate import numpydoc_to_douki_yaml
 
     try:
         tree = ast.parse(source)
@@ -654,15 +777,33 @@ def _migrate_numpy(source: str) -> str:
         reverse=True,
     )
 
+    errors = []
+
     for ds_node in ds_nodes:
         raw = str(ds_node.value)
-        # Skip if already Douki YAML
-        if _is_douki_yaml(raw):
-            continue
+        # We enforce validation for every docstring that exists.
+        if raw.strip():
+            # Skip if already a valid Douki YAML (we silently check)
+            try:
+                if validate_docstring(
+                    raw, getattr(ds_node, 'id', '<unknown node>')
+                ):
+                    continue
+            except ValueError:
+                # it's not a valid douki yaml, proceed to converting to see if it is numpydoc
+                pass
 
-        converted = numpy_to_douki_yaml(raw)
+        try:
+            converted = numpydoc_to_douki_yaml(raw)
+        except ValueError as e:
+            node_name = getattr(ds_node, 'id', '<unknown node>')
+            prefix = (
+                '<module>' if node_name == '<module>' else f"'{node_name}'"
+            )
+            errors.append(f'- {prefix}: {e}')
+            continue
         if converted == raw:
-            continue  # not a numpy docstring
+            continue  # not a numpydoc docstring
 
         ds_start = ds_node.lineno - 1
         ds_end = ds_node.end_lineno
@@ -701,5 +842,9 @@ def _migrate_numpy(source: str) -> str:
 
         new_ds = f'{indent}{quote}\n{new_content}\n{indent}{quote}\n'
         lines[ds_start:ds_end] = [new_ds]
+
+    if errors:
+        errors.reverse()
+        raise DocstringValidationError('\n'.join(errors))
 
     return ''.join(lines)
