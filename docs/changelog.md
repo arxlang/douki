@@ -1,6 +1,18 @@
 # Release Notes
 ---
 
+# [0.7.0](https://github.com/arxlang/douki/compare/0.6.0...0.7.0) (2026-03-02)
+
+
+### Bug Fixes
+
+* Update dependencies and fix documentation building ([#10](https://github.com/arxlang/douki/issues/10)) ([0eccc6c](https://github.com/arxlang/douki/commit/0eccc6c880af2e562e9266b18493a0aece78feca))
+
+
+### Features
+
+* Add support for CLI with douki sync and douki check ([#11](https://github.com/arxlang/douki/issues/11)) ([b255883](https://github.com/arxlang/douki/commit/b255883fd81d7651a5bd24755170a36616dad3a9))
+
 # [0.6.0](https://github.com/osl-incubator/douki/compare/0.5.0...0.6.0) (2025-10-09)
 
 
