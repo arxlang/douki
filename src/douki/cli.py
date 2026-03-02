@@ -1,9 +1,9 @@
-"""Douki CLI — ``douki sync`` and ``douki check`` commands.
-
-Usage::
-
-    douki sync  [FILES...]   # apply changes in-place
-    douki check [FILES...]   # print diff, exit 1 if changes needed
+"""
+title: "Douki CLI \u2014 ``douki sync`` and ``douki check`` commands."
+examples:
+  - code: |
+      douki sync  [FILES...]   # apply changes in-place
+      douki check [FILES...]   # print diff, exit 1 if changes needed
 """
 
 from __future__ import annotations
@@ -25,13 +25,15 @@ import typer
 
 from rich.console import Console
 
-from douki.sync import sync_source
+from douki.sync import DocstringValidationError, sync_source
 
 
 class MigrateFormat(str, Enum):
-    """Supported migration source formats."""
+    """
+    title: Supported migration source formats.
+    """
 
-    numpy = 'numpy'
+    numpydoc = 'numpydoc'
 
 
 app = typer.Typer(
@@ -46,11 +48,20 @@ out_console = Console()  # stdout
 
 @app.callback()
 def _main() -> None:
-    """Douki — language-agnostic YAML docstring toolkit."""
+    """
+    title: Douki — language-agnostic YAML docstring toolkit.
+    """
 
 
 def _load_exclude_patterns(cwd: Path) -> List[str]:
-    """Load exclude patterns from pyproject.toml in cwd or parents."""
+    """
+    title: Load exclude patterns from pyproject.toml in cwd or parents.
+    parameters:
+      cwd:
+        type: Path
+    returns:
+      type: List[str]
+    """
     curr = cwd.resolve()
     while True:
         pyproject = curr / 'pyproject.toml'
@@ -74,7 +85,16 @@ def _load_exclude_patterns(cwd: Path) -> List[str]:
 
 
 def _is_excluded(path: Path, excludes: List[str]) -> bool:
-    """Check if path matches any of the exclude patterns."""
+    """
+    title: Check if path matches any of the exclude patterns.
+    parameters:
+      path:
+        type: Path
+      excludes:
+        type: List[str]
+    returns:
+      type: bool
+    """
     if not excludes:
         return False
 
@@ -96,7 +116,16 @@ def _is_excluded(path: Path, excludes: List[str]) -> bool:
 
 
 def _collect_py_files(paths: List[Path], excludes: List[str]) -> List[Path]:
-    """Expand directories to ``.py`` files and filter non-py and excluded."""
+    """
+    title: Expand directories to ``.py`` files and filter non-py and excluded.
+    parameters:
+      paths:
+        type: List[Path]
+      excludes:
+        type: List[str]
+    returns:
+      type: List[Path]
+    """
     result: List[Path] = []
     for p in paths:
         if p.is_dir():
@@ -112,7 +141,14 @@ def _collect_py_files(paths: List[Path], excludes: List[str]) -> List[Path]:
 def _resolve_files(
     files: Optional[List[Path]],
 ) -> List[Path]:
-    """Turn the optional argument into a list of .py paths."""
+    """
+    title: Turn the optional argument into a list of .py paths.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+    returns:
+      type: List[Path]
+    """
     excludes = _load_exclude_patterns(Path.cwd())
     raw = files if files else [Path('.')]
     py_files = _collect_py_files(raw, excludes)
@@ -127,9 +163,18 @@ def _print_diff(
     original: str,
     updated: str,
 ) -> bool:
-    """Print a coloured unified diff.
-
-    Return True if there is a diff.
+    """
+    title: Print a coloured unified diff.
+    parameters:
+      path:
+        type: Path
+      original:
+        type: str
+      updated:
+        type: str
+    returns:
+      type: bool
+      description: True if there is a diff.
     """
     if original == updated:
         return False
@@ -165,14 +210,14 @@ def sync(
         default=None,
         help='Python files or directories (default: ".").',
     ),
-    migrate: Optional[MigrateFormat] = typer.Option(
-        None,
-        '--migrate',
-        help='Migrate from another docstring format.',
-    ),
 ) -> None:
-    """Apply docstring sync changes to files in-place."""
-    migrate_val = migrate.value if migrate else None
+    """
+    title: Apply docstring sync changes to files in-place.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+    """
+    migrate_val = None
     py_files = _resolve_files(files)
     errors = False
     changed = 0
@@ -193,6 +238,12 @@ def sync(
                 original,
                 migrate=migrate_val,
             )
+        except DocstringValidationError as exc:
+            console.print(
+                f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
+            )
+            errors = True
+            continue
         except Exception as exc:
             console.print(
                 f'[red]Error processing {filepath}:[/] {exc}',
@@ -229,14 +280,14 @@ def check(
         default=None,
         help='Python files or directories (default: ".").',
     ),
-    migrate: Optional[MigrateFormat] = typer.Option(
-        None,
-        '--migrate',
-        help='Migrate from another docstring format.',
-    ),
 ) -> None:
-    """Print a diff of proposed changes. Exit 1 if any."""
-    migrate_val = migrate.value if migrate else None
+    """
+    title: Print a diff of proposed changes. Exit 1 if any.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+    """
+    migrate_val = None
     py_files = _resolve_files(files)
     any_diff = False
     errors = False
@@ -256,6 +307,12 @@ def check(
                 original,
                 migrate=migrate_val,
             )
+        except DocstringValidationError as exc:
+            console.print(
+                f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
+            )
+            errors = True
+            continue
         except Exception as exc:
             console.print(
                 f'[red]Error processing {filepath}:[/] {exc}',
@@ -269,6 +326,83 @@ def check(
     if errors:
         raise typer.Exit(code=2)
     if any_diff:
+        raise typer.Exit(code=1)
+    raise typer.Exit(code=0)
+
+
+@app.command()
+def migrate(
+    files: Optional[List[Path]] = typer.Argument(
+        default=None,
+        help='Python files or directories (default: ".").',
+    ),
+    from_format: MigrateFormat = typer.Option(
+        ...,
+        '--from',
+        help='Source docstring format (e.g., numpydoc).',
+    ),
+) -> None:
+    """
+    title: Migrate docstrings from another format to Douki YAML.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+      from_format:
+        type: MigrateFormat
+    """
+    migrate_val = from_format.value
+    py_files = _resolve_files(files)
+    errors = False
+    changed = 0
+    unchanged = 0
+
+    for filepath in py_files:
+        try:
+            original = filepath.read_text(encoding='utf-8')
+        except OSError as exc:
+            console.print(
+                f'[red]Error reading {filepath}:[/] {exc}',
+            )
+            errors = True
+            continue
+
+        try:
+            updated = sync_source(
+                original,
+                migrate=migrate_val,
+            )
+        except DocstringValidationError as exc:
+            console.print(
+                f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
+            )
+            errors = True
+            continue
+        except Exception as exc:
+            console.print(
+                f'[red]Error processing {filepath}:[/] {exc}',
+            )
+            errors = True
+            continue
+
+        if original != updated:
+            filepath.write_text(updated, encoding='utf-8')
+            console.print(f'[green]Migrated[/] {filepath}')
+            changed += 1
+        else:
+            console.print(
+                f'[dim]No changes[/] {filepath}',
+            )
+            unchanged += 1
+
+    # Summary
+    console.print()
+    console.print(
+        f'[bold]{changed} migrated[/], {unchanged} unchanged',
+    )
+
+    if errors:
+        raise typer.Exit(code=2)
+    if changed:
         raise typer.Exit(code=1)
     raise typer.Exit(code=0)
 

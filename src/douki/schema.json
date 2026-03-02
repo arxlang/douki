@@ -7,16 +7,16 @@
 
   "definitions": {
     "param_entry": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
         {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "type":        { "type": "string" },
-            "optional":    { "type": ["boolean", "null"] },
+            "type": { "type": "string" },
+            "optional": { "type": ["boolean", "null"] },
             "description": { "type": "string" },
-            "default":     {}
+            "default": {}
           }
         }
       ]
@@ -25,18 +25,18 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type":        { "type": "string" },
+        "type": { "type": "string" },
         "description": { "type": "string" }
       }
     },
     "example_entry": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
         {
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "code":        { "type": "string" },
+            "code": { "type": "string" },
             "description": { "type": "string" }
           }
         }
@@ -45,9 +45,9 @@
   },
 
   "properties": {
-    "title":        { "type": "string" },
-    "summary":      { "type": ["string", "null"] },
-    "deprecated":   { "type": "string" },
+    "title": { "type": "string" },
+    "summary": { "type": ["string", "null"] },
+    "deprecated": { "type": "string" },
 
     "visibility": {
       "type": "string",
@@ -68,36 +68,27 @@
     },
 
     "returns": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
         { "type": ["string", "null"] },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
+        { "$ref": "#/definitions/typed_entry" }
       ]
     },
     "yields": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
+        { "$ref": "#/definitions/typed_entry" }
       ]
     },
     "receives": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
+        { "$ref": "#/definitions/typed_entry" }
       ]
     },
 
     "raises": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "object",
           "additionalProperties": { "type": "string" }
@@ -110,7 +101,7 @@
     },
 
     "warnings": {
-      "oneOf": [
+      "anyOf": [
         {
           "type": "object",
           "additionalProperties": { "type": "string" }
@@ -123,7 +114,7 @@
     },
 
     "see_also": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
         {
           "type": "array",
@@ -132,11 +123,19 @@
       ]
     },
 
-    "notes":       { "type": ["string", "null"] },
-    "references":  { "type": ["string", "null"] },
+    "notes": { "type": ["string", "null"] },
+    "references": {
+      "anyOf": [
+        { "type": ["string", "null"] },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
 
     "examples": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
         {
           "type": "array",
@@ -151,7 +150,7 @@
     },
 
     "methods": {
-      "oneOf": [
+      "anyOf": [
         { "type": "string" },
         {
           "type": "array",
