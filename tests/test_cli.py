@@ -351,7 +351,9 @@ def test_exclude_files_via_pyproject(
         'clean.py',
         '''\
         def good() -> None:
-            """title: good"""
+            """
+            title: good
+            """
             pass
         ''',
     )
@@ -376,6 +378,7 @@ def test_exclude_files_via_pyproject(
     )
 
     result = runner.invoke(app, ['check'])
+    print('OUTPUT WAS:', result.output)
     # Because clean.py is clean, and ignored.py/dirty.py are excluded,
     # it should exit 0
     assert result.exit_code == 0

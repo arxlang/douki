@@ -77,7 +77,14 @@ def _is_excluded(path: Path, excludes: List[str]) -> bool:
     """Check if path matches any of the exclude patterns."""
     if not excludes:
         return False
-    path_str = path.as_posix()
+
+    try:
+        rel_path = path.resolve().relative_to(Path.cwd().resolve())
+        path_str = rel_path.as_posix()
+    except ValueError:
+        # If the path is outside cwd, just use its absolute posix string.
+        path_str = path.resolve().as_posix()
+
     for pattern in excludes:
         if fnmatch.fnmatch(path_str, pattern) or fnmatch.fnmatch(
             path_str, f'*/{pattern}'
