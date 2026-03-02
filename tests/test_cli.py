@@ -6,6 +6,8 @@ import textwrap
 
 from pathlib import Path
 
+import pytest
+
 from douki.cli import app
 from typer.testing import CliRunner
 
@@ -323,3 +325,62 @@ def test_check_help_output() -> None:
     result = runner.invoke(app, ['check', '--help'])
     assert result.exit_code == 0
     assert 'check' in result.output.lower()
+
+
+# -------------------------------------------------------------------
+# Coverage: pyproject.toml configuration
+# -------------------------------------------------------------------
+
+
+def test_exclude_files_via_pyproject(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    _write(
+        tmp_path,
+        'pyproject.toml',
+        """\
+        [tool.douki]
+        exclude = ["ignored.py", "tests/smoke/*"]
+        """,
+    )
+
+    _write(
+        tmp_path,
+        'clean.py',
+        '''\
+        def good() -> None:
+            """title: good"""
+            pass
+        ''',
+    )
+    p_ignored = _write(
+        tmp_path,
+        'ignored.py',
+        """\
+        def bad() -> None:
+            pass
+        """,
+    )
+
+    smoke_dir = tmp_path / 'tests' / 'smoke'
+    smoke_dir.mkdir(parents=True)
+    _write(
+        smoke_dir,
+        'dirty.py',
+        """\
+        def dirty() -> None:
+            pass
+        """,
+    )
+
+    result = runner.invoke(app, ['check'])
+    # Because clean.py is clean, and ignored.py/dirty.py are excluded,
+    # it should exit 0
+    assert result.exit_code == 0
+
+    # Even if passed explicitly, it should be excluded (like black/ruff)
+    result2 = runner.invoke(app, ['check', str(p_ignored)])
+    assert result2.exit_code == 0
+    assert 'No .py files found' in result2.output

@@ -218,6 +218,23 @@ def add(x, y):
 
 ---
 
+## Configuration
+
+You can configure Douki using a `pyproject.toml` file in your project root. Currently, Douki supports excluding files or directories using glob patterns.
+
+```toml
+[tool.douki]
+# Exclude specific files or entire directories
+exclude = [
+  "tests/smoke/*",
+  "legacy_module.py"
+]
+```
+
+When running `douki sync` or `douki check`, any file matching these patterns will be ignored.
+
+---
+
 ## Pre-commit Integration
 
 Add Douki as a pre-commit hook to catch docstring issues automatically:

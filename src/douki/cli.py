@@ -9,6 +9,13 @@ Usage::
 from __future__ import annotations
 
 import difflib
+import fnmatch
+import sys
+
+if sys.version_info >= (3, 11):
+    import tomllib
+else:
+    import tomli as tomllib
 
 from enum import Enum
 from pathlib import Path
@@ -42,14 +49,56 @@ def _main() -> None:
     """Douki — language-agnostic YAML docstring toolkit."""
 
 
-def _collect_py_files(paths: List[Path]) -> List[Path]:
-    """Expand directories to ``.py`` files and filter non-py."""
+def _load_exclude_patterns(cwd: Path) -> List[str]:
+    """Load exclude patterns from pyproject.toml in cwd or parents."""
+    curr = cwd.resolve()
+    while True:
+        pyproject = curr / 'pyproject.toml'
+        if pyproject.is_file():
+            try:
+                with pyproject.open('rb') as f:
+                    data = tomllib.load(f)
+                excludes = (
+                    data.get('tool', {}).get('douki', {}).get('exclude', [])
+                )
+                if isinstance(excludes, list):
+                    return [str(e) for e in excludes]
+            except Exception:
+                pass
+            break
+        parent = curr.parent
+        if parent == curr:
+            break
+        curr = parent
+    return []
+
+
+def _is_excluded(path: Path, excludes: List[str]) -> bool:
+    """Check if path matches any of the exclude patterns."""
+    if not excludes:
+        return False
+    path_str = path.as_posix()
+    for pattern in excludes:
+        if fnmatch.fnmatch(path_str, pattern) or fnmatch.fnmatch(
+            path_str, f'*/{pattern}'
+        ):
+            return True
+        if path_str.startswith(pattern.rstrip('/') + '/'):
+            return True
+    return False
+
+
+def _collect_py_files(paths: List[Path], excludes: List[str]) -> List[Path]:
+    """Expand directories to ``.py`` files and filter non-py and excluded."""
     result: List[Path] = []
     for p in paths:
         if p.is_dir():
-            result.extend(sorted(p.rglob('*.py')))
+            for child in p.rglob('*.py'):
+                if not _is_excluded(child, excludes):
+                    result.append(child)
         elif p.suffix == '.py':
-            result.append(p)
+            if not _is_excluded(p, excludes):
+                result.append(p)
     return sorted(set(result))
 
 
@@ -57,8 +106,9 @@ def _resolve_files(
     files: Optional[List[Path]],
 ) -> List[Path]:
     """Turn the optional argument into a list of .py paths."""
+    excludes = _load_exclude_patterns(Path.cwd())
     raw = files if files else [Path('.')]
-    py_files = _collect_py_files(raw)
+    py_files = _collect_py_files(raw, excludes)
     if not py_files:
         console.print('[dim]No .py files found.[/]')
         raise typer.Exit(code=0)
