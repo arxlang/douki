@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+# [0.8.0](https://github.com/arxlang/douki/compare/0.7.0...0.8.0) (2026-03-02)
+
+
+### Features
+
+* Remove support for douki decorator ([#12](https://github.com/arxlang/douki/issues/12)) ([0e01688](https://github.com/arxlang/douki/commit/0e016885077b7b9aa3517a11b1fc88b30760d0f4))
+
 # [0.7.0](https://github.com/arxlang/douki/compare/0.6.0...0.7.0) (2026-03-02)
 
 
