@@ -11,6 +11,9 @@ import pytest
 
 from douki.sync import (
     ParamInfo,
+    _extract_returns_desc,
+    _load_docstring_yaml,
+    _yaml_scalar,
     extract_functions,
     sync_docstring,
     sync_source,
@@ -504,18 +507,24 @@ def foo(*, key: str) -> None:
 
 
 def test_sync_returns_list_string_items() -> None:
+    """
+    title: returns as a list is not valid per schema.
+    """
     raw = 'title: test\nreturns:\n  - type: int\n'
     params = [_p('x', 'int')]
-    result = sync_docstring(raw, params, 'int')
-    assert 'returns:' in result
-
-
-def test_sync_raises_on_old_flat_returns() -> None:
-    raw = 'title: test\nreturns: the result\n'
     with pytest.raises(
         ValueError, match='Docstring YAML does not follow douki schema'
     ):
-        sync_docstring(raw, [], 'int')
+        sync_docstring(raw, params, 'int')
+
+
+def test_sync_returns_flat_string() -> None:
+    """
+    title: returns as a plain string is valid per schema.
+    """
+    raw = 'title: test\nreturns: the result\n'
+    result = sync_docstring(raw, [], 'int')
+    assert 'returns:' in result
 
 
 # -------------------------------------------------------------------
@@ -783,3 +792,374 @@ def test_sync_source_all_lines_within_79() -> None:
     result = sync_source(src)
     for i, line in enumerate(result.splitlines(), 1):
         assert len(line) <= 79, f'Line {i} too long ({len(line)}): {line!r}'
+
+
+# -------------------------------------------------------------------
+# Coverage: _annotation_to_str edge cases
+# -------------------------------------------------------------------
+
+
+def test_annotation_constant_repr() -> None:
+    """
+    title: 'Constant annotation that is not str/None, e.g. x: 42.'
+    """
+    src = 'def foo(x: 42) -> None:\n    """title: test"""\n    pass\n'
+    funcs = extract_functions(src)
+    p = next(p for p in funcs[0].params if p.name == 'x')
+    assert p.annotation == '42'
+
+
+def test_annotation_bare_tuple() -> None:
+    """
+    title: 'Bare tuple return: (int, str).'
+    """
+    src = 'def foo() -> (int, str):\n    """title: test"""\n    pass\n'
+    funcs = extract_functions(src)
+    assert 'int' in funcs[0].return_annotation
+    assert 'str' in funcs[0].return_annotation
+
+
+def test_annotation_list_node() -> None:
+    """
+    title: 'List annotation node: [int, str].'
+    """
+    src = 'def foo(x: [int, str]) -> None:\n    """title: test"""\n    pass\n'
+    funcs = extract_functions(src)
+    p = next(p for p in funcs[0].params if p.name == 'x')
+    assert 'int' in p.annotation
+    assert 'str' in p.annotation
+
+
+def test_annotation_fallback_unparse() -> None:
+    """
+    title: Complex annotation that falls through to ast.unparse.
+    """
+    src = (
+        'from typing import Callable\n'
+        'def foo(x: Callable[..., int]) -> None:\n'
+        '    """title: test"""\n'
+        '    pass\n'
+    )
+    funcs = extract_functions(src)
+    # Find the 'foo' function (skip module if present)
+    foo = next(f for f in funcs if f.name == 'foo')
+    p = next(p for p in foo.params if p.name == 'x')
+    assert 'Callable' in p.annotation
+
+
+# -------------------------------------------------------------------
+# Coverage: module and class docstrings
+# -------------------------------------------------------------------
+
+
+def test_extract_module_docstring() -> None:
+    """
+    title: Module-level docstring should be extracted as <module>.
+    """
+    src = '"""title: My module"""\n\nx = 42\n'
+    funcs = extract_functions(src)
+    mod = [f for f in funcs if f.name == '<module>']
+    assert len(mod) == 1
+    assert mod[0].docstring_node is not None
+
+
+def test_extract_class_docstring_no_methods() -> None:
+    """
+    title: Class with docstring but no methods.
+    """
+    src = 'class Foo:\n    """title: Foo class"""\n    x = 42\n'
+    funcs = extract_functions(src)
+    cls = [f for f in funcs if f.name == 'Foo']
+    assert len(cls) == 1
+    assert cls[0].docstring_node is not None
+
+
+# -------------------------------------------------------------------
+# Coverage: _load_docstring_yaml edge cases
+# -------------------------------------------------------------------
+
+
+def test_load_docstring_yaml_single_string() -> None:
+    """
+    title: Plain single-line string without colon.
+    """
+    result = _load_docstring_yaml('Hello world')
+    assert result == {'title': 'Hello world'}
+
+
+def test_load_docstring_yaml_multi_line_string() -> None:
+    """
+    title: Multi-line string without colons.
+    """
+    # YAML folds newlines in plain scalars, so safe_load joins them.
+    # Use literal block to preserve newlines.
+    result = _load_docstring_yaml('|\n  First line\n  Second line')
+    assert result['title'] == 'First line'
+    assert result['summary'] == 'Second line'
+
+
+def test_load_docstring_yaml_invalid_type() -> None:
+    """
+    title: Non-dict, non-string YAML (e.g. a list) should raise.
+    """
+    import pytest
+
+    with pytest.raises(ValueError, match='Invalid Douki YAML'):
+        _load_docstring_yaml('[1, 2, 3]')
+
+
+def test_load_docstring_yaml_bad_yaml() -> None:
+    """
+    title: Unparseable YAML should raise.
+    """
+    import pytest
+
+    with pytest.raises(ValueError, match='Could not parse YAML'):
+        _load_docstring_yaml(': : : [[[')
+
+
+# -------------------------------------------------------------------
+# Coverage: _extract_returns_desc edge cases
+# -------------------------------------------------------------------
+
+
+def test_extract_returns_desc_list_dict() -> None:
+    """
+    title: List with dict entry.
+    """
+    result = _extract_returns_desc(
+        [{'description': 'the result', 'type': 'int'}]
+    )
+    assert result == 'the result'
+
+
+def test_extract_returns_desc_list_string() -> None:
+    """
+    title: List with string entry.
+    """
+    result = _extract_returns_desc(['the result'])
+    assert result == 'the result'
+
+
+def test_extract_returns_desc_empty() -> None:
+    """
+    title: Non-string, non-list, non-dict returns empty.
+    """
+    assert _extract_returns_desc(42) == ''
+
+
+def test_extract_returns_desc_string() -> None:
+    """
+    title: Plain string returns the string.
+    """
+    assert _extract_returns_desc('hello') == 'hello'
+
+
+# -------------------------------------------------------------------
+# Coverage: _rebuild_yaml branches (typed_list, raises dict, etc.)
+# -------------------------------------------------------------------
+
+
+def test_sync_with_see_also_list() -> None:
+    """
+    title: see_also with list of strings hits _emit_typed_list.
+    """
+    raw = 'title: test\nsee_also:\n  - other_func\n  - another_func\n'
+    result = sync_docstring(raw, [], '')
+    assert 'see_also:' in result
+    assert 'other_func' in result
+    assert 'another_func' in result
+
+
+def test_sync_with_see_also_string() -> None:
+    """
+    title: see_also as plain string hits _emit_typed_list string path.
+    """
+    raw = 'title: test\nsee_also: other_func\n'
+    result = sync_docstring(raw, [], '')
+    assert 'see_also: other_func' in result
+
+
+def test_sync_with_references_list() -> None:
+    """
+    title: references as a list.
+    """
+    raw = (
+        'title: test\n'
+        'references:\n'
+        '  - https://example.com\n'
+        '  - https://other.com\n'
+    )
+    result = sync_docstring(raw, [], '')
+    assert 'references:' in result
+    assert 'https://example.com' in result
+
+
+def test_sync_with_raises_dict_format() -> None:
+    """
+    title: raises as a dict hits _emit_raises dict path.
+    """
+    raw = 'title: test\nraises:\n  ValueError: bad input\n'
+    result = sync_docstring(raw, [], '')
+    assert 'raises:' in result
+    assert 'ValueError' in result
+
+
+def test_sync_with_methods_list() -> None:
+    """
+    title: methods section with list of strings.
+    """
+    raw = 'title: test\nmethods:\n  - method_one\n  - method_two\n'
+    result = sync_docstring(raw, [], '')
+    assert 'methods:' in result
+    assert 'method_one' in result
+
+
+def test_sync_with_examples_string_items() -> None:
+    """
+    title: examples list with plain string items.
+    """
+    raw = 'title: test\nexamples:\n  - "print(1)"\n  - "print(2)"\n'
+    result = sync_docstring(raw, [], '')
+    assert 'examples:' in result
+    assert 'print(1)' in result
+
+
+def test_sync_with_example_code_and_description() -> None:
+    """
+    title: example with both code and description.
+    """
+    raw = (
+        'title: test\n'
+        'examples:\n'
+        '  - code: |\n'
+        '      x = 1\n'
+        '    description: Basic assignment\n'
+    )
+    result = sync_docstring(raw, [], '')
+    assert 'examples:' in result
+    assert 'x = 1' in result
+    assert 'Basic assignment' in result
+
+
+def test_sync_with_returns_string() -> None:
+    """
+    title: returns as plain string hits _emit_typed_entry string path.
+    """
+    raw = 'title: test\nreturns: the result\n'
+    result = sync_docstring(raw, [], '')
+    assert 'returns: the result' in result
+
+
+def test_sync_with_yields_dict() -> None:
+    """
+    title: yields as dict.
+    """
+    raw = 'title: test\nyields:\n  type: int\n  description: a number\n'
+    result = sync_docstring(raw, [], '')
+    assert 'yields:' in result
+    assert 'type: int' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: _yaml_scalar null
+# -------------------------------------------------------------------
+
+
+def test_yaml_scalar_null() -> None:
+    assert _yaml_scalar(None) == 'null'
+
+
+def test_yaml_scalar_bool() -> None:
+    assert _yaml_scalar(True) == 'true'
+    assert _yaml_scalar(False) == 'false'
+
+
+# -------------------------------------------------------------------
+# Coverage: sync_docstring whitespace-only
+# -------------------------------------------------------------------
+
+
+def test_sync_docstring_whitespace_only() -> None:
+    """
+    title: Whitespace-only raw returns unchanged.
+    """
+    raw = '  \n  '
+    result = sync_docstring(raw, [], '')
+    assert result == raw
+
+
+# -------------------------------------------------------------------
+# Coverage: _emit_key_value wrapping for true multiline
+# -------------------------------------------------------------------
+
+
+def test_sync_wraps_long_line_in_multiline_block() -> None:
+    """
+    title: A true multi-line block with one very long line wraps it.
+    """
+    long_line = 'word ' * 20  # ~100 chars
+    raw = (
+        'title: test\n'
+        'summary: |-\n'
+        f'  {long_line.strip()}\n'
+        '  Short second line.\n'
+    )
+    result = sync_docstring(raw, [], '')
+    for line in result.splitlines():
+        assert len(line) <= 79 or ' ' not in line.strip(), (
+            f'Line too long: {line!r}'
+        )
+
+
+# -------------------------------------------------------------------
+# Coverage: _migrate_numpydoc SyntaxError
+# -------------------------------------------------------------------
+
+
+def test_sync_source_migrate_syntax_error() -> None:
+    """
+    title: Unparseable source with migrate=numpydoc returns unchanged.
+    """
+    src = 'def broken( -> None:\n'
+    result = sync_source(src, migrate='numpydoc')
+    assert result == src
+
+
+# -------------------------------------------------------------------
+# Coverage: sync_source error accumulation (ValueError in sync)
+# -------------------------------------------------------------------
+
+
+def test_sync_source_validation_errors_multiple() -> None:
+    """
+    title: Multiple invalid docstrings accumulate errors.
+    """
+    src = (
+        'def a() -> None:\n'
+        '    """Just plain text."""\n'
+        '    pass\n'
+        '\n'
+        'def b() -> None:\n'
+        '    """Also plain text."""\n'
+        '    pass\n'
+    )
+    from douki.sync import DocstringValidationError
+
+    with pytest.raises(DocstringValidationError):
+        sync_source(src)
+
+
+# -------------------------------------------------------------------
+# Coverage: param with optional=null (skip default)
+# -------------------------------------------------------------------
+
+
+def test_sync_param_optional_null_skipped() -> None:
+    """
+    title: 'optional: null should be omitted.'
+    """
+    raw = 'title: test\nparameters:\n  x:\n    type: int\n    optional: null\n'
+    params = [_p('x', 'int')]
+    result = sync_docstring(raw, params, '')
+    assert 'optional' not in result

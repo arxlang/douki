@@ -7,6 +7,7 @@ from __future__ import annotations
 from douki.migrate import (
     _is_numpydoc_docstring,
     _parse_map_section,
+    _serialize_douki_yaml,
     _split_sections,
     numpydoc_to_douki_yaml,
 )
@@ -170,3 +171,128 @@ def test_numpy_unknown_section_ignored() -> None:
     result = numpydoc_to_douki_yaml(ds)
     assert 'title: Title' in result
     assert 'custom' not in result.lower()
+
+
+# -------------------------------------------------------------------
+# Coverage: _split_sections no sections
+# -------------------------------------------------------------------
+
+
+def test_split_sections_no_sections() -> None:
+    """
+    title: No dashes sections returns (narrative, []).
+    """
+    narrative, sections = _split_sections('Just a plain text.\nNo sections.')
+    assert narrative == 'Just a plain text.\nNo sections.'
+    assert sections == []
+
+
+# -------------------------------------------------------------------
+# Coverage: multiple return types → tuple
+# -------------------------------------------------------------------
+
+
+def test_numpy_multiple_returns() -> None:
+    """
+    title: Multiple return entries should combine into tuple[...].
+    """
+    ds = (
+        'Do something.\n\n'
+        'Returns\n-------\n'
+        'x : int\n    The x.\n'
+        'y : str\n    The y.\n'
+    )
+    result = numpydoc_to_douki_yaml(ds)
+    # Names are used as keys in _parse_map_section → tuple[x, y]
+    assert 'tuple[' in result
+    assert 'x' in result
+    assert 'y' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: simple text returns (no parseable entries)
+# -------------------------------------------------------------------
+
+
+def test_numpy_returns_simple_text() -> None:
+    """
+    title: Returns section with no entries gives simple text.
+    """
+    ds = 'Do something.\n\nReturns\n-------\n    A simple description.\n'
+    result = numpydoc_to_douki_yaml(ds)
+    assert 'returns:' in result
+
+
+# -------------------------------------------------------------------
+# Coverage: _serialize_douki_yaml edge cases
+# -------------------------------------------------------------------
+
+
+def test_serialize_param_empty_string() -> None:
+    """
+    title: Param with empty string value.
+    """
+    data = {
+        'title': 'test',
+        'parameters': {'x': {'type': 'int'}, 'y': ''},
+    }
+    result = _serialize_douki_yaml(data)
+    assert 'y:' in result
+
+
+def test_serialize_param_nonempty_string() -> None:
+    """
+    title: Param with non-empty string value.
+    """
+    data = {
+        'title': 'test',
+        'parameters': {'x': 'desc'},
+    }
+    result = _serialize_douki_yaml(data)
+    assert 'x: desc' in result
+
+
+def test_serialize_list_non_dict_items() -> None:
+    """
+    title: List with plain string items.
+    """
+    data = {
+        'title': 'test',
+        'see_also': ['func_a', 'func_b'],
+    }
+    result = _serialize_douki_yaml(data)
+    assert '- func_a' in result
+    assert '- func_b' in result
+
+
+def test_serialize_dict_multiline_value() -> None:
+    """
+    title: Dict value containing multiline string.
+    """
+    data = {
+        'title': 'test',
+        'returns': {'type': 'int', 'description': 'line1\nline2'},
+    }
+    result = _serialize_douki_yaml(data)
+    assert 'description: |' in result
+    assert 'line1' in result
+    assert 'line2' in result
+
+
+def test_serialize_extra_key() -> None:
+    """
+    title: Key not in canonical order should still appear.
+    """
+    data = {'title': 'test', 'custom_key': 'value'}
+    result = _serialize_douki_yaml(data)
+    assert 'custom_key: value' in result
+
+
+def test_serialize_empty_value_skipped() -> None:
+    """
+    title: None/empty values should be skipped.
+    """
+    data = {'title': 'test', 'summary': None, 'notes': ''}
+    result = _serialize_douki_yaml(data)
+    assert 'summary' not in result
+    assert 'notes' not in result

@@ -410,3 +410,179 @@ def test_exclude_files_via_pyproject(
     result2 = runner.invoke(app, ['check', str(p_ignored)])
     assert result2.exit_code == 0
     assert 'No .py files found' in result2.output
+
+
+# -------------------------------------------------------------------
+# Coverage: migrate error/unchanged paths
+# -------------------------------------------------------------------
+
+
+def test_migrate_unchanged_file(tmp_path: Path) -> None:
+    """
+    title: Migrate on already-douki file should exit 0.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    p = _write(
+        tmp_path,
+        'already.py',
+        '''\
+        def greet(name: str) -> str:
+            """
+            title: Greet someone
+            parameters:
+              name:
+                type: str
+            returns:
+              type: str
+            """
+            return name
+        ''',
+    )
+    result = runner.invoke(
+        app,
+        ['migrate', '--from', 'numpydoc', str(p)],
+    )
+    assert result.exit_code == 0
+
+
+def test_migrate_invalid_docstring(tmp_path: Path) -> None:
+    """
+    title: Migrate on invalid docstring should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    p = _write(
+        tmp_path,
+        'invalid.py',
+        '''\
+        def hello() -> None:
+            """Just a plain docstring."""
+            pass
+        ''',
+    )
+    result = runner.invoke(
+        app,
+        ['migrate', '--from', 'numpydoc', str(p)],
+    )
+    assert result.exit_code == 2
+
+
+def test_migrate_unreadable_file(tmp_path: Path) -> None:
+    """
+    title: Migrate on a missing file should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    missing = tmp_path / 'does_not_exist.py'
+    result = runner.invoke(
+        app,
+        ['migrate', '--from', 'numpydoc', str(missing)],
+    )
+    assert result.exit_code == 2
+    assert 'Error' in result.output
+
+
+def test_sync_generic_exception(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    title: Generic exception during sync should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
+    p = _write(
+        tmp_path,
+        'crash.py',
+        '''\
+        def foo() -> None:
+            """
+            title: test
+            """
+            pass
+        ''',
+    )
+    import douki.cli
+
+    def _boom(*a, **kw):
+        raise RuntimeError('boom')
+
+    monkeypatch.setattr(douki.cli, 'sync_source', _boom)
+    result = runner.invoke(app, ['sync', str(p)])
+    assert result.exit_code == 2
+    assert 'Error' in result.output
+
+
+def test_check_generic_exception(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    title: Generic exception during check should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
+    p = _write(
+        tmp_path,
+        'crash.py',
+        '''\
+        def foo() -> None:
+            """
+            title: test
+            """
+            pass
+        ''',
+    )
+    import douki.cli
+
+    def _boom(*a, **kw):
+        raise RuntimeError('boom')
+
+    monkeypatch.setattr(douki.cli, 'sync_source', _boom)
+    result = runner.invoke(app, ['check', str(p)])
+    assert result.exit_code == 2
+    assert 'Error' in result.output
+
+
+def test_migrate_generic_exception(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """
+    title: Generic exception during migrate should exit 2.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
+    p = _write(
+        tmp_path,
+        'crash.py',
+        '''\
+        def foo() -> None:
+            """
+            title: test
+            """
+            pass
+        ''',
+    )
+    import douki.cli
+
+    def _boom(*a, **kw):
+        raise RuntimeError('boom')
+
+    monkeypatch.setattr(douki.cli, 'sync_source', _boom)
+    result = runner.invoke(
+        app,
+        ['migrate', '--from', 'numpydoc', str(p)],
+    )
+    assert result.exit_code == 2
+    assert 'Error' in result.output
