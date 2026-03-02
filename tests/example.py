@@ -162,13 +162,13 @@ class FancyCalculator:
         title: Raise *base* to *exp*
         parameters:
           base:
-            type: float
+            type: Annotated[float, DocString('Base')]
             description: the base number
           exp:
-            type: float
+            type: Annotated[float, Exponent]
             description: the exponent value
         returns:
-          - type: float
+          - type: Annotated[float, DocString('base ** exp')]
             description: result of ``base ** exp``
         """
         return base**exp

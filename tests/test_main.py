@@ -73,13 +73,13 @@ def test_annotated_descriptions_and_defaults():
         title: add two numbers
         parameters:
           x:
-            type: int
+            type: Annotated[int, DocString('first term')]
             description: first term
           y:
-            type: int
+            type: Annotated[int, second term]
             description: second term
         returns:
-          - type: int
+          - type: Annotated[int, DocString('sum')]
             description: sum
         """
         return x + y
