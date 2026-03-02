@@ -41,11 +41,10 @@ jobs:
           poetry config virtualenvs.create false
           poetry install
 
-      # - name: Test tutorials
-      #   run: makim --verbose tests.notebooks
-
       - name: Generate documentation with changes from semantic-release
-        run: makim --verbose docs.build
+        run: |
+          makim --verbose docs.build
+          echo "douki.arxlang.org" > ./build/CNAME
 
       - name: GitHub Pages action
         uses: peaceiris/actions-gh-pages@v3.5.9
