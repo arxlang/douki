@@ -1,6 +1,18 @@
 # Release Notes
 ---
 
+# [0.9.0](https://github.com/arxlang/douki/compare/0.8.0...0.9.0) (2026-03-02)
+
+
+### Bug Fixes
+
+* Fix documentation CNAME generation ([#13](https://github.com/arxlang/douki/issues/13)) ([26874a3](https://github.com/arxlang/douki/commit/26874a30d8c3f234bd4b619f04d2fbaee582b4bb))
+
+
+### Features
+
+* Improve douki coverage cases for module, function, class, and methods ([#15](https://github.com/arxlang/douki/issues/15)) ([58f8a5c](https://github.com/arxlang/douki/commit/58f8a5cfd6f5b720cfc7791f522b87cde13b8ae7))
+
 # [0.8.0](https://github.com/arxlang/douki/compare/0.7.0...0.8.0) (2026-03-02)
 
 
