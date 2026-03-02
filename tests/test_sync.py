@@ -674,3 +674,112 @@ def test_sync_with_old_flat_params_preserved() -> None:
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, '')
     assert 'my description' in result
+
+
+# -------------------------------------------------------------------
+# Line-length wrapping (79-char limit)
+# -------------------------------------------------------------------
+
+
+def _long_title_src() -> str:
+    """
+    title: Build test source with a long | title.
+    returns:
+      type: str
+    """
+    long_title = (
+        'Everything we need to know about'
+        ' a single def / async def / class / module.'
+    )
+    return (
+        'def func(x: int) -> int:\n'
+        '    """\n'
+        f'        title: |\n'
+        f'          {long_title}\n'
+        '    """\n'
+        '    return x\n'
+    )
+
+
+def test_sync_source_wraps_long_title_block_scalar() -> None:
+    """
+    title: Long title in | block gets wrapped to stay within 79 chars.
+    """
+    result = sync_source(_long_title_src())
+    for line in result.splitlines():
+        assert len(line) <= 79, f'Line too long ({len(line)}): {line!r}'
+
+
+def test_sync_source_wraps_long_summary_block_scalar() -> None:
+    """
+    title: Long summary in | block gets wrapped within 79 chars.
+    """
+    long_summary = (
+        'Returns the updated YAML (without'
+        ' surrounding triple-quotes). If not'
+        ' valid Douki YAML, raises ValueError.'
+    )
+    src = (
+        'def func() -> str:\n'
+        '    """\n'
+        '        title: Do something.\n'
+        f'        summary: |\n'
+        f'          {long_summary}\n'
+        '    """\n'
+        '    return ""\n'
+    )
+    result = sync_source(src)
+    for line in result.splitlines():
+        assert len(line) <= 79, f'Line too long ({len(line)}): {line!r}'
+
+
+def test_sync_wraps_long_block_scalar_idempotent() -> None:
+    """
+    title: Wrapped block scalars are idempotent.
+    """
+    first = sync_source(_long_title_src())
+    second = sync_source(first)
+    assert first == second
+
+
+def test_emit_key_value_short_block_scalar_inlined() -> None:
+    """
+    title: Short | values become inline after stripping trailing newline.
+    """
+    raw = 'title: |\n  Short title\n'
+    result = sync_docstring(raw, [], '')
+    assert 'title: Short title' in result
+
+
+def test_sync_source_all_lines_within_79() -> None:
+    """
+    title: Full integration check for line length.
+    """
+    long_summary = (
+        'This is a very long summary line that'
+        ' definitely exceeds seventy-nine characters'
+        ' when content indentation is accounted'
+        ' for properly.'
+    )
+    src = (
+        'def process(\n'
+        '    items: list,\n'
+        '    count: int,\n'
+        ') -> dict:\n'
+        '    """\n'
+        '        title: Process items.\n'
+        '        summary: |\n'
+        f'          {long_summary}\n'
+        '        parameters:\n'
+        '          items:\n'
+        '            type: list\n'
+        '          count:\n'
+        '            type: int\n'
+        '        returns:\n'
+        '          type: dict\n'
+        '    """\n'
+        '    return {}\n'
+    )
+    result = sync_source(src)
+    for i, line in enumerate(result.splitlines(), 1):
+        assert len(line) <= 79, f'Line {i} too long ({len(line)}): {line!r}'

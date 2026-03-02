@@ -27,7 +27,7 @@ def _write(tmp_path: Path, name: str, content: str) -> Path:
       content:
         type: str
     returns:
-      - type: Path
+      type: Path
     """
     p = tmp_path / name
     p.write_text(textwrap.dedent(content), encoding='utf-8')

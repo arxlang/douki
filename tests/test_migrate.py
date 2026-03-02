@@ -1,4 +1,6 @@
-"""title: Tests for douki.migrate — NumPy docstring conversion."""
+"""
+title: Tests for douki.migrate — NumPy docstring conversion.
+"""
 
 from __future__ import annotations
 
@@ -109,7 +111,9 @@ def test_numpy_with_summary() -> None:
 
 
 def test_parse_map_no_type() -> None:
-    """title: Entry without ': type' should have no type key."""
+    """
+    title: 'Entry without '': type'' should have no type key.'
+    """
     body = 'x\n    The x value.'
     result = _parse_map_section(body)
     assert 'x' in result
@@ -118,14 +122,18 @@ def test_parse_map_no_type() -> None:
 
 
 def test_parse_map_no_description() -> None:
-    """title: Entry with type but empty description should omit it."""
+    """
+    title: Entry with type but empty description should omit it.
+    """
     body = 'x : int'
     result = _parse_map_section(body)
     assert result['x'] == {'type': 'int'}
 
 
 def test_numpy_no_narrative() -> None:
-    """title: Docstring with no summary line at all."""
+    """
+    title: Docstring with no summary line at all.
+    """
     ds = '\n\nParameters\n----------\nx : int\n    Desc.\n'
     result = numpydoc_to_douki_yaml(ds)
     assert 'title:' in result
@@ -155,7 +163,9 @@ def test_numpy_notes_section() -> None:
 
 
 def test_numpy_unknown_section_ignored() -> None:
-    """title: Unknown sections should be silently skipped."""
+    """
+    title: Unknown sections should be silently skipped.
+    """
     ds = 'Title.\n\nCustom Section\n--------------\nblah blah\n'
     result = numpydoc_to_douki_yaml(ds)
     assert 'title: Title' in result

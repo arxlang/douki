@@ -11,7 +11,7 @@ def get_version() -> str:
     """
     title: Return the program version.
     returns:
-      - type: str
+      type: str
     """
     try:
         return importlib_metadata.version(__name__)

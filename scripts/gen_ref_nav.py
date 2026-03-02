@@ -1,9 +1,7 @@
 """
 title: Generate the code reference pages and navigation.
 references:
-  -: >
-    https://github.com/mkdocstrings/mkdocstrings/blob/main/scripts/gen_ref_nav
-    .py
+  - https://github.com/mkdocstrings/mkdocstrings
 """
 
 from pathlib import Path

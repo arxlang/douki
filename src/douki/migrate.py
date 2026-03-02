@@ -1,7 +1,6 @@
 """
 title: Migrate docstrings from other formats to Douki YAML.
-notes: |
-  Currently supports: **numpy** (numpydoc).
+notes: 'Currently supports: **numpy** (numpydoc).'
 """
 
 from __future__ import annotations
@@ -50,7 +49,14 @@ _MAP_SECTIONS = frozenset(
 
 
 def _is_numpydoc_docstring(raw: str) -> bool:
-    """title: 'Heuristic: does *raw* look like a NumPy-style docstring?'"""
+    """
+    title: 'Heuristic: does *raw* look like a NumPy-style docstring?'
+    parameters:
+      raw:
+        type: str
+    returns:
+      type: bool
+    """
     # Must have at least one section header with dashes underline
     return bool(
         re.search(
@@ -66,7 +72,12 @@ def _split_sections(
 ) -> Tuple[str, List[Tuple[str, str]]]:
     """
     title: Split a NumPy docstring into (narrative, sections).
-    returns: Each section is (header_lower, body_text).
+    parameters:
+      raw:
+        type: str
+    returns:
+      type: Tuple[str, List[Tuple[str, str]]]
+      description: Each section is (header_lower, body_text).
     """
     lines = raw.splitlines()
     narrative_lines: List[str] = []
@@ -106,14 +117,12 @@ def _parse_map_section(
 ) -> Dict[str, Dict[str, str]]:
     """
     title: Parse a numpy map section (Parameters, Raises, etc).
-    examples:
-      - code: |
-          name : type
-              Description line 1
-              Description line 2
-          name2 : type2
-              Description
-    returns: A dict of ``{name: {type: ..., description: ...}}``.
+    parameters:
+      body:
+        type: str
+    returns:
+      type: Dict[str, Dict[str, str]]
+      description: 'A dict of `{name: {type: ..., description: ...}}`.'
     """
     result: Dict[str, Dict[str, str]] = {}
     current_name: Optional[str] = None
@@ -158,16 +167,28 @@ def _parse_map_section(
 
 
 def _parse_simple_section(body: str) -> str:
-    """title: Parse a simple text section (returns, notes, etc)."""
+    """
+    title: Parse a simple text section (returns, notes, etc).
+    parameters:
+      body:
+        type: str
+    returns:
+      type: str
+    """
     return body.strip()
 
 
 def numpydoc_to_douki_yaml(raw: str) -> str:
     """
     title: Convert a NumPy-style docstring to Douki YAML format.
+    parameters:
+      raw:
+        type: str
     returns:
-      - The YAML string (without triple-quotes).
-      - If *raw* is not a valid NumPy docstring, returns it unchanged.
+      type: str
+      description: >-
+        The YAML string (without triple-quotes). If *raw* is not a valid NumPy
+        docstring, returns it unchanged.
     """
     if not _is_numpydoc_docstring(raw):
         return raw
@@ -260,7 +281,14 @@ _KEY_ORDER = [
 
 
 def _serialize_douki_yaml(data: Dict[str, Any]) -> str:
-    """title: Serialize a Douki data dict to YAML text."""
+    """
+    title: Serialize a Douki data dict to YAML text.
+    parameters:
+      data:
+        type: Dict[str, Any]
+    returns:
+      type: str
+    """
     lines: List[str] = []
     for key in _KEY_ORDER:
         if key not in data:

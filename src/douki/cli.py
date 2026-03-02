@@ -1,5 +1,5 @@
 """
-title: Douki CLI — ``douki sync`` and ``douki check`` commands.
+title: "Douki CLI \u2014 ``douki sync`` and ``douki check`` commands."
 examples:
   - code: |
       douki sync  [FILES...]   # apply changes in-place
@@ -29,7 +29,9 @@ from douki.sync import DocstringValidationError, sync_source
 
 
 class MigrateFormat(str, Enum):
-    """title: Supported migration source formats."""
+    """
+    title: Supported migration source formats.
+    """
 
     numpydoc = 'numpydoc'
 
@@ -46,11 +48,20 @@ out_console = Console()  # stdout
 
 @app.callback()
 def _main() -> None:
-    """title: Douki — language-agnostic YAML docstring toolkit."""
+    """
+    title: Douki — language-agnostic YAML docstring toolkit.
+    """
 
 
 def _load_exclude_patterns(cwd: Path) -> List[str]:
-    """title: Load exclude patterns from pyproject.toml in cwd or parents."""
+    """
+    title: Load exclude patterns from pyproject.toml in cwd or parents.
+    parameters:
+      cwd:
+        type: Path
+    returns:
+      type: List[str]
+    """
     curr = cwd.resolve()
     while True:
         pyproject = curr / 'pyproject.toml'
@@ -74,7 +85,16 @@ def _load_exclude_patterns(cwd: Path) -> List[str]:
 
 
 def _is_excluded(path: Path, excludes: List[str]) -> bool:
-    """title: Check if path matches any of the exclude patterns."""
+    """
+    title: Check if path matches any of the exclude patterns.
+    parameters:
+      path:
+        type: Path
+      excludes:
+        type: List[str]
+    returns:
+      type: bool
+    """
     if not excludes:
         return False
 
@@ -96,7 +116,16 @@ def _is_excluded(path: Path, excludes: List[str]) -> bool:
 
 
 def _collect_py_files(paths: List[Path], excludes: List[str]) -> List[Path]:
-    """title: Expand directories to ``.py`` files and filter non-py and excluded."""
+    """
+    title: Expand directories to ``.py`` files and filter non-py and excluded.
+    parameters:
+      paths:
+        type: List[Path]
+      excludes:
+        type: List[str]
+    returns:
+      type: List[Path]
+    """
     result: List[Path] = []
     for p in paths:
         if p.is_dir():
@@ -112,7 +141,14 @@ def _collect_py_files(paths: List[Path], excludes: List[str]) -> List[Path]:
 def _resolve_files(
     files: Optional[List[Path]],
 ) -> List[Path]:
-    """title: Turn the optional argument into a list of .py paths."""
+    """
+    title: Turn the optional argument into a list of .py paths.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+    returns:
+      type: List[Path]
+    """
     excludes = _load_exclude_patterns(Path.cwd())
     raw = files if files else [Path('.')]
     py_files = _collect_py_files(raw, excludes)
@@ -129,7 +165,16 @@ def _print_diff(
 ) -> bool:
     """
     title: Print a coloured unified diff.
-    returns: True if there is a diff.
+    parameters:
+      path:
+        type: Path
+      original:
+        type: str
+      updated:
+        type: str
+    returns:
+      type: bool
+      description: True if there is a diff.
     """
     if original == updated:
         return False
@@ -166,7 +211,12 @@ def sync(
         help='Python files or directories (default: ".").',
     ),
 ) -> None:
-    """title: Apply docstring sync changes to files in-place."""
+    """
+    title: Apply docstring sync changes to files in-place.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+    """
     migrate_val = None
     py_files = _resolve_files(files)
     errors = False
@@ -231,7 +281,12 @@ def check(
         help='Python files or directories (default: ".").',
     ),
 ) -> None:
-    """title: Print a diff of proposed changes. Exit 1 if any."""
+    """
+    title: Print a diff of proposed changes. Exit 1 if any.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+    """
     migrate_val = None
     py_files = _resolve_files(files)
     any_diff = False
@@ -287,7 +342,14 @@ def migrate(
         help='Source docstring format (e.g., numpydoc).',
     ),
 ) -> None:
-    """title: Migrate docstrings from another format to Douki YAML."""
+    """
+    title: Migrate docstrings from another format to Douki YAML.
+    parameters:
+      files:
+        type: Optional[List[Path]]
+      from_format:
+        type: MigrateFormat
+    """
     migrate_val = from_format.value
     py_files = _resolve_files(files)
     errors = False
