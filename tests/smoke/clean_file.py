@@ -4,7 +4,7 @@ def greet(name: str) -> str:
     parameters:
       name:
         type: str
-        description: The person's name
+        description: The name to greet
     returns:
       - type: str
         description: a greeting string

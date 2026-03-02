@@ -564,6 +564,7 @@ def sync_source(
             raw,
             func.params,
             func.return_annotation,
+            is_method=func.is_method,
         )
         if synced == raw:
             continue

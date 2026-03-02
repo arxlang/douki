@@ -51,7 +51,7 @@ repos:
         language: system
         pass_filenames: true
         require_serial: yes
-        files: "./"
+        files: "./src"
         types:
           - python
 
