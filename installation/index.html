@@ -14,7 +14,7 @@
         <link rel="prev" href="..">
       
       
-        <link rel="next" href="../changelog/">
+        <link rel="next" href="../usage/">
       
       
         
@@ -244,7 +244,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    Douki
   
 
     
@@ -327,7 +327,7 @@
   <a href="#stable-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Stable release
+        Stable Release
       
     </span>
   </a>
@@ -335,10 +335,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-sources" class="md-nav__link">
+  <a href="#from-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From sources
+        From Source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
       
     </span>
   </a>
@@ -349,6 +360,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage Guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -426,10 +464,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -447,8 +485,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -477,8 +515,6 @@
       
         
       
-        
-      
     
     
     
@@ -487,7 +523,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -509,14 +545,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5_1" id="__nav_5_1_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_1">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -543,34 +579,6 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> cli
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../api/core/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> core
   
 
     
@@ -655,33 +663,6 @@
   
 
     
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../example/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Douki
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
   </ul>
 </nav>
                   </div>
@@ -712,7 +693,7 @@
   <a href="#stable-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Stable release
+        Stable Release
       
     </span>
   </a>
@@ -720,10 +701,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#from-sources" class="md-nav__link">
+  <a href="#from-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        From sources
+        From Source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
       
     </span>
   </a>
@@ -751,27 +743,35 @@
 
 
 <h1 id="installation">Installation</h1>
-<h2 id="stable-release">Stable release</h2>
-<p>To install Douki, run this command in your terminal:</p>
+<h2 id="stable-release">Stable Release</h2>
+<p>Install Douki as a <strong>development dependency</strong> — it does not need to be a
+runtime dependency of your package.</p>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:3"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><input id="__tabbed_1_3" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">pip</label><label for="__tabbed_1_2">conda</label><label for="__tabbed_1_3">Poetry (dev)</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>douki
 </code></pre></div>
-<p>This is the preferred method to install Douki, as it will always install the most
-recent stable release.</p>
-<p>If you don't have <a href="https://pip.pypa.io">pip</a> installed, this
-<a href="http://docs.python-guide.org/en/latest/starting/installation/">Python installation guide</a>
-can guide you through the process.</p>
-<h2 id="from-sources">From sources</h2>
-<p>The sources for Douki can be downloaded from the
-<a href="https://github.com/osl-incubator/douki.git">Github repo</a>.</p>
-<p>You can either clone the public repository:</p>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code>conda<span class="w"> </span>install<span class="w"> </span>-c<span class="w"> </span>conda-forge<span class="w"> </span>douki
+</code></pre></div>
+</div>
+<div class="tabbed-block">
+<div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>douki
+</code></pre></div>
+</div>
+</div>
+</div>
+<h2 id="from-source">From Source</h2>
+<p>Clone the repository and install with Poetry:</p>
 <div class="language-bash highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/osl-incubator/douki.git
+<span class="nb">cd</span><span class="w"> </span>douki
+poetry<span class="w"> </span>install
 </code></pre></div>
-<p>Or download the <a href="https://github.com/osl-incubator/douki.git/tarball/main">tarball</a>:</p>
-<div class="language-bash highlight"><pre><span></span><code>curl<span class="w"> </span>-OJL<span class="w"> </span>https://github.com/osl-incubator/douki.git/tarball/main
-</code></pre></div>
-<p>Once you have a copy of the source, you can install it with:</p>
-<div class="language-bash highlight"><pre><span></span><code>poetry<span class="w"> </span>install
-</code></pre></div>
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Python ≥ 3.10</li>
+</ul>
 
 
 
