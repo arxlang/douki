@@ -609,6 +609,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#douki.sync.DocstringValidationError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DocstringValidationError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#douki.sync.FuncInfo" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -657,6 +668,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;sync_source
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#douki.sync.validate_docstring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;validate_docstring
       
     </span>
   </a>
@@ -714,6 +736,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#douki.sync.DocstringValidationError" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DocstringValidationError
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#douki.sync.FuncInfo" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -768,6 +801,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#douki.sync.validate_docstring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;validate_docstring
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -800,10 +844,9 @@
 
     <div class="doc doc-contents first">
 
-        <p>Sync Douki YAML docstrings with function/class signatures.</p>
-<p>This module provides the core logic for comparing Python source code
-signatures against their Douki YAML docstrings and producing an
-updated source string.  It is intentionally pure — no file I/O.</p>
+        <p>This module provides the core logic for comparing Python source code
+  signatures against their Douki YAML docstrings and producing an
+  updated source string.  It is intentionally pure — no file I/O.</p>
 
 
 
@@ -817,6 +860,13 @@ updated source string.  It is intentionally pure — no file I/O.</p>
 <p><span class="doc-section-title">Classes:</span></p>
     <ul>
         <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            DocstringValidationError (douki.sync.DocstringValidationError)" href="#douki.sync.DocstringValidationError">DocstringValidationError</a></code></b>
+          –
+          <div class="doc-md-description">
+            
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
           <b><code><a class="autorefs autorefs-internal" title="            FuncInfo
 
 
@@ -825,7 +875,7 @@ updated source string.  It is intentionally pure — no file I/O.</p>
    (douki.sync.FuncInfo)" href="#douki.sync.FuncInfo">FuncInfo</a></code></b>
           –
           <div class="doc-md-description">
-            <p>Everything we need to know about a single def / async def.</p>
+            
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -837,7 +887,7 @@ updated source string.  It is intentionally pure — no file I/O.</p>
    (douki.sync.ParamInfo)" href="#douki.sync.ParamInfo">ParamInfo</a></code></b>
           –
           <div class="doc-md-description">
-            <p>A single parameter extracted from an <code class="language-python highlight"><span class="n">ast</span></code> signature.</p>
+            
           </div>
         </li>
     </ul>
@@ -851,21 +901,28 @@ updated source string.  It is intentionally pure — no file I/O.</p>
             <b><code><a class="autorefs autorefs-internal" title="            extract_functions (douki.sync.extract_functions)" href="#douki.sync.extract_functions">extract_functions</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Parse <em>source</em> and return info about every function / method.</p>
+              
             </div>
           </li>
           <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="            sync_docstring (douki.sync.sync_docstring)" href="#douki.sync.sync_docstring">sync_docstring</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Merge signature info into a Douki YAML docstring.</p>
+              
             </div>
           </li>
           <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="            sync_source (douki.sync.sync_source)" href="#douki.sync.sync_source">sync_source</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Synchronize all Douki YAML docstrings in <em>source</em>.</p>
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            validate_docstring (douki.sync.validate_docstring)" href="#douki.sync.validate_docstring">validate_docstring</a></code></b>
+            –
+            <div class="doc-md-description">
+              
             </div>
           </li>
     </ul>
@@ -883,6 +940,42 @@ updated source string.  It is intentionally pure — no file I/O.</p>
 
 
 
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="douki.sync.DocstringValidationError" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">DocstringValidationError</span>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#ValueError">ValueError</a></code></p>
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-class">
 
@@ -916,7 +1009,8 @@ updated source string.  It is intentionally pure — no file I/O.</p>
 
 
 
-        <p>Everything we need to know about a single def / async def.</p>
+        <p>Everything we need to know about a single def / async def / class /
+  module.</p>
 
 
 
@@ -972,7 +1066,7 @@ updated source string.  It is intentionally pure — no file I/O.</p>
 
 
 
-        <p>A single parameter extracted from an <code class="language-python highlight"><span class="n">ast</span></code> signature.</p>
+        
 
 
 
@@ -1027,47 +1121,112 @@ updated source string.  It is intentionally pure — no file I/O.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Parse <em>source</em> and return info about every function / method.</p>
+        
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/sync.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_functions</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">FuncInfo</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse *source* and return info about every function / method.&quot;&quot;&quot;</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
+<span class="normal">260</span>
+<span class="normal">261</span>
+<span class="normal">262</span>
+<span class="normal">263</span>
+<span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_functions</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">FuncInfo</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Parse the Python source and return extracted functions/classes.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      source:</span>
+<span class="sd">        type: str</span>
+<span class="sd">    returns:</span>
+<span class="sd">      type: List[FuncInfo]</span>
+<span class="sd">      description: List of FuncInfo objects in the order they appear.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
     <span class="n">results</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">FuncInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Module docstring</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">body</span>
+        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ast</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">FuncInfo</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&lt;module&gt;&#39;</span><span class="p">,</span>
+                <span class="n">lineno</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">docstring_node</span><span class="o">=</span><span class="n">tree</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
 
     <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">AsyncFunctionDef</span><span class="p">)):</span>
@@ -1080,12 +1239,31 @@ updated source string.  It is intentionally pure — no file I/O.</p>
                         <span class="k">break</span>
             <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_extract_func</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">is_method</span><span class="o">=</span><span class="n">is_method</span><span class="p">))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">ClassDef</span><span class="p">):</span>
+            <span class="c1"># Extract class docstring</span>
+            <span class="n">ds_node</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">node</span><span class="o">.</span><span class="n">body</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ast</span><span class="o">.</span><span class="n">Expr</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">ds_node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">body</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="k">if</span> <span class="n">ds_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">FuncInfo</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="n">lineno</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="p">,</span>
+                        <span class="n">docstring_node</span><span class="o">=</span><span class="n">ds_node</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+
             <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">iter_child_nodes</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
                 <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="p">(</span><span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">AsyncFunctionDef</span><span class="p">)):</span>
                     <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_extract_func</span><span class="p">(</span><span class="n">child</span><span class="p">,</span> <span class="n">is_method</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
     <span class="c1"># Deduplicate (methods found by both walk and ClassDef iteration)</span>
-    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="n">unique</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">FuncInfo</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">fi</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
         <span class="n">key</span> <span class="o">=</span> <span class="p">(</span>
@@ -1094,7 +1272,7 @@ updated source string.  It is intentionally pure — no file I/O.</p>
             <span class="k">else</span> <span class="p">(</span><span class="n">fi</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">fi</span><span class="o">.</span><span class="n">lineno</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
-            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>  <span class="c1"># type: ignore[arg-type]</span>
+            <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="n">unique</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fi</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">unique</span>
 </code></pre></div></td></tr></table></div>
@@ -1122,94 +1300,142 @@ updated source string.  It is intentionally pure — no file I/O.</p>
     <span class="n">return_annotation</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">is_method</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">func_name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="s1">&#39;&lt;unknown&gt;&#39;</span><span class="p">,</span>
+    <span class="n">content_indent</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Merge signature info into a Douki YAML docstring.</p>
-<p>Returns the updated YAML (without surrounding triple-quotes).
-If not valid Douki YAML, returns it unchanged.</p>
+        <p>Returns the updated YAML (without surrounding triple-quotes). If not
+  valid Douki YAML, raises ValueError.
+parameters:
+  raw_docstring:
+    type: str
+  params:
+    type: Sequence[ParamInfo]
+  return_annotation:
+    type: str
+  is_method:
+    type: bool
+  func_name:
+    type: str
+  content_indent:
+    type: int
+returns:
+  type: str</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/sync.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
-<span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
-<span class="normal">301</span>
-<span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
-<span class="normal">305</span>
-<span class="normal">306</span>
-<span class="normal">307</span>
-<span class="normal">308</span>
-<span class="normal">309</span>
-<span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
-<span class="normal">313</span>
-<span class="normal">314</span>
-<span class="normal">315</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sync_docstring</span><span class="p">(</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span>
+<span class="normal">418</span>
+<span class="normal">419</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span>
+<span class="normal">439</span>
+<span class="normal">440</span>
+<span class="normal">441</span>
+<span class="normal">442</span>
+<span class="normal">443</span>
+<span class="normal">444</span>
+<span class="normal">445</span>
+<span class="normal">446</span>
+<span class="normal">447</span>
+<span class="normal">448</span>
+<span class="normal">449</span>
+<span class="normal">450</span>
+<span class="normal">451</span>
+<span class="normal">452</span>
+<span class="normal">453</span>
+<span class="normal">454</span>
+<span class="normal">455</span>
+<span class="normal">456</span>
+<span class="normal">457</span>
+<span class="normal">458</span>
+<span class="normal">459</span>
+<span class="normal">460</span>
+<span class="normal">461</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span>
+<span class="normal">481</span>
+<span class="normal">482</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sync_docstring</span><span class="p">(</span>
     <span class="n">raw_docstring</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">params</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">ParamInfo</span><span class="p">],</span>
     <span class="n">return_annotation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">is_method</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;&lt;unknown&gt;&#39;</span><span class="p">,</span>
+    <span class="n">content_indent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge signature info into a Douki YAML docstring.</span>
-
-<span class="sd">    Returns the updated YAML (without surrounding triple-quotes).</span>
-<span class="sd">    If not valid Douki YAML, returns it unchanged.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Merge signature info into a Douki YAML docstring.</span>
+<span class="sd">    summary: &gt;-</span>
+<span class="sd">      Returns the updated YAML (without surrounding triple-quotes). If not</span>
+<span class="sd">      valid Douki YAML, raises ValueError.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      raw_docstring:</span>
+<span class="sd">        type: str</span>
+<span class="sd">      params:</span>
+<span class="sd">        type: Sequence[ParamInfo]</span>
+<span class="sd">      return_annotation:</span>
+<span class="sd">        type: str</span>
+<span class="sd">      is_method:</span>
+<span class="sd">        type: bool</span>
+<span class="sd">      func_name:</span>
+<span class="sd">        type: str</span>
+<span class="sd">      content_indent:</span>
+<span class="sd">        type: int</span>
+<span class="sd">    returns:</span>
+<span class="sd">      type: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_douki_yaml</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">validate_docstring</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">raw_docstring</span>
 
-    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span>
-        <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">),</span>
-    <span class="p">)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">_load_docstring_yaml</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">)</span>
 
     <span class="c1"># --- parameters ---</span>
     <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
@@ -1245,12 +1471,12 @@ If not valid Douki YAML, returns it unchanged.</p>
         <span class="n">ret_entry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">return_annotation</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
             <span class="n">ret_entry</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desc</span>
-        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;returns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">ret_entry</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;returns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret_entry</span>
     <span class="k">elif</span> <span class="n">return_annotation</span> <span class="o">==</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
         <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;returns&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
     <span class="c1"># Rebuild YAML in canonical key order</span>
-    <span class="k">return</span> <span class="n">_rebuild_yaml</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_rebuild_yaml</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">content_indent</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1272,161 +1498,164 @@ If not valid Douki YAML, returns it unchanged.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Synchronize all Douki YAML docstrings in <em>source</em>.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-            <b><code>source</code></b>
-              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
-          –
-          <div class="doc-md-description">
-            <p>Python source code.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-            <b><code>migrate</code></b>
-              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
-                  <code>None</code>
-)
-          –
-          <div class="doc-md-description">
-            <p>If <code class="language-python highlight"><span class="s1">&#39;numpy&#39;</span></code>, convert NumPy docstrings to Douki
-YAML before syncing.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-            <b><code>Returns</code></b>
-          –
-          <div class="doc-md-description">
-            
-          </div>
-        </li>
-    </ul>
+        
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/sync.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">518</span>
-<span class="normal">519</span>
-<span class="normal">520</span>
-<span class="normal">521</span>
-<span class="normal">522</span>
-<span class="normal">523</span>
-<span class="normal">524</span>
-<span class="normal">525</span>
-<span class="normal">526</span>
-<span class="normal">527</span>
-<span class="normal">528</span>
-<span class="normal">529</span>
-<span class="normal">530</span>
-<span class="normal">531</span>
-<span class="normal">532</span>
-<span class="normal">533</span>
-<span class="normal">534</span>
-<span class="normal">535</span>
-<span class="normal">536</span>
-<span class="normal">537</span>
-<span class="normal">538</span>
-<span class="normal">539</span>
-<span class="normal">540</span>
-<span class="normal">541</span>
-<span class="normal">542</span>
-<span class="normal">543</span>
-<span class="normal">544</span>
-<span class="normal">545</span>
-<span class="normal">546</span>
-<span class="normal">547</span>
-<span class="normal">548</span>
-<span class="normal">549</span>
-<span class="normal">550</span>
-<span class="normal">551</span>
-<span class="normal">552</span>
-<span class="normal">553</span>
-<span class="normal">554</span>
-<span class="normal">555</span>
-<span class="normal">556</span>
-<span class="normal">557</span>
-<span class="normal">558</span>
-<span class="normal">559</span>
-<span class="normal">560</span>
-<span class="normal">561</span>
-<span class="normal">562</span>
-<span class="normal">563</span>
-<span class="normal">564</span>
-<span class="normal">565</span>
-<span class="normal">566</span>
-<span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span>
-<span class="normal">579</span>
-<span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
-<span class="normal">599</span>
-<span class="normal">600</span>
-<span class="normal">601</span>
-<span class="normal">602</span>
-<span class="normal">603</span>
-<span class="normal">604</span>
-<span class="normal">605</span>
-<span class="normal">606</span>
-<span class="normal">607</span>
-<span class="normal">608</span>
-<span class="normal">609</span>
-<span class="normal">610</span>
-<span class="normal">611</span>
-<span class="normal">612</span>
-<span class="normal">613</span>
-<span class="normal">614</span>
-<span class="normal">615</span>
-<span class="normal">616</span>
-<span class="normal">617</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sync_source</span><span class="p">(</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">860</span>
+<span class="normal">861</span>
+<span class="normal">862</span>
+<span class="normal">863</span>
+<span class="normal">864</span>
+<span class="normal">865</span>
+<span class="normal">866</span>
+<span class="normal">867</span>
+<span class="normal">868</span>
+<span class="normal">869</span>
+<span class="normal">870</span>
+<span class="normal">871</span>
+<span class="normal">872</span>
+<span class="normal">873</span>
+<span class="normal">874</span>
+<span class="normal">875</span>
+<span class="normal">876</span>
+<span class="normal">877</span>
+<span class="normal">878</span>
+<span class="normal">879</span>
+<span class="normal">880</span>
+<span class="normal">881</span>
+<span class="normal">882</span>
+<span class="normal">883</span>
+<span class="normal">884</span>
+<span class="normal">885</span>
+<span class="normal">886</span>
+<span class="normal">887</span>
+<span class="normal">888</span>
+<span class="normal">889</span>
+<span class="normal">890</span>
+<span class="normal">891</span>
+<span class="normal">892</span>
+<span class="normal">893</span>
+<span class="normal">894</span>
+<span class="normal">895</span>
+<span class="normal">896</span>
+<span class="normal">897</span>
+<span class="normal">898</span>
+<span class="normal">899</span>
+<span class="normal">900</span>
+<span class="normal">901</span>
+<span class="normal">902</span>
+<span class="normal">903</span>
+<span class="normal">904</span>
+<span class="normal">905</span>
+<span class="normal">906</span>
+<span class="normal">907</span>
+<span class="normal">908</span>
+<span class="normal">909</span>
+<span class="normal">910</span>
+<span class="normal">911</span>
+<span class="normal">912</span>
+<span class="normal">913</span>
+<span class="normal">914</span>
+<span class="normal">915</span>
+<span class="normal">916</span>
+<span class="normal">917</span>
+<span class="normal">918</span>
+<span class="normal">919</span>
+<span class="normal">920</span>
+<span class="normal">921</span>
+<span class="normal">922</span>
+<span class="normal">923</span>
+<span class="normal">924</span>
+<span class="normal">925</span>
+<span class="normal">926</span>
+<span class="normal">927</span>
+<span class="normal">928</span>
+<span class="normal">929</span>
+<span class="normal">930</span>
+<span class="normal">931</span>
+<span class="normal">932</span>
+<span class="normal">933</span>
+<span class="normal">934</span>
+<span class="normal">935</span>
+<span class="normal">936</span>
+<span class="normal">937</span>
+<span class="normal">938</span>
+<span class="normal">939</span>
+<span class="normal">940</span>
+<span class="normal">941</span>
+<span class="normal">942</span>
+<span class="normal">943</span>
+<span class="normal">944</span>
+<span class="normal">945</span>
+<span class="normal">946</span>
+<span class="normal">947</span>
+<span class="normal">948</span>
+<span class="normal">949</span>
+<span class="normal">950</span>
+<span class="normal">951</span>
+<span class="normal">952</span>
+<span class="normal">953</span>
+<span class="normal">954</span>
+<span class="normal">955</span>
+<span class="normal">956</span>
+<span class="normal">957</span>
+<span class="normal">958</span>
+<span class="normal">959</span>
+<span class="normal">960</span>
+<span class="normal">961</span>
+<span class="normal">962</span>
+<span class="normal">963</span>
+<span class="normal">964</span>
+<span class="normal">965</span>
+<span class="normal">966</span>
+<span class="normal">967</span>
+<span class="normal">968</span>
+<span class="normal">969</span>
+<span class="normal">970</span>
+<span class="normal">971</span>
+<span class="normal">972</span>
+<span class="normal">973</span>
+<span class="normal">974</span>
+<span class="normal">975</span>
+<span class="normal">976</span>
+<span class="normal">977</span>
+<span class="normal">978</span>
+<span class="normal">979</span>
+<span class="normal">980</span>
+<span class="normal">981</span>
+<span class="normal">982</span>
+<span class="normal">983</span>
+<span class="normal">984</span>
+<span class="normal">985</span>
+<span class="normal">986</span>
+<span class="normal">987</span>
+<span class="normal">988</span>
+<span class="normal">989</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sync_source</span><span class="p">(</span>
     <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">migrate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synchronize all Douki YAML docstrings in *source*.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    source : str</span>
-<span class="sd">        Python source code.</span>
-<span class="sd">    migrate : str, optional</span>
-<span class="sd">        If ``&#39;numpy&#39;``, convert NumPy docstrings to Douki</span>
-<span class="sd">        YAML before syncing.</span>
-
-<span class="sd">    Returns the (possibly modified) source string.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Synchronize all Douki YAML docstrings in *source*.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      source:</span>
+<span class="sd">        type: str</span>
+<span class="sd">        description: Python source code.</span>
+<span class="sd">      migrate:</span>
+<span class="sd">        type: Optional[str]</span>
+<span class="sd">        optional: true</span>
+<span class="sd">        description: &gt;-</span>
+<span class="sd">          If ``&#39;numpydoc&#39;``, convert NumPy docstrings to Douki YAML before</span>
+<span class="sd">          syncing.</span>
+<span class="sd">    returns:</span>
+<span class="sd">      type: str</span>
+<span class="sd">      description: The (possibly modified) source string.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Optional migration pass first</span>
-    <span class="k">if</span> <span class="n">migrate</span> <span class="o">==</span> <span class="s1">&#39;numpy&#39;</span><span class="p">:</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">_migrate_numpy</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">migrate</span> <span class="o">==</span> <span class="s1">&#39;numpydoc&#39;</span><span class="p">:</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">_migrate_numpydoc</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
         <span class="n">funcs</span> <span class="o">=</span> <span class="n">extract_functions</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
@@ -1444,22 +1673,24 @@ YAML before syncing.</p>
         <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">funcs_with_ds</span><span class="p">:</span>
         <span class="n">ds_node</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">docstring_node</span>
         <span class="k">assert</span> <span class="n">ds_node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
 
         <span class="n">raw</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ds_node</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_douki_yaml</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
-            <span class="k">continue</span>
 
-        <span class="n">synced</span> <span class="o">=</span> <span class="n">sync_docstring</span><span class="p">(</span>
-            <span class="n">raw</span><span class="p">,</span>
-            <span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
-            <span class="n">func</span><span class="o">.</span><span class="n">return_annotation</span><span class="p">,</span>
-            <span class="n">is_method</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">is_method</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">synced</span> <span class="o">==</span> <span class="n">raw</span><span class="p">:</span>
-            <span class="k">continue</span>
+        <span class="c1"># We enforce validation for every docstring that exists.</span>
+        <span class="k">if</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">validate_docstring</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">prefix</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s1">&#39;&lt;module&gt;&#39;</span> <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;&lt;module&gt;&#39;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="k">continue</span>
 
         <span class="c1"># We need the start/end lines of the docstring.</span>
         <span class="n">ds_start</span> <span class="o">=</span> <span class="n">ds_node</span><span class="o">.</span><span class="n">lineno</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 0-based</span>
@@ -1483,7 +1714,8 @@ YAML before syncing.</p>
             <span class="k">continue</span>  <span class="c1"># pragma: no cover</span>
         <span class="n">quote</span> <span class="o">=</span> <span class="n">quote_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="c1"># Detect content indent from existing lines</span>
+        <span class="c1"># Detect content indent from existing lines.</span>
+        <span class="c1"># Default to same level as the opening &quot;&quot;&quot;, matching PEP 257 / ruff.</span>
         <span class="n">content_indent</span> <span class="o">=</span> <span class="n">indent</span>
         <span class="n">ds_lines</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">dl</span> <span class="ow">in</span> <span class="n">ds_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
@@ -1491,6 +1723,25 @@ YAML before syncing.</p>
                 <span class="n">leading</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dl</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">dl</span><span class="o">.</span><span class="n">lstrip</span><span class="p">())</span>
                 <span class="n">content_indent</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">leading</span>
                 <span class="k">break</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">synced</span> <span class="o">=</span> <span class="n">sync_docstring</span><span class="p">(</span>
+                <span class="n">raw</span><span class="p">,</span>
+                <span class="n">func</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
+                <span class="n">func</span><span class="o">.</span><span class="n">return_annotation</span><span class="p">,</span>
+                <span class="n">is_method</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">is_method</span><span class="p">,</span>
+                <span class="n">func_name</span><span class="o">=</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="n">content_indent</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content_indent</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s1">&#39;&lt;module&gt;&#39;</span> <span class="k">if</span> <span class="n">func</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s1">&#39;&lt;module&gt;&#39;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;- </span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">synced</span> <span class="o">==</span> <span class="n">raw</span><span class="p">:</span>
+            <span class="k">continue</span>
 
         <span class="c1"># Rebuild the docstring with proper indentation</span>
         <span class="n">synced_lines</span> <span class="o">=</span> <span class="n">synced</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
@@ -1506,7 +1757,98 @@ YAML before syncing.</p>
 
         <span class="n">lines</span><span class="p">[</span><span class="n">ds_start</span><span class="p">:</span><span class="n">ds_end</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">new_docstring</span><span class="p">]</span>
 
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="n">DocstringValidationError</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">errors</span><span class="p">))</span>
+
     <span class="k">return</span> <span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="douki.sync.validate_docstring" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">validate_docstring</span>
+
+
+</h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">validate_docstring</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/douki/sync.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">validate_docstring</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">func_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Check whether *raw* is a valid Douki YAML docstring.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      raw:</span>
+<span class="sd">        type: str</span>
+<span class="sd">      func_name:</span>
+<span class="sd">        type: str</span>
+<span class="sd">    returns:</span>
+<span class="sd">      type: bool</span>
+<span class="sd">      description: True if it&#39;s a valid Douki YAML docstring.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">raw</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span><span class="n">raw</span><span class="p">))</span>
+    <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Could not parse YAML&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Docstring is not a valid Douki YAML dictionary&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;title&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Missing &#39;title&#39; field&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">validate_schema</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

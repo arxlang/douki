@@ -656,7 +656,7 @@
 
     <div class="doc doc-contents first">
 
-        <p>Douki — language-agnostic YAML docstring toolkit.</p>
+        
 
 
 
@@ -669,21 +669,21 @@
           <b><code><a class="autorefs autorefs-internal" title="            cli (douki.cli)" href="cli/#douki.cli">cli</a></code></b>
           –
           <div class="doc-md-description">
-            <p>Douki CLI — <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code> and <code class="language-python highlight"><span class="n">douki</span> <span class="n">check</span></code> commands.</p>
+            
           </div>
         </li>
         <li class="doc-section-item field-body">
           <b><code><a class="autorefs autorefs-internal" title="            migrate (douki.migrate)" href="migrate/#douki.migrate">migrate</a></code></b>
           –
           <div class="doc-md-description">
-            <p>Migrate docstrings from other formats to Douki YAML.</p>
+            
           </div>
         </li>
         <li class="doc-section-item field-body">
           <b><code><a class="autorefs autorefs-internal" title="            sync (douki.sync)" href="sync/#douki.sync">sync</a></code></b>
           –
           <div class="doc-md-description">
-            <p>Sync Douki YAML docstrings with function/class signatures.</p>
+            
           </div>
         </li>
     </ul>
@@ -722,22 +722,30 @@
 
     <div class="doc doc-contents ">
 
-        <p>Return the program version.</p>
+        
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/__init__.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">10</span>
 <span class="normal">11</span>
 <span class="normal">12</span>
-<span class="normal">13</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the program version.&quot;&quot;&quot;</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Return the program version.</span>
+<span class="sd">    returns:</span>
+<span class="sd">      type: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">importlib_metadata</span><span class="o">.</span><span class="n">version</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">importlib_metadata</span><span class="o">.</span><span class="n">PackageNotFoundError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
-        <span class="k">return</span> <span class="s1">&#39;0.8.0&#39;</span>  <span class="c1"># semantic-release</span>
+        <span class="k">return</span> <span class="s1">&#39;0.9.0&#39;</span>  <span class="c1"># semantic-release</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

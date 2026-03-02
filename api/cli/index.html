@@ -577,6 +577,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#douki.cli.migrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;migrate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#douki.cli.sync" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -716,6 +727,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#douki.cli.migrate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;migrate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#douki.cli.sync" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -758,11 +780,11 @@
 
     <div class="doc doc-contents first">
 
-        <p>Douki CLI — <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code> and <code class="language-python highlight"><span class="n">douki</span> <span class="n">check</span></code> commands.</p>
-<p>Usage::</p>
-<div class="codehilite"><pre><span></span><code><span class="nv">douki</span><span class="w"> </span><span class="nv">sync</span><span class="w">  </span>[<span class="nv">FILES</span>...]<span class="w">   </span>#<span class="w"> </span><span class="nv">apply</span><span class="w"> </span><span class="nv">changes</span><span class="w"> </span><span class="nv">in</span><span class="o">-</span><span class="nv">place</span>
-<span class="nv">douki</span><span class="w"> </span><span class="nv">check</span><span class="w"> </span>[<span class="nv">FILES</span>...]<span class="w">   </span>#<span class="w"> </span><span class="nv">print</span><span class="w"> </span><span class="nv">diff</span>,<span class="w"> </span><span class="k">exit</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nv">changes</span><span class="w"> </span><span class="nv">needed</span>
-</code></pre></div>
+        <ul>
+<li>code: |
+      douki sync  [FILES...]   # apply changes in-place
+      douki check [FILES...]   # print diff, exit 1 if changes needed</li>
+</ul>
 
 
 
@@ -779,7 +801,7 @@
           <b><code><a class="autorefs autorefs-internal" title="            MigrateFormat (douki.cli.MigrateFormat)" href="#douki.cli.MigrateFormat">MigrateFormat</a></code></b>
           –
           <div class="doc-md-description">
-            <p>Supported migration source formats.</p>
+            
           </div>
         </li>
     </ul>
@@ -793,14 +815,21 @@
             <b><code><a class="autorefs autorefs-internal" title="            check (douki.cli.check)" href="#douki.cli.check">check</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Print a diff of proposed changes. Exit 1 if any.</p>
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            migrate (douki.cli.migrate)" href="#douki.cli.migrate">migrate</a></code></b>
+            –
+            <div class="doc-md-description">
+              
             </div>
           </li>
           <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="            sync (douki.cli.sync)" href="#douki.cli.sync">sync</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Apply docstring sync changes to files in-place.</p>
+              
             </div>
           </li>
     </ul>
@@ -836,7 +865,7 @@
 
 
 
-        <p>Supported migration source formats.</p>
+        
 
 
 
@@ -886,22 +915,355 @@
         <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
-    <span class="n">migrate</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            MigrateFormat (douki.cli.MigrateFormat)" href="#douki.cli.MigrateFormat">MigrateFormat</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
-        <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;--migrate&#39;</span><span class="p">,</span>
-        <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Migrate from another docstring format.&#39;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/douki/cli.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span>
+<span class="normal">298</span>
+<span class="normal">299</span>
+<span class="normal">300</span>
+<span class="normal">301</span>
+<span class="normal">302</span>
+<span class="normal">303</span>
+<span class="normal">304</span>
+<span class="normal">305</span>
+<span class="normal">306</span>
+<span class="normal">307</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span>
+<span class="normal">311</span>
+<span class="normal">312</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Print a diff of proposed changes. Exit 1 if any.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      files:</span>
+<span class="sd">        type: Optional[List[Path]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">migrate_val</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">py_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="n">any_diff</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">py_files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">original</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;[red]Error reading </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">updated</span> <span class="o">=</span> <span class="n">sync_source</span><span class="p">(</span>
+                <span class="n">original</span><span class="p">,</span>
+                <span class="n">migrate</span><span class="o">=</span><span class="n">migrate_val</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">DocstringValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[red]Invalid docstrings in </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/]</span><span class="se">\n</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;[red]Error processing </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">_print_diff</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="n">updated</span><span class="p">):</span>
+            <span class="n">any_diff</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">any_diff</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="douki.cli.migrate" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">migrate</span>
+
+
+</h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">migrate</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
+        <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">from_format</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            MigrateFormat (douki.cli.MigrateFormat)" href="#douki.cli.MigrateFormat">MigrateFormat</a></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="s1">&#39;--from&#39;</span><span class="p">,</span>
+        <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Source docstring format (e.g., numpydoc).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Print a diff of proposed changes. Exit 1 if any.</p>
+        
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/cli.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">226</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span>
+<span class="normal">363</span>
+<span class="normal">364</span>
+<span class="normal">365</span>
+<span class="normal">366</span>
+<span class="normal">367</span>
+<span class="normal">368</span>
+<span class="normal">369</span>
+<span class="normal">370</span>
+<span class="normal">371</span>
+<span class="normal">372</span>
+<span class="normal">373</span>
+<span class="normal">374</span>
+<span class="normal">375</span>
+<span class="normal">376</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span>
+<span class="normal">396</span>
+<span class="normal">397</span>
+<span class="normal">398</span>
+<span class="normal">399</span>
+<span class="normal">400</span>
+<span class="normal">401</span>
+<span class="normal">402</span>
+<span class="normal">403</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">migrate</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">from_format</span><span class="p">:</span> <span class="n">MigrateFormat</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+        <span class="o">...</span><span class="p">,</span>
+        <span class="s1">&#39;--from&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Source docstring format (e.g., numpydoc).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Migrate docstrings from another format to Douki YAML.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      files:</span>
+<span class="sd">        type: Optional[List[Path]]</span>
+<span class="sd">      from_format:</span>
+<span class="sd">        type: MigrateFormat</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">migrate_val</span> <span class="o">=</span> <span class="n">from_format</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">py_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">unchanged</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">py_files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">original</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;[red]Error reading </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">updated</span> <span class="o">=</span> <span class="n">sync_source</span><span class="p">(</span>
+                <span class="n">original</span><span class="p">,</span>
+                <span class="n">migrate</span><span class="o">=</span><span class="n">migrate_val</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="n">DocstringValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[red]Invalid docstrings in </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/]</span><span class="se">\n</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;[red]Error processing </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">original</span> <span class="o">!=</span> <span class="n">updated</span><span class="p">:</span>
+            <span class="n">filepath</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[green]Migrated[/] </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">changed</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;[dim]No changes[/] </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">unchanged</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Summary</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+    <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;[bold]</span><span class="si">{</span><span class="n">changed</span><span class="si">}</span><span class="s1"> migrated[/], </span><span class="si">{</span><span class="n">unchanged</span><span class="si">}</span><span class="s1"> unchanged&#39;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="douki.cli.sync" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">sync</span>
+
+
+</h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">sync</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
+        <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/douki/cli.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
 <span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
@@ -948,163 +1310,21 @@
 <span class="normal">270</span>
 <span class="normal">271</span>
 <span class="normal">272</span>
-<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
-        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="n">migrate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MigrateFormat</span><span class="p">]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
-        <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;--migrate&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Migrate from another docstring format.&#39;</span><span class="p">,</span>
-    <span class="p">),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print a diff of proposed changes. Exit 1 if any.&quot;&quot;&quot;</span>
-    <span class="n">migrate_val</span> <span class="o">=</span> <span class="n">migrate</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">migrate</span> <span class="k">else</span> <span class="kc">None</span>
-    <span class="n">py_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
-    <span class="n">any_diff</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">py_files</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">original</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;[red]Error reading </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">continue</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">updated</span> <span class="o">=</span> <span class="n">sync_source</span><span class="p">(</span>
-                <span class="n">original</span><span class="p">,</span>
-                <span class="n">migrate</span><span class="o">=</span><span class="n">migrate_val</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;[red]Error processing </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">continue</span>
-
-        <span class="k">if</span> <span class="n">_print_diff</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="n">updated</span><span class="p">):</span>
-            <span class="n">any_diff</span> <span class="o">=</span> <span class="kc">True</span>
-
-    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">any_diff</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="douki.cli.sync" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">sync</span>
-
-
-</h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">sync</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
-        <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
-    <span class="p">),</span>
-    <span class="n">migrate</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            MigrateFormat (douki.cli.MigrateFormat)" href="#douki.cli.MigrateFormat">MigrateFormat</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
-        <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;--migrate&#39;</span><span class="p">,</span>
-        <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Migrate from another docstring format.&#39;</span><span class="p">,</span>
-    <span class="p">),</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Apply docstring sync changes to files in-place.</p>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>src/douki/cli.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="normal">273</span>
+<span class="normal">274</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">sync</span><span class="p">(</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Python files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
-    <span class="n">migrate</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">MigrateFormat</span><span class="p">]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
-        <span class="kc">None</span><span class="p">,</span>
-        <span class="s1">&#39;--migrate&#39;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Migrate from another docstring format.&#39;</span><span class="p">,</span>
-    <span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply docstring sync changes to files in-place.&quot;&quot;&quot;</span>
-    <span class="n">migrate_val</span> <span class="o">=</span> <span class="n">migrate</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">migrate</span> <span class="k">else</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Apply docstring sync changes to files in-place.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      files:</span>
+<span class="sd">        type: Optional[List[Path]]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">migrate_val</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">py_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span><span class="n">files</span><span class="p">)</span>
     <span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">changed</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1125,6 +1345,12 @@
                 <span class="n">original</span><span class="p">,</span>
                 <span class="n">migrate</span><span class="o">=</span><span class="n">migrate_val</span><span class="p">,</span>
             <span class="p">)</span>
+        <span class="k">except</span> <span class="n">DocstringValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[red]Invalid docstrings in </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/]</span><span class="se">\n</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">continue</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s1">&#39;[red]Error processing </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>

@@ -583,10 +583,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#douki.migrate.numpy_to_douki_yaml" class="md-nav__link">
+  <a href="#douki.migrate.numpydoc_to_douki_yaml" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;numpy_to_douki_yaml
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;numpydoc_to_douki_yaml
       
     </span>
   </a>
@@ -672,10 +672,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#douki.migrate.numpy_to_douki_yaml" class="md-nav__link">
+  <a href="#douki.migrate.numpydoc_to_douki_yaml" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;numpy_to_douki_yaml
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;numpydoc_to_douki_yaml
       
     </span>
   </a>
@@ -714,8 +714,7 @@
 
     <div class="doc doc-contents first">
 
-        <p>Migrate docstrings from other formats to Douki YAML.</p>
-<p>Currently supports: <strong>numpy</strong> (numpydoc).</p>
+        
 
 
 
@@ -731,10 +730,10 @@
 <p><span class="doc-section-title">Functions:</span></p>
     <ul>
           <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="            numpy_to_douki_yaml (douki.migrate.numpy_to_douki_yaml)" href="#douki.migrate.numpy_to_douki_yaml">numpy_to_douki_yaml</a></code></b>
+            <b><code><a class="autorefs autorefs-internal" title="            numpydoc_to_douki_yaml (douki.migrate.numpydoc_to_douki_yaml)" href="#douki.migrate.numpydoc_to_douki_yaml">numpydoc_to_douki_yaml</a></code></b>
             –
             <div class="doc-md-description">
-              <p>Convert a NumPy-style docstring to Douki YAML format.</p>
+              
             </div>
           </li>
     </ul>
@@ -757,40 +756,22 @@
 <div class="doc doc-object doc-function">
 
 
-<h2 id="douki.migrate.numpy_to_douki_yaml" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">numpy_to_douki_yaml</span>
+<h2 id="douki.migrate.numpydoc_to_douki_yaml" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">numpydoc_to_douki_yaml</span>
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">numpy_to_douki_yaml</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">numpydoc_to_douki_yaml</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Convert a NumPy-style docstring to Douki YAML format.</p>
-<p>Returns the YAML string (without triple-quotes).
-If <em>raw</em> is not a valid NumPy docstring, returns it unchanged.</p>
+        
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/migrate.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -836,13 +817,49 @@ If <em>raw</em> is not a valid NumPy docstring, returns it unchanged.</p>
 <span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
-<span class="normal">227</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">numpy_to_douki_yaml</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert a NumPy-style docstring to Douki YAML format.</span>
-
-<span class="sd">    Returns the YAML string (without triple-quotes).</span>
-<span class="sd">    If *raw* is not a valid NumPy docstring, returns it unchanged.</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">numpydoc_to_douki_yaml</span><span class="p">(</span><span class="n">raw</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Convert a NumPy-style docstring to Douki YAML format.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      raw:</span>
+<span class="sd">        type: str</span>
+<span class="sd">    returns:</span>
+<span class="sd">      type: str</span>
+<span class="sd">      description: &gt;-</span>
+<span class="sd">        The YAML string (without triple-quotes). If *raw* is not a valid NumPy</span>
+<span class="sd">        docstring, returns it unchanged.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_numpy_docstring</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_numpydoc_docstring</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">raw</span>
 
     <span class="n">narrative</span><span class="p">,</span> <span class="n">sections</span> <span class="o">=</span> <span class="n">_split_sections</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
@@ -881,17 +898,25 @@ If <em>raw</em> is not a valid NumPy docstring, returns it unchanged.</p>
                 <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
             <span class="n">data</span><span class="p">[</span><span class="n">douki_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span>
         <span class="k">elif</span> <span class="n">douki_key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;returns&#39;</span><span class="p">,</span> <span class="s1">&#39;yields&#39;</span><span class="p">,</span> <span class="s1">&#39;receives&#39;</span><span class="p">):</span>
-            <span class="c1"># Build list of {type, description}</span>
+            <span class="c1"># Combine multiple into a single dict {type, description}</span>
             <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_map_section</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
-            <span class="n">items2</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">type_name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">parsed</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                <span class="n">it</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">type_name</span><span class="p">}</span>
-                <span class="n">desc</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
-                    <span class="n">it</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desc</span>
-                <span class="n">items2</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">items2</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="n">douki_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">items2</span>
+            <span class="k">if</span> <span class="n">parsed</span><span class="p">:</span>
+                <span class="n">types</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">descs</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">type_name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">parsed</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">type_name</span><span class="p">)</span>
+                    <span class="n">desc</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
+                        <span class="n">descs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">desc</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+                <span class="n">type_str</span> <span class="o">=</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">types</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">types</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">type_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;tuple[</span><span class="si">{</span><span class="n">type_str</span><span class="si">}</span><span class="s1">]&#39;</span>
+
+                <span class="n">entry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">type_str</span><span class="p">}</span>
+                <span class="k">if</span> <span class="n">descs</span><span class="p">:</span>
+                    <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">descs</span><span class="p">)</span>
+                <span class="n">data</span><span class="p">[</span><span class="n">douki_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">entry</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Simple text</span>
                 <span class="n">data</span><span class="p">[</span><span class="n">douki_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_parse_simple_section</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
