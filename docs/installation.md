@@ -1,39 +1,38 @@
 # Installation
 
-## Stable release
+## Stable Release
 
-To install Douki, run this command in your terminal:
+Install Douki as a **development dependency** — it does not need to be a
+runtime dependency of your package.
 
-```bash
-pip install douki
-```
+=== "pip"
 
-This is the preferred method to install Douki, as it will always install the most
-recent stable release.
+    ```bash
+    pip install douki
+    ```
 
-If you don't have [pip](https://pip.pypa.io) installed, this
-[Python installation guide](http://docs.python-guide.org/en/latest/starting/installation/)
-can guide you through the process.
+=== "conda"
 
-## From sources
+    ```bash
+    conda install -c conda-forge douki
+    ```
 
-The sources for Douki can be downloaded from the
-[Github repo](https://github.com/osl-incubator/douki.git).
+=== "Poetry (dev)"
 
-You can either clone the public repository:
+    ```bash
+    poetry add --group dev douki
+    ```
+
+## From Source
+
+Clone the repository and install with Poetry:
 
 ```bash
 git clone https://github.com/osl-incubator/douki.git
-```
-
-Or download the [tarball](https://github.com/osl-incubator/douki.git/tarball/main):
-
-```bash
-curl -OJL https://github.com/osl-incubator/douki.git/tarball/main
-```
-
-Once you have a copy of the source, you can install it with:
-
-```bash
+cd douki
 poetry install
 ```
+
+## Requirements
+
+- Python ≥ 3.10

@@ -1,23 +1,34 @@
 # Douki
 
-[![Poetry](https://img.shields.io/endpoint?url=https://python-poetry.org/badge/v0.json)](https://python-poetry.org/)![Mkdocs](https://img.shields.io/badge/Documentation%20engine-Mkdocs-orange)
-[![Built with Material for MkDocs](https://img.shields.io/badge/Material_for_MkDocs-526CFE?style=for-the-badge&logo=MaterialForMkDocs&logoColor=white)](https://squidfunk.github.io/mkdocs-material/)
-![Conda](https://img.shields.io/badge/Virtual%20environment-conda-brightgreen?logo=anaconda)[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
-![coverage](https://img.shields.io/badge/Code%20coverage%20testing-coverage.py-blue)
-[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-![vulture](https://img.shields.io/badge/Find%20unused%20code-vulture-blue)
-![McCabe](https://img.shields.io/badge/Complexity%20checker-McCabe-blue)
-![mypy](https://img.shields.io/badge/Static%20typing-mypy-blue)
-![pytest](https://img.shields.io/badge/Testing-pytest-cyan?logo=pytest)[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)
-![Makim](https://img.shields.io/badge/Automation%20task-Makim-blue)![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-CI-blue?logo=githubactions)
+**Language-agnostic YAML docstrings for Python.**
 
-Documetatio from annotations
+Douki is a developer tool that uses a structured YAML format inside Python
+docstrings. It keeps your docstrings in sync with your function signatures and
+validates them against a schema — all without adding a runtime dependency to
+your package.
 
-- Software License: BSD 3 Clause
+## Why Douki?
 
-- Documentation: https://osl-incubator.github.io/douki
+- **Structured** — docstrings are YAML, not free-form text. Parameters have
+  `type`, `description`, `optional`, and `default` fields.
+- **Auto-synced** — `douki sync` adds new parameters, removes stale ones, and
+  updates return types automatically.
+- **Validated** — every docstring is checked against a JSON Schema so typos and
+  invalid fields are caught early.
+- **Dev-only** — Douki is a development tool. It does **not** need to be a
+  runtime dependency of your package.
+- **Migratable** — convert existing NumPy-style docstrings with
+  `douki sync --migrate numpy`.
 
-### Douki YAML Format
+## Quick Start
+
+Install Douki as a dev dependency:
+
+```bash
+pip install douki
+```
+
+Write a docstring in Douki YAML format:
 
 ```python
 def add(a: int, b: int = 0) -> int:
@@ -38,66 +49,19 @@ def add(a: int, b: int = 0) -> int:
     return a + b
 ```
 
-Fields like `visibility` (default: `public`), `mutability` (default: `mutable`),
-and `scope` (default: `static` for functions, `instance` for methods) are
-omitted when they match their Python defaults.
-
-### CLI — `douki sync` / `douki check`
-
-Synchronize Douki YAML docstrings with Python function
-signatures. Designed to run standalone or as a **pre-commit hook**.
+Sync your docstrings with the actual signatures:
 
 ```bash
-# Show what would change (exit 1 if diffs exist)
+# Preview changes
 douki check src/
 
 # Apply changes in-place
 douki sync src/
-
-# Specific files
-douki check path/to/file.py
 ```
 
-Without arguments, both commands default to the current directory.
+## What's Next?
 
-#### Migrating from NumPy docstrings
-
-Convert existing NumPy-style docstrings to Douki YAML:
-
-```bash
-# Preview what the migration would look like
-douki check --migrate numpy src/
-
-# Apply the migration
-douki sync --migrate numpy src/
-```
-
-#### Pre-commit integration
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: https://github.com/osl-incubator/douki
-    rev: v0.7.0 # pin to a release tag
-    hooks:
-      - id: douki-check
-        name: douki check
-        entry: douki check
-        language: python
-        types: [python]
-```
-
-Or you can use the `douki sync` command instead:
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: https://github.com/osl-incubator/douki
-    rev: v0.7.0 # pin to a release tag
-    hooks:
-      - id: douki-sync
-        name: douki sync
-        entry: douki sync
-        language: python
-        types: [python]
-```
+- [Installation](installation.md) — install via pip, conda, or from source
+- [Usage Guide](usage.md) — CLI commands, YAML schema, and migration
+- [Changelog](changelog.md) — release history
+- [Contributing](contributing.md) — how to contribute
