@@ -663,11 +663,12 @@ def _emit_parameters(
     """
     lines.append(f'{key}:')
     for name, entry in params.items():
+        safe_name = _yaml_scalar(name)
         if isinstance(entry, str):
             # Old flat format — still support it
-            lines.append(f'  {name}: {_yaml_scalar(entry)}')
+            lines.append(f'  {safe_name}: {_yaml_scalar(entry)}')
         elif isinstance(entry, dict):
-            lines.append(f'  {name}:')
+            lines.append(f'  {safe_name}:')
             for sub_key in ('type', 'optional', 'description', 'default'):
                 if sub_key not in entry:
                     continue

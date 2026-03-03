@@ -87,8 +87,8 @@ def add(a: int, b: int = 0) -> int:
         optional: true
         default: 0
     returns:
-      - type: int
-        description: Sum of a and b.
+      type: int
+      description: Sum of a and b.
     raises:
       - type: ValueError
         description: If either value is negative.
@@ -104,26 +104,26 @@ def add(a: int, b: int = 0) -> int:
 
 ### All Fields
 
-| Field        | Type               | Description                                          |
-| ------------ | ------------------ | ---------------------------------------------------- |
-| `title`      | `string`           | **Required.** Short title for the function.          |
-| `summary`    | `string`           | Extended description. Supports multi-line with `\|`. |
-| `deprecated` | `string`           | Deprecation notice.                                  |
-| `visibility` | `enum`             | `public` · `private` · `protected` · `internal`      |
-| `mutability` | `enum`             | `mutable` · `immutable` · `constant`                 |
-| `scope`      | `enum`             | `instance` · `static` · `class`                      |
-| `parameters` | `object`           | Map of parameter name → entry (see below).           |
-| `returns`    | `list`             | List of `{type, description}` objects.               |
-| `yields`     | `list`             | Like `returns`, for generators.                      |
-| `receives`   | `string`           | Description of values sent into the generator.       |
-| `raises`     | `list`             | List of `{type, description}` exception entries.     |
-| `warnings`   | `list`             | List of `{type, description}` warning entries.       |
-| `see_also`   | `string` or `list` | Related functions or references.                     |
-| `notes`      | `string`           | Additional notes.                                    |
-| `references` | `string`           | External references or citations.                    |
-| `examples`   | `string` or `list` | Usage examples.                                      |
-| `attributes` | `object`           | For classes: map of attribute name → entry.          |
-| `methods`    | `string` or `list` | For classes: method names.                           |
+| Field        | Type                 | Description                                          |
+| ------------ | -------------------- | ---------------------------------------------------- |
+| `title`      | `string`             | **Required.** Short title for the function.          |
+| `summary`    | `string`             | Extended description. Supports multi-line with `\|`. |
+| `deprecated` | `string`             | Deprecation notice.                                  |
+| `visibility` | `enum`               | `public` · `private` · `protected` · `internal`      |
+| `mutability` | `enum`               | `mutable` · `immutable` · `constant`                 |
+| `scope`      | `enum`               | `instance` · `static` · `class`                      |
+| `parameters` | `object`             | Map of parameter name → entry (see below).           |
+| `returns`    | `object` or `string` | Single `{type, description}` or plain text.          |
+| `yields`     | `object` or `string` | Like `returns`, for generators.                      |
+| `receives`   | `object` or `string` | Like `returns`, for generators.                      |
+| `raises`     | `list` or `object`   | List of `{type, description}` or dict map.           |
+| `warnings`   | `list` or `object`   | List of `{type, description}` or dict map.           |
+| `see_also`   | `string` or `list`   | Related functions or references.                     |
+| `notes`      | `string`             | Additional notes.                                    |
+| `references` | `string`             | External references or citations.                    |
+| `examples`   | `string` or `list`   | Usage examples.                                      |
+| `attributes` | `object`             | For classes: map of attribute name → entry.          |
+| `methods`    | `string` or `list`   | For classes: method names.                           |
 
 ### Parameter Entry
 
@@ -169,10 +169,10 @@ Douki can convert NumPy-style docstrings to Douki YAML format:
 
 ```bash
 # Preview what the migration would look like
-douki check --migrate numpy src/
+douki check src/
 
-# Apply the migration
-douki sync --migrate numpy src/
+# Apply the migration using the new dedicated command
+douki migrate numpydoc src/
 ```
 
 **Before:**
@@ -210,8 +210,8 @@ def add(x, y):
         type: int
         description: Second operand.
     returns:
-      - type: int
-        description: The sum.
+      type: int
+      description: The sum.
     """
     return x + y
 ```

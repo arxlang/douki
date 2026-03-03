@@ -197,8 +197,8 @@ def test_sync_handles_star_args() -> None:
         _p('kwargs', 'str', 'var_keyword'),
     ]
     result = sync_docstring(raw, params, 'None')
-    assert '*args:' in result
-    assert '**kwargs:' in result
+    assert "'*args':" in result
+    assert "'**kwargs':" in result
 
 
 def test_sync_removes_returns_for_none() -> None:
@@ -1341,3 +1341,20 @@ class MyService:
     result = sync_source(src)
     for i, line in enumerate(result.splitlines(), 1):
         assert len(line) <= 79, f'Line {i} too long ({len(line)}): {line!r}'
+
+
+def test_sync_source_var_args() -> None:
+    """
+    title: Functions with *args and **kwargs emit quoted YAML keys safely.
+    """
+    src = '''\
+def flexible_func(*args: int, **kwargs: str) -> None:
+    """
+    title: A function with arbitrary arguments.
+    """
+    pass
+'''
+    result = sync_source(src)
+    # They should be safely formatted, likely appearing as `'*args':`
+    assert "'*args':" in result
+    assert "'**kwargs':" in result
