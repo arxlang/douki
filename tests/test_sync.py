@@ -197,8 +197,8 @@ def test_sync_handles_star_args() -> None:
         _p('kwargs', 'str', 'var_keyword'),
     ]
     result = sync_docstring(raw, params, 'None')
-    assert '*args:' in result
-    assert '**kwargs:' in result
+    assert "'*args':" in result
+    assert "'**kwargs':" in result
 
 
 def test_sync_removes_returns_for_none() -> None:
