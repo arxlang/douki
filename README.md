@@ -18,7 +18,7 @@ your package.
 - **Dev-only** — Douki is a development tool. It does **not** need to be a
   runtime dependency of your package.
 - **Migratable** — convert existing NumPy-style docstrings with
-  `douki sync --migrate numpy`.
+  `douki migrate numpydoc`.
 
 ## Quick Start
 
@@ -43,8 +43,8 @@ def add(a: int, b: int = 0) -> int:
         description: Second value.
         default: 0
     returns:
-      - type: int
-        description: Sum of a and b.
+      type: int
+      description: Sum of a and b.
     """
     return a + b
 ```
