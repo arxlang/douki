@@ -1,6 +1,6 @@
 [project]
 name = "douki"
-version = "0.9.1"  # semantic-release
+version = "0.9.2"  # semantic-release
 description = "Documetatio from annotations"
 readme = "README.md"
 authors = [

@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+## [0.9.2](https://github.com/arxlang/douki/compare/0.9.1...0.9.2) (2026-03-03)
+
+
+### Bug Fixes
+
+* Fix variadic positional and keyword feature ([#17](https://github.com/arxlang/douki/issues/17)) ([ae3a37e](https://github.com/arxlang/douki/commit/ae3a37e7d84a7d85532476bae7bc7b93ff31327e))
+
 ## [0.9.1](https://github.com/arxlang/douki/compare/0.9.0...0.9.1) (2026-03-03)
 
 
