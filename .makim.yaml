@@ -131,9 +131,8 @@ groups:
           TMPDIR=$(mktemp -d)
           cp tests/smoke/numpy_style.py "$TMPDIR/numpy.py"
           # Check with migrate should show diffs (exit 1)
-          douki check --migrate numpy "$TMPDIR/numpy.py" && exit 1 || true
-          # Sync with migrate should convert
-          douki sync --migrate numpy "$TMPDIR/numpy.py" && exit 1 || true
+          # Note: douki check doesn't have --migrate anymore. We can only test migrate directly.
+          douki migrate --from numpydoc "$TMPDIR/numpy.py" && exit 1 || true
           # Verify the file now contains 'title:'
           grep -q 'title:' "$TMPDIR/numpy.py"
           # Second sync should be idempotent (exit 0)
