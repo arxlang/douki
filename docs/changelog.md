@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+# [0.10.0](https://github.com/arxlang/douki/compare/0.9.2...0.10.0) (2026-03-03)
+
+
+### Features
+
+* Add support for classes and methods properly ([#18](https://github.com/arxlang/douki/issues/18)) ([d285e4f](https://github.com/arxlang/douki/commit/d285e4f2e0d48269058f007288aca4d95fb53e56))
+
 ## [0.9.2](https://github.com/arxlang/douki/compare/0.9.1...0.9.2) (2026-03-03)
 
 
