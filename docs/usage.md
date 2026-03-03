@@ -102,6 +102,11 @@ def add(a: int, b: int = 0) -> int:
     return a + b
 ```
 
+### Classes and Methods
+
+Douki fully supports synchronizing docstrings for methods and classes.
+When synchronizing a class docstring, Douki will automatically extract the parameters of the class's `__init__` method and add them to the class docstring's `parameters` section. Methods (including nested methods and `@classmethod`) are fully supported and will have their `parameters` and `returns` sections synchronized.
+
 ### All Fields
 
 | Field        | Type                 | Description                                          |

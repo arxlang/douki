@@ -6,8 +6,8 @@ def greet(name: str) -> str:
         type: str
         description: The name to greet
     returns:
-      - type: str
-        description: a greeting string
+      type: str
+      description: a greeting string
     """
     return f'Hello {name}'
 
@@ -21,7 +21,7 @@ def add(x: int, y: int) -> int:
       y:
         type: int
     returns:
-      - type: int
+      type: int
     """
     return x + y
 
@@ -42,7 +42,7 @@ class Calculator:
             type: int
             description: second operand
         returns:
-          - type: int
-            description: the product
+          type: int
+          description: the product
         """
         return a * b

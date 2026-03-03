@@ -382,6 +382,47 @@ def test_sync_source_no_functions() -> None:
     assert result == src
 
 
+def test_sync_source_classdef_with_init() -> None:
+    src = '''\
+class MyClass:
+    """
+    title: My class docstring
+    """
+    def __init__(self, count: int, name: str = "test"):
+        self.count = count
+        self.name = name
+'''
+    result = sync_source(src)
+    assert 'parameters:' in result
+    assert 'count:' in result
+    assert 'name:' in result
+    assert 'type: int' in result
+
+
+def test_sync_source_nested_class_and_method() -> None:
+    src = '''\
+class Outer:
+    """
+    title: Outer
+    """
+    class Inner:
+        """
+        title: Inner
+        """
+        def method(self, val: float) -> bool:
+            """
+            title: Inner method
+            """
+            return True
+'''
+    result = sync_source(src)
+    # The inner method should have its parameter synced
+    assert 'val:' in result
+    assert 'type: float' in result
+    # There should only be one parameters: block (from the method)
+    assert result.count('parameters:') == 1
+
+
 # -------------------------------------------------------------------
 # sync_source with migrate='numpydoc'
 # -------------------------------------------------------------------
