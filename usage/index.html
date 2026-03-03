@@ -1153,8 +1153,8 @@ docstring <strong>must</strong> have a <code class="language-python highlight"><
 <span class="sd">        optional: true</span>
 <span class="sd">        default: 0</span>
 <span class="sd">    returns:</span>
-<span class="sd">      - type: int</span>
-<span class="sd">        description: Sum of a and b.</span>
+<span class="sd">      type: int</span>
+<span class="sd">      description: Sum of a and b.</span>
 <span class="sd">    raises:</span>
 <span class="sd">      - type: ValueError</span>
 <span class="sd">        description: If either value is negative.</span>
@@ -1214,28 +1214,28 @@ docstring <strong>must</strong> have a <code class="language-python highlight"><
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">returns</span></code></td>
-<td><code class="language-python highlight"><span class="nb">list</span></code></td>
-<td>List of <code class="language-python highlight"><span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">description</span><span class="p">}</span></code> objects.</td>
+<td><code class="language-python highlight"><span class="nb">object</span></code> or <code class="language-python highlight"><span class="n">string</span></code></td>
+<td>Single <code class="language-python highlight"><span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">description</span><span class="p">}</span></code> or plain text.</td>
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">yields</span></code></td>
-<td><code class="language-python highlight"><span class="nb">list</span></code></td>
+<td><code class="language-python highlight"><span class="nb">object</span></code> or <code class="language-python highlight"><span class="n">string</span></code></td>
 <td>Like <code class="language-python highlight"><span class="n">returns</span></code>, for generators.</td>
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">receives</span></code></td>
-<td><code class="language-python highlight"><span class="n">string</span></code></td>
-<td>Description of values sent into the generator.</td>
+<td><code class="language-python highlight"><span class="nb">object</span></code> or <code class="language-python highlight"><span class="n">string</span></code></td>
+<td>Like <code class="language-python highlight"><span class="n">returns</span></code>, for generators.</td>
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">raises</span></code></td>
-<td><code class="language-python highlight"><span class="nb">list</span></code></td>
-<td>List of <code class="language-python highlight"><span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">description</span><span class="p">}</span></code> exception entries.</td>
+<td><code class="language-python highlight"><span class="nb">list</span></code> or <code class="language-python highlight"><span class="nb">object</span></code></td>
+<td>List of <code class="language-python highlight"><span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">description</span><span class="p">}</span></code> or dict map.</td>
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">warnings</span></code></td>
-<td><code class="language-python highlight"><span class="nb">list</span></code></td>
-<td>List of <code class="language-python highlight"><span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">description</span><span class="p">}</span></code> warning entries.</td>
+<td><code class="language-python highlight"><span class="nb">list</span></code> or <code class="language-python highlight"><span class="nb">object</span></code></td>
+<td>List of <code class="language-python highlight"><span class="p">{</span><span class="nb">type</span><span class="p">,</span> <span class="n">description</span><span class="p">}</span></code> or dict map.</td>
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">see_also</span></code></td>
@@ -1354,10 +1354,10 @@ to keep output minimal:</p>
 <h3 id="from-numpy-style-docstrings">From NumPy-style Docstrings</h3>
 <p>Douki can convert NumPy-style docstrings to Douki YAML format:</p>
 <div class="language-bash highlight"><pre><span></span><code><span class="c1"># Preview what the migration would look like</span>
-douki<span class="w"> </span>check<span class="w"> </span>--migrate<span class="w"> </span>numpy<span class="w"> </span>src/
+douki<span class="w"> </span>check<span class="w"> </span>src/
 
-<span class="c1"># Apply the migration</span>
-douki<span class="w"> </span>sync<span class="w"> </span>--migrate<span class="w"> </span>numpy<span class="w"> </span>src/
+<span class="c1"># Apply the migration using the new dedicated command</span>
+douki<span class="w"> </span>migrate<span class="w"> </span>numpydoc<span class="w"> </span>src/
 </code></pre></div>
 <p><strong>Before:</strong></p>
 <div class="language-python highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
@@ -1389,8 +1389,8 @@ douki<span class="w"> </span>sync<span class="w"> </span>--migrate<span class="w
 <span class="sd">        type: int</span>
 <span class="sd">        description: Second operand.</span>
 <span class="sd">    returns:</span>
-<span class="sd">      - type: int</span>
-<span class="sd">        description: The sum.</span>
+<span class="sd">      type: int</span>
+<span class="sd">      description: The sum.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span>
 </code></pre></div>

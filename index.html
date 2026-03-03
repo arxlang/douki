@@ -757,7 +757,7 @@ your package.</p>
 <li><strong>Dev-only</strong> — Douki is a development tool. It does <strong>not</strong> need to be a
   runtime dependency of your package.</li>
 <li><strong>Migratable</strong> — convert existing NumPy-style docstrings with
-  <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span> <span class="o">--</span><span class="n">migrate</span> <span class="n">numpy</span></code>.</li>
+  <code class="language-python highlight"><span class="n">douki</span> <span class="n">migrate</span> <span class="n">numpydoc</span></code>.</li>
 </ul>
 <h2 id="quick-start">Quick Start</h2>
 <p>Install Douki as a dev dependency:</p>
@@ -776,8 +776,8 @@ your package.</p>
 <span class="sd">        description: Second value.</span>
 <span class="sd">        default: 0</span>
 <span class="sd">    returns:</span>
-<span class="sd">      - type: int</span>
-<span class="sd">        description: Sum of a and b.</span>
+<span class="sd">      type: int</span>
+<span class="sd">      description: Sum of a and b.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 </code></pre></div>
