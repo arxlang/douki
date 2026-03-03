@@ -443,6 +443,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Parameter Entry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variadic-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variadic Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -938,6 +955,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Parameter Entry">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variadic-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variadic Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1308,8 +1342,24 @@ object:</p>
 <td><code class="language-python highlight"><span class="nb">any</span></code></td>
 <td>Default value.</td>
 </tr>
+<tr>
+<td><code class="language-python highlight"><span class="n">variadic</span></code></td>
+<td><code class="language-python highlight"><span class="n">enum</span></code></td>
+<td><code class="language-python highlight"><span class="n">positional</span></code> (for <code class="language-python highlight"><span class="o">*</span><span class="n">args</span></code>) · <code class="language-python highlight"><span class="n">keyword</span></code> (for <code class="language-python highlight"><span class="o">**</span><span class="n">kwargs</span></code>). Omitted for regular params.</td>
+</tr>
 </tbody>
 </table>
+<h4 id="variadic-parameters">Variadic Parameters</h4>
+<p>For <code class="language-python highlight"><span class="o">*</span><span class="n">args</span></code> and <code class="language-python highlight"><span class="o">**</span><span class="n">kwargs</span></code>, use the plain parameter name as the key
+and set the <code class="language-python highlight"><span class="n">variadic</span></code> attribute:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span class="nt">parameters</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">args</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">int</span>
+<span class="w">    </span><span class="nt">variadic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">positional</span>
+<span class="w">  </span><span class="nt">kwargs</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span>
+<span class="w">    </span><span class="nt">variadic</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">keyword</span>
+</code></pre></div>
 <h3 id="python-defaults">Python Defaults</h3>
 <p>For Python projects, fields are <strong>omitted</strong> when they match their defaults
 to keep output minimal:</p>
@@ -1344,6 +1394,11 @@ to keep output minimal:</p>
 </tr>
 <tr>
 <td><code class="language-python highlight"><span class="n">default</span></code></td>
+<td><code class="language-python highlight"><span class="n">null</span></code></td>
+<td>When not explicitly set</td>
+</tr>
+<tr>
+<td><code class="language-python highlight"><span class="n">variadic</span></code></td>
 <td><code class="language-python highlight"><span class="n">null</span></code></td>
 <td>When not explicitly set</td>
 </tr>
