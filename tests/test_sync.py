@@ -1402,7 +1402,9 @@ class MyService:
 
 def test_sync_source_var_args() -> None:
     """
-    title: Functions with *args and **kwargs emit quoted YAML keys safely.
+    title: >-
+      Functions with *args and **kwargs use variadic attribute instead of
+      quoted keys.
     """
     src = '''\
 def flexible_func(*args: int, **kwargs: str) -> None:
@@ -1412,6 +1414,9 @@ def flexible_func(*args: int, **kwargs: str) -> None:
     pass
 '''
     result = sync_source(src)
-    # They should be safely formatted, likely appearing as `'*args':`
-    assert "'*args':" in result
-    assert "'**kwargs':" in result
+    assert 'args:' in result
+    assert 'kwargs:' in result
+    assert 'variadic: positional' in result
+    assert 'variadic: keyword' in result
+    assert "'*args':" not in result
+    assert "'**kwargs':" not in result
