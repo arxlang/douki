@@ -197,8 +197,65 @@ def test_sync_handles_star_args() -> None:
         _p('kwargs', 'str', 'var_keyword'),
     ]
     result = sync_docstring(raw, params, 'None')
-    assert "'*args':" in result
-    assert "'**kwargs':" in result
+    assert 'args:' in result
+    assert 'kwargs:' in result
+    assert 'variadic: positional' in result
+    assert 'variadic: keyword' in result
+    # No quoted *args / **kwargs keys
+    assert "'*args':" not in result
+    assert "'**kwargs':" not in result
+
+
+def test_sync_variadic_round_trip() -> None:
+    raw = (
+        'title: test\n'
+        'parameters:\n'
+        '  args:\n'
+        '    type: int\n'
+        '    variadic: positional\n'
+        '  kwargs:\n'
+        '    type: str\n'
+        '    variadic: keyword\n'
+    )
+    params = [
+        _p('args', 'int', 'var_positional'),
+        _p('kwargs', 'str', 'var_keyword'),
+    ]
+    first = sync_docstring(raw, params, 'None')
+    second = sync_docstring(first, params, 'None')
+    assert first == second
+    assert 'variadic: positional' in first
+    assert 'variadic: keyword' in first
+
+
+def test_sync_variadic_backward_compat() -> None:
+    """
+    title: Old YAML with quoted star keys is migrated on sync.
+    """
+    raw = (
+        'title: test\n'
+        'parameters:\n'
+        "  '*args':\n"
+        '    type: int\n'
+        '    description: positional items\n'
+        "  '**kwargs':\n"
+        '    type: str\n'
+        '    description: keyword items\n'
+    )
+    params = [
+        _p('args', 'int', 'var_positional'),
+        _p('kwargs', 'str', 'var_keyword'),
+    ]
+    result = sync_docstring(raw, params, 'None')
+    assert 'args:' in result
+    assert 'kwargs:' in result
+    assert 'variadic: positional' in result
+    assert 'variadic: keyword' in result
+    assert 'positional items' in result
+    assert 'keyword items' in result
+    # Old quoted keys gone
+    assert "'*args':" not in result
+    assert "'**kwargs':" not in result
 
 
 def test_sync_removes_returns_for_none() -> None:
