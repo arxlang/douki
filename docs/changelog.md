@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+## [0.9.1](https://github.com/arxlang/douki/compare/0.9.0...0.9.1) (2026-03-03)
+
+
+### Bug Fixes
+
+* Fix edge cases for *args and **kwargs ([#16](https://github.com/arxlang/douki/issues/16)) ([6d98235](https://github.com/arxlang/douki/commit/6d98235dd1f5a127c65e22c3dd6f30e930c855f0))
+
 # [0.9.0](https://github.com/arxlang/douki/compare/0.8.0...0.9.0) (2026-03-02)
 
 
