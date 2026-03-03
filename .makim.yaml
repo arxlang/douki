@@ -79,6 +79,7 @@ groups:
             - task: smoke-tests.check-dirty
             - task: smoke-tests.sync-and-idempotent
             - task: smoke-tests.migrate-numpy
+            - task: smoke-tests.class-method-sync
 
   smoke-tests:
     tasks:
@@ -137,6 +138,19 @@ groups:
           grep -q 'title:' "$TMPDIR/numpy.py"
           # Second sync should be idempotent (exit 0)
           douki sync "$TMPDIR/numpy.py"
+          rm -rf "$TMPDIR"
+
+      class-method-sync:
+        help: Test douki sync handles classes and methods
+        backend: bash
+        run: |
+          TMPDIR=$(mktemp -d)
+          cp tests/smoke/dirty_class.py "$TMPDIR/dirty_class.py"
+          # Sync should apply changes and exit 1
+          douki sync "$TMPDIR/dirty_class.py" && exit 1 || true
+          grep -q 'parameters:' "$TMPDIR/dirty_class.py"
+          grep -q 'count:' "$TMPDIR/dirty_class.py"
+          grep -q 'val:' "$TMPDIR/dirty_class.py"
           rm -rf "$TMPDIR"
 
   package:

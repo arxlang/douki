@@ -207,6 +207,76 @@ def _extract_func(
     )
 
 
+class _FuncExtractor(ast.NodeVisitor):
+    def __init__(self) -> None:
+        self.results: List[FuncInfo] = []
+        self.in_class: bool = False
+
+    def visit_Module(self, node: ast.Module) -> None:
+        if (
+            node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+            and isinstance(node.body[0].value.value, str)
+        ):
+            self.results.append(
+                FuncInfo(
+                    name='<module>',
+                    lineno=1,
+                    docstring_node=node.body[0].value,
+                )
+            )
+        self.generic_visit(node)
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        ds_node = None
+        if (
+            node.body
+            and isinstance(node.body[0], ast.Expr)
+            and isinstance(node.body[0].value, ast.Constant)
+            and isinstance(node.body[0].value.value, str)
+        ):
+            ds_node = node.body[0].value
+
+        # Look for __init__ to extract parameters for the class docstring
+        init_params: List[ParamInfo] = []
+        for child in node.body:
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if child.name == '__init__':
+                    fi = _extract_func(child, is_method=True)
+                    init_params = fi.params
+                    break
+
+        if ds_node is not None:
+            self.results.append(
+                FuncInfo(
+                    name=node.name,
+                    lineno=node.lineno,
+                    params=init_params,  # Use __init__ params!
+                    docstring_node=ds_node,
+                )
+            )
+
+        old_in_class = self.in_class
+        self.in_class = True
+        self.generic_visit(node)
+        self.in_class = old_in_class
+
+    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
+        self.results.append(_extract_func(node, is_method=self.in_class))
+        old_in_class = self.in_class
+        self.in_class = False  # nested functions are not methods
+        self.generic_visit(node)
+        self.in_class = old_in_class
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
+        self.results.append(_extract_func(node, is_method=self.in_class))
+        old_in_class = self.in_class
+        self.in_class = False
+        self.generic_visit(node)
+        self.in_class = old_in_class
+
+
 def extract_functions(source: str) -> List[FuncInfo]:
     """
     title: Parse the Python source and return extracted functions/classes.
@@ -217,71 +287,14 @@ def extract_functions(source: str) -> List[FuncInfo]:
       type: List[FuncInfo]
       description: List of FuncInfo objects in the order they appear.
     """
-    tree = ast.parse(source)
-    results: List[FuncInfo] = []
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return []
 
-    # Module docstring
-    if (
-        tree.body
-        and isinstance(tree.body[0], ast.Expr)
-        and isinstance(tree.body[0].value, ast.Constant)
-        and isinstance(tree.body[0].value.value, str)
-    ):
-        results.append(
-            FuncInfo(
-                name='<module>',
-                lineno=1,
-                docstring_node=tree.body[0].value,
-            )
-        )
-
-    for node in ast.walk(tree):
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-            # Determine if it is a method by checking parent
-            is_method = False
-            for parent in ast.walk(tree):
-                if isinstance(parent, ast.ClassDef):
-                    if node in ast.iter_child_nodes(parent):
-                        is_method = True
-                        break
-            results.append(_extract_func(node, is_method=is_method))
-        elif isinstance(node, ast.ClassDef):
-            # Extract class docstring
-            ds_node = None
-            if (
-                node.body
-                and isinstance(node.body[0], ast.Expr)
-                and isinstance(node.body[0].value, ast.Constant)
-                and isinstance(node.body[0].value.value, str)
-            ):
-                ds_node = node.body[0].value
-
-            if ds_node is not None:
-                results.append(
-                    FuncInfo(
-                        name=node.name,
-                        lineno=node.lineno,
-                        docstring_node=ds_node,
-                    )
-                )
-
-            for child in ast.iter_child_nodes(node):
-                if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                    results.append(_extract_func(child, is_method=True))
-
-    # Deduplicate (methods found by both walk and ClassDef iteration)
-    seen: set[int | tuple[str, int]] = set()
-    unique: List[FuncInfo] = []
-    for fi in results:
-        key = (
-            id(fi.docstring_node)
-            if fi.docstring_node
-            else (fi.name, fi.lineno)
-        )
-        if key not in seen:
-            seen.add(key)
-            unique.append(fi)
-    return unique
+    extractor = _FuncExtractor()
+    extractor.visit(tree)
+    return extractor.results
 
 
 # ---------------------------------------------------------------------------
