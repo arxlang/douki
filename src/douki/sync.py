@@ -361,10 +361,6 @@ def _param_name_for_yaml(p: ParamInfo) -> str:
     returns:
       type: str
     """
-    if p.kind == 'var_positional':
-        return f'*{p.name}'
-    if p.kind == 'var_keyword':
-        return f'**{p.name}'
     return p.name
 
 
@@ -446,7 +442,13 @@ def sync_docstring(
         new_params: Dict[str, Any] = {}
         for p in params:
             yaml_key = _param_name_for_yaml(p)
+            # Look up by plain name first, then fall back to
+            # legacy '*name' / '**name' keys for backward compat.
             old = existing.get(yaml_key, None)
+            if old is None and p.kind == 'var_positional':
+                old = existing.get(f'*{p.name}', None)
+            if old is None and p.kind == 'var_keyword':
+                old = existing.get(f'**{p.name}', None)
             desc = _extract_param_desc(old)
 
             entry: Dict[str, Any] = {}
@@ -455,12 +457,26 @@ def sync_docstring(
             if desc:
                 entry['description'] = desc
 
-            # Carry forward optional/default if nested
+            # Set variadic attribute
+            if p.kind == 'var_positional':
+                entry['variadic'] = 'positional'
+            elif p.kind == 'var_keyword':
+                entry['variadic'] = 'keyword'
+
+            # Carry forward optional/default/variadic if nested
             if isinstance(old, dict):
                 if 'optional' in old and old['optional'] is not None:
                     entry['optional'] = old['optional']
                 if 'default' in old and old['default'] is not None:
                     entry['default'] = old['default']
+                # Preserve variadic from old entry if not
+                # already set by kind
+                if (
+                    'variadic' not in entry
+                    and 'variadic' in old
+                    and old['variadic']
+                ):
+                    entry['variadic'] = old['variadic']
 
             new_params[yaml_key] = entry
         data['parameters'] = new_params
@@ -515,6 +531,7 @@ _PYTHON_DEFAULTS: Dict[str, Any] = {
 _PARAM_DEFAULTS: Dict[str, Any] = {
     'optional': None,
     'default': None,
+    'variadic': None,
 }
 
 
@@ -669,7 +686,13 @@ def _emit_parameters(
             lines.append(f'  {safe_name}: {_yaml_scalar(entry)}')
         elif isinstance(entry, dict):
             lines.append(f'  {safe_name}:')
-            for sub_key in ('type', 'optional', 'description', 'default'):
+            for sub_key in (
+                'type',
+                'optional',
+                'description',
+                'default',
+                'variadic',
+            ):
                 if sub_key not in entry:
                     continue
                 val = entry[sub_key]
