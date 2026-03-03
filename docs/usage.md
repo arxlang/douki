@@ -139,12 +139,28 @@ parameters:
     default: "World"
 ```
 
-| Sub-field     | Type      | Description                        |
-| ------------- | --------- | ---------------------------------- |
-| `type`        | `string`  | Type annotation (informational).   |
-| `description` | `string`  | Description of the parameter.      |
-| `optional`    | `boolean` | Whether the parameter is optional. |
-| `default`     | `any`     | Default value.                     |
+| Sub-field     | Type      | Description                                                                          |
+| ------------- | --------- | ------------------------------------------------------------------------------------ |
+| `type`        | `string`  | Type annotation (informational).                                                     |
+| `description` | `string`  | Description of the parameter.                                                        |
+| `optional`    | `boolean` | Whether the parameter is optional.                                                   |
+| `default`     | `any`     | Default value.                                                                       |
+| `variadic`    | `enum`    | `positional` (for `*args`) · `keyword` (for `**kwargs`). Omitted for regular params. |
+
+#### Variadic Parameters
+
+For `*args` and `**kwargs`, use the plain parameter name as the key
+and set the `variadic` attribute:
+
+```yaml
+parameters:
+  args:
+    type: int
+    variadic: positional
+  kwargs:
+    type: str
+    variadic: keyword
+```
 
 ### Python Defaults
 
@@ -158,6 +174,7 @@ to keep output minimal:
 | `scope`      | `static` (functions) / `instance` (methods) | Almost always            |
 | `optional`   | `null`                                      | When not explicitly set  |
 | `default`    | `null`                                      | When not explicitly set  |
+| `variadic`   | `null`                                      | When not explicitly set  |
 
 ---
 
