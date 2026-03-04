@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+# [0.11.0](https://github.com/arxlang/douki/compare/0.10.2...0.11.0) (2026-03-04)
+
+
+### Features
+
+* Improve the douki structure to allow support for more programming languages ([#21](https://github.com/arxlang/douki/issues/21)) ([5ee443f](https://github.com/arxlang/douki/commit/5ee443f18d67dae311a6faf66ff7308ab801ea16))
+
 ## [0.10.2](https://github.com/arxlang/douki/compare/0.10.1...0.10.2) (2026-03-04)
 
 
