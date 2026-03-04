@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+## [0.10.1](https://github.com/arxlang/douki/compare/0.10.0...0.10.1) (2026-03-04)
+
+
+### Bug Fixes
+
+* Fix docstring for classes ([#19](https://github.com/arxlang/douki/issues/19)) ([08e6eef](https://github.com/arxlang/douki/commit/08e6eef24e3ce13304b19bc8dda0395be9fa1fef))
+
 # [0.10.0](https://github.com/arxlang/douki/compare/0.9.2...0.10.0) (2026-03-03)
 
 
