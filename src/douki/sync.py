@@ -236,6 +236,9 @@ class _FuncExtractor(ast.NodeVisitor):
     def __init__(self) -> None:
         self.results: List[FuncInfo] = []
         self.in_class: bool = False
+        # Maps class name → full list of attrs (own + inherited)
+        # built up as we visit classes top-to-bottom.
+        self._class_attrs_map: Dict[str, List[ParamInfo]] = {}
 
     def visit_Module(self, node: ast.Module) -> None:
         if (
@@ -264,18 +267,39 @@ class _FuncExtractor(ast.NodeVisitor):
             ds_node = node.body[0].value
 
         # Extract class-level annotated variables for attributes: sync
-        cls_attrs: List[ParamInfo] = []
+        own_attrs: List[ParamInfo] = []
         for child in node.body:
             if isinstance(child, ast.AnnAssign) and isinstance(
                 child.target, ast.Name
             ):
-                cls_attrs.append(
+                own_attrs.append(
                     ParamInfo(
                         name=child.target.id,
                         annotation=_annotation_to_str(child.annotation),
                         kind='regular',
                     )
                 )
+
+        # Resolve base class attrs from same-file classes (order: base first)
+        inherited: List[ParamInfo] = []
+        seen_names: set[str] = {p.name for p in own_attrs}
+        for base in node.bases:
+            base_name = None
+            if isinstance(base, ast.Name):
+                base_name = base.id
+            elif isinstance(base, ast.Attribute):
+                base_name = base.attr  # best-effort for dotted names
+            if base_name and base_name in self._class_attrs_map:
+                for a in self._class_attrs_map[base_name]:
+                    if a.name not in seen_names:
+                        inherited.append(a)
+                        seen_names.add(a.name)
+
+        # Full list: inherited first, then own attrs (own take precedence)
+        all_attrs = inherited + own_attrs
+
+        # Store for subclasses that may inherit from this class
+        self._class_attrs_map[node.name] = all_attrs
 
         if ds_node is not None:
             self.results.append(
@@ -284,7 +308,7 @@ class _FuncExtractor(ast.NodeVisitor):
                     lineno=node.lineno,
                     # Class docstring uses attributes:, not parameters:
                     params=[],
-                    attrs=cls_attrs,
+                    attrs=all_attrs,
                     docstring_node=ds_node,
                 )
             )

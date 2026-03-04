@@ -487,6 +487,105 @@ class MyClass:
     assert result == second
 
 
+def test_sync_source_classdef_inherits_base_attrs() -> None:
+    """
+    title: >-
+      Derived class attributes: includes base class annotated vars from same
+      file.
+    """
+    src = '''\
+class Base:
+    """
+    title: Base class
+    """
+    x: int
+    y: str
+
+class Derived(Base):
+    """
+    title: Derived class
+    """
+    z: float
+'''
+    result = sync_source(src)
+    # Find the Derived class docstring region
+    derived_start = result.index('class Derived')
+    derived_region = result[derived_start:]
+    doc_start = derived_region.index('title: Derived')
+    doc_end = derived_region.index('z: float')
+    doc_region = derived_region[doc_start:doc_end]
+    # Should contain own attr AND inherited attrs
+    assert 'x:' in doc_region
+    assert 'y:' in doc_region
+    assert 'z:' in doc_region
+    assert 'type: int' in doc_region
+    assert 'type: str' in doc_region
+
+
+def test_sync_source_classdef_multilevel_inheritance() -> None:
+    """
+    title: Multi-level inheritance chains attrs transitively.
+    """
+    src = '''\
+class A:
+    """
+    title: A
+    """
+    a: int
+
+class B(A):
+    """
+    title: B
+    """
+    b: str
+
+class C(B):
+    """
+    title: C
+    """
+    c: float
+'''
+    result = sync_source(src)
+    c_start = result.index('class C')
+    c_region = result[c_start:]
+    # C should have a:, b:, and c: all in its attributes
+    assert 'a:' in c_region
+    assert 'b:' in c_region
+    assert 'c:' in c_region
+
+
+def test_sync_source_classdef_own_attr_overrides_base() -> None:
+    """
+    title: >-
+      When derived re-declares a base attr, derived type takes precedence in
+      attributes:.
+    """
+    src = '''\
+class Base:
+    """
+    title: Base
+    """
+    value: int
+
+class Derived(Base):
+    """
+    title: Derived
+    """
+    value: float  # override with narrower type
+'''
+    result = sync_source(src)
+    derived_start = result.index('class Derived')
+    derived_region = result[derived_start:]
+    # Isolate the docstring (between triple quotes)
+    ds_start = derived_region.index('"""') + 3
+    ds_end = derived_region.index('"""', ds_start)
+    ds_region = derived_region[ds_start:ds_end]
+    # Only one 'value:' entry in the docstring, and it should be float
+    assert ds_region.count('value:') == 1
+    assert 'type: float' in ds_region
+    assert 'type: int' not in ds_region
+
+
 def test_sync_source_nested_class_and_method() -> None:
     src = '''\
 class Outer:

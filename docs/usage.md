@@ -182,7 +182,38 @@ class Buffer:
     position: int
 ```
 
-### All Fields
+#### Inheritance
+
+Douki resolves base class annotated variables for classes defined in the
+**same file**. Base classes from external modules are silently skipped.
+
+- Inherited attrs appear **before** the derived class's own attrs.
+- If a derived class re-declares an attr with a different annotation, the
+  **derived type takes precedence** (base entry is dropped).
+
+```python
+class Shape:
+    """
+    title: A shape
+    """
+    color: str
+
+class Circle(Shape):
+    """
+    title: A circle
+    """
+    radius: float
+```
+
+After `douki sync`, `Circle` gets:
+
+```yaml
+attributes:
+  color: # ← inherited from Shape
+    type: str
+  radius: # ← Circle's own
+    type: float
+```
 
 | Field        | Type                 | Description                                          |
 | ------------ | -------------------- | ---------------------------------------------------- |
