@@ -9,13 +9,6 @@ examples:
 from __future__ import annotations
 
 import difflib
-import fnmatch
-import sys
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
 
 from enum import Enum
 from pathlib import Path
@@ -25,6 +18,7 @@ import typer
 
 from rich.console import Console
 
+from douki._python.config import PythonConfig
 from douki.sync import DocstringValidationError, sync_source
 
 
@@ -45,97 +39,14 @@ app = typer.Typer(
 console = Console(stderr=True)
 out_console = Console()  # stdout
 
+_python_config = PythonConfig()
+
 
 @app.callback()
 def _main() -> None:
     """
     title: Douki — language-agnostic YAML docstring toolkit.
     """
-
-
-def _load_exclude_patterns(cwd: Path) -> List[str]:
-    """
-    title: Load exclude patterns from pyproject.toml in cwd or parents.
-    parameters:
-      cwd:
-        type: Path
-    returns:
-      type: List[str]
-    """
-    curr = cwd.resolve()
-    while True:
-        pyproject = curr / 'pyproject.toml'
-        if pyproject.is_file():
-            try:
-                with pyproject.open('rb') as f:
-                    data = tomllib.load(f)
-                excludes = (
-                    data.get('tool', {}).get('douki', {}).get('exclude', [])
-                )
-                if isinstance(excludes, list):
-                    return [str(e) for e in excludes]
-            except Exception:
-                pass
-            break
-        parent = curr.parent
-        if parent == curr:
-            break
-        curr = parent
-    return []
-
-
-def _is_excluded(path: Path, excludes: List[str]) -> bool:
-    """
-    title: Check if path matches any of the exclude patterns.
-    parameters:
-      path:
-        type: Path
-      excludes:
-        type: List[str]
-    returns:
-      type: bool
-    """
-    if not excludes:
-        return False
-
-    try:
-        rel_path = path.resolve().relative_to(Path.cwd().resolve())
-        path_str = rel_path.as_posix()
-    except ValueError:
-        # If the path is outside cwd, just use its absolute posix string.
-        path_str = path.resolve().as_posix()
-
-    for pattern in excludes:
-        if fnmatch.fnmatch(path_str, pattern) or fnmatch.fnmatch(
-            path_str, f'*/{pattern}'
-        ):
-            return True
-        if path_str.startswith(pattern.rstrip('/') + '/'):
-            return True
-    return False
-
-
-def _collect_py_files(paths: List[Path], excludes: List[str]) -> List[Path]:
-    """
-    title: Expand directories to ``.py`` files and filter non-py and excluded.
-    parameters:
-      paths:
-        type: List[Path]
-      excludes:
-        type: List[str]
-    returns:
-      type: List[Path]
-    """
-    result: List[Path] = []
-    for p in paths:
-        if p.is_dir():
-            for child in p.rglob('*.py'):
-                if not _is_excluded(child, excludes):
-                    result.append(child)
-        elif p.suffix == '.py':
-            if not _is_excluded(p, excludes):
-                result.append(p)
-    return sorted(set(result))
 
 
 def _resolve_files(
@@ -149,9 +60,9 @@ def _resolve_files(
     returns:
       type: List[Path]
     """
-    excludes = _load_exclude_patterns(Path.cwd())
+    excludes = _python_config.load_exclude_patterns(Path.cwd())
     raw = files if files else [Path('.')]
-    py_files = _collect_py_files(raw, excludes)
+    py_files = _python_config.collect_files(raw, excludes)
     if not py_files:
         console.print('[dim]No .py files found.[/]')
         raise typer.Exit(code=0)
