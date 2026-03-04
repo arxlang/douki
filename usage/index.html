@@ -432,16 +432,33 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Classes and Methods">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#all-fields" class="md-nav__link">
+  <a href="#auto-attribute-extraction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        All Fields
+        Auto-attribute extraction
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -955,16 +972,33 @@
     </span>
   </a>
   
-</li>
+    <nav class="md-nav" aria-label="Classes and Methods">
+      <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#all-fields" class="md-nav__link">
+  <a href="#auto-attribute-extraction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        All Fields
+        Auto-attribute extraction
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inheritance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1224,9 +1258,102 @@ docstring <strong>must</strong> have a <code class="language-python highlight"><
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 </code></pre></div>
 <h3 id="classes-and-methods">Classes and Methods</h3>
-<p>Douki fully supports synchronizing docstrings for methods and classes.
-When synchronizing a class docstring, Douki will automatically extract the parameters of the class's <code class="language-python highlight"><span class="fm">__init__</span></code> method and add them to the class docstring's <code class="language-python highlight"><span class="n">parameters</span></code> section. Methods (including nested methods and <code class="language-python highlight"><span class="nd">@classmethod</span></code>) are fully supported and will have their <code class="language-python highlight"><span class="n">parameters</span></code> and <code class="language-python highlight"><span class="n">returns</span></code> sections synchronized.</p>
-<h3 id="all-fields">All Fields</h3>
+<p>Douki follows the same philosophy as <strong>numpydoc</strong>: the class-level docstring
+describes the class itself (purpose, attributes, notes), while the <code class="language-python highlight"><span class="fm">__init__</span></code>
+docstring describes how to instantiate the class (parameters).</p>
+<div class="language-python highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MyCounter</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: A simple counter</span>
+<span class="sd">    summary: Counts how many times an event has occurred.</span>
+<span class="sd">    attributes:</span>
+<span class="sd">      value:</span>
+<span class="sd">        type: int</span>
+<span class="sd">        description: The current count.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        title: Initialize the counter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">start</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">increment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        title: Increment the counter</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="n">step</span>
+</code></pre></div>
+<p>Running <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code> will:</p>
+<ul>
+<li><strong>Auto-populate <code class="language-python highlight"><span class="n">attributes</span><span class="p">:</span></code></strong> from class-level annotated variables
+  (<code class="language-python highlight"><span class="n">x</span><span class="p">:</span> <span class="nb">int</span></code>, <code class="language-python highlight"><span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;default&quot;</span></code>, <code class="language-python highlight"><span class="n">total</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span></code>, etc.).
+  Existing descriptions are preserved; only missing vars are added.</li>
+<li>Leave the class docstring's <code class="language-python highlight"><span class="n">parameters</span><span class="p">:</span></code> section <strong>completely alone</strong> —
+  Douki never injects constructor arguments into the class docstring.</li>
+<li><strong>Sync <code class="language-python highlight"><span class="fm">__init__</span></code></strong> docstring with its constructor's <code class="language-python highlight"><span class="n">parameters</span><span class="p">:</span></code> and
+  <code class="language-python highlight"><span class="n">returns</span><span class="p">:</span></code> based on the actual signature.</li>
+<li><strong>Sync every method</strong> docstring independently.</li>
+</ul>
+<blockquote>
+<p><strong>Tip:</strong> Use <code class="language-python highlight"><span class="n">attributes</span><span class="p">:</span></code> (populated automatically from type-annotated
+class vars) for instance/class variables. Use <code class="language-python highlight"><span class="n">parameters</span><span class="p">:</span></code> in <code class="language-python highlight"><span class="fm">__init__</span></code>
+for constructor arguments.</p>
+</blockquote>
+<h4 id="auto-attribute-extraction">Auto-attribute extraction</h4>
+<p>Any class-level annotation is picked up:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: A byte buffer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MAX_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4096</span>  <span class="c1"># ClassVar flows through as-is</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span>
+    <span class="n">position</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+<p>After <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: A byte buffer</span>
+<span class="sd">    attributes:</span>
+<span class="sd">      MAX_SIZE:</span>
+<span class="sd">        type: ClassVar[int]</span>
+<span class="sd">      data:</span>
+<span class="sd">        type: bytes</span>
+<span class="sd">      position:</span>
+<span class="sd">        type: int</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">MAX_SIZE</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4096</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">bytes</span>
+    <span class="n">position</span><span class="p">:</span> <span class="nb">int</span>
+</code></pre></div>
+<h4 id="inheritance">Inheritance</h4>
+<p>Douki resolves base class annotated variables for classes defined in the
+<strong>same file</strong>. Base classes from external modules are silently skipped.</p>
+<ul>
+<li>Inherited attrs appear <strong>before</strong> the derived class's own attrs.</li>
+<li>If a derived class re-declares an attr with a different annotation, the
+  <strong>derived type takes precedence</strong> (base entry is dropped).</li>
+</ul>
+<div class="language-python highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Shape</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: A shape</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">color</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Circle</span><span class="p">(</span><span class="n">Shape</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: A circle</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span>
+</code></pre></div>
+<p>After <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code>, <code class="language-python highlight"><span class="n">Circle</span></code> gets:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span class="nt">attributes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="c1"># ← inherited from Shape</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span>
+<span class="w">  </span><span class="nt">radius</span><span class="p">:</span><span class="w"> </span><span class="c1"># ← Circle&#39;s own</span>
+<span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">float</span>
+</code></pre></div>
 <table>
 <thead>
 <tr>
