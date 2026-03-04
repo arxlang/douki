@@ -119,7 +119,6 @@ def sync_source(
                 func.params,
                 func.return_annotation,
                 attrs=func.attrs,
-                is_method=func.is_method,
                 func_name=func.name,
                 content_indent=len(content_indent),
                 language_defaults=PYTHON_DEFAULTS,

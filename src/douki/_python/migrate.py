@@ -10,6 +10,8 @@ import textwrap
 
 from typing import Any, Dict, List, Optional, Tuple
 
+from douki._base.sync import _KEY_ORDER  # single source of truth
+
 # ---------------------------------------------------------------
 # NumPy-style section names → Douki YAML keys
 # ---------------------------------------------------------------
@@ -255,29 +257,6 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
             data[douki_key] = _parse_simple_section(body)
 
     return _serialize_douki_yaml(data)
-
-
-# Canonical key ordering
-_KEY_ORDER = [
-    'title',
-    'summary',
-    'deprecated',
-    'visibility',
-    'mutability',
-    'scope',
-    'parameters',
-    'returns',
-    'yields',
-    'receives',
-    'raises',
-    'warnings',
-    'see_also',
-    'notes',
-    'references',
-    'examples',
-    'attributes',
-    'methods',
-]
 
 
 def _serialize_douki_yaml(data: Dict[str, Any]) -> str:

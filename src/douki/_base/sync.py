@@ -208,7 +208,6 @@ def sync_docstring(
     return_annotation: str,
     *,
     attrs: Sequence[ParamInfo] = (),
-    is_method: bool = False,
     func_name: str = '<unknown>',
     content_indent: int = 4,
     language_defaults: Optional[LanguageDefaults] = None,
@@ -230,8 +229,6 @@ def sync_docstring(
         description: >-
           Class-level annotated variables used to sync the attributes: section.
           Only meaningful for ClassDef docstrings.
-      is_method:
-        type: bool
       func_name:
         type: str
       content_indent:
@@ -343,6 +340,7 @@ _KEY_ORDER = [
     'mutability',
     'scope',
     'parameters',
+    'attributes',
     'returns',
     'yields',
     'receives',
@@ -352,7 +350,6 @@ _KEY_ORDER = [
     'notes',
     'references',
     'examples',
-    'attributes',
     'methods',
 ]
 
