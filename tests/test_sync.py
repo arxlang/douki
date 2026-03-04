@@ -487,6 +487,71 @@ class MyClass:
     assert result == second
 
 
+def test_sync_source_classdef_private_attrs_from_init() -> None:
+    """
+    title: >-
+      Private attrs assigned via self._x in __init__ appear in attributes:
+      section.
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    """
+    def __init__(self, count: int):
+        self._count = count
+        self._cache = {}
+'''
+    result = sync_source(src)
+    assert 'attributes:' in result
+    assert '_count:' in result
+    assert '_cache:' in result
+
+
+def test_sync_source_classdef_annotated_private_attrs_from_init() -> None:
+    """
+    title: 'Annotated self._x: T in __init__ appears in attributes: with type.'
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    """
+    def __init__(self) -> None:
+        self._value: int = 0
+        self._name: str = "default"
+'''
+    result = sync_source(src)
+    assert 'attributes:' in result
+    assert '_value:' in result
+    assert '_name:' in result
+    assert 'type: int' in result
+    assert 'type: str' in result
+
+
+def test_sync_source_classdef_class_level_overrides_init() -> None:
+    """
+    title: Class-level annotation takes precedence over self.* in __init__.
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    """
+    count: float  # class-level wins
+    def __init__(self, count: int):
+        self.count = count
+'''
+    result = sync_source(src)
+    # The class-level annotation (float) wins, not the __init__ assignment
+    ds_start = result.index('"""') + 3
+    ds_end = result.index('"""', ds_start)
+    ds_region = result[ds_start:ds_end]
+    assert 'type: float' in ds_region
+    # Only one count: entry in the docstring
+    assert ds_region.count('count:') == 1
+
+
 def test_sync_source_classdef_inherits_base_attrs() -> None:
     """
     title: >-

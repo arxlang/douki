@@ -149,7 +149,15 @@ Running `douki sync` will:
 
 #### Auto-attribute extraction
 
-Any class-level annotation is picked up:
+Douki picks up attributes from **two sources**:
+
+1. **Class-level annotations** (`x: int`, `MAX: ClassVar[int] = 100`).
+2. **`self.*` assignments in `__init__`** — both `self._x = val` (plain) and
+   `self._x: int = val` (annotated). This catches private attributes that
+   are never declared at class level.
+
+Class-level annotations always take precedence if the same name appears in
+both places.
 
 ```python
 from typing import ClassVar
