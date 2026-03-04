@@ -44,4 +44,56 @@
          <loc>https://osl-incubator.github.io/douki/api/sync/</loc>
          <lastmod>2026-03-04</lastmod>
     </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_base/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_base/config/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_base/defaults/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_base/language/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_base/sync/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_base/validation/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/config/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/defaults/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/extractor/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/language/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/migrate/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
+    <url>
+         <loc>https://osl-incubator.github.io/douki/api/_python/sync/</loc>
+         <lastmod>2026-03-04</lastmod>
+    </url>
 </urlset>
