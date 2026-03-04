@@ -140,16 +140,32 @@ groups:
           rm -rf "$TMPDIR"
 
       class-method-sync:
-        help: Test douki sync handles classes and methods
+        help: Test douki sync handles classes and methods correctly
         backend: bash
         run: |
           TMPDIR=$(mktemp -d)
           cp tests/smoke/dirty_class.py "$TMPDIR/dirty_class.py"
-          # Sync should apply changes and exit 1
+          # Sync should apply changes — __init__ and method params not yet synced
           douki sync "$TMPDIR/dirty_class.py" && exit 1 || true
+          # __init__ should now have parameters:
+          grep -q 'initial:' "$TMPDIR/dirty_class.py"
+          # method should now have parameters:
           grep -q 'parameters:' "$TMPDIR/dirty_class.py"
-          grep -q 'count:' "$TMPDIR/dirty_class.py"
-          grep -q 'val:' "$TMPDIR/dirty_class.py"
+          # Class docstring should NOT have parameters: (only attributes:)
+          python3 -c "
+          import ast, sys
+          src = open('$TMPDIR/dirty_class.py').read()
+          tree = ast.parse(src)
+          for node in ast.walk(tree):
+              if isinstance(node, ast.ClassDef):
+                  if node.body and isinstance(node.body[0], ast.Expr):
+                      ds = node.body[0].value.value
+                      assert 'parameters:' not in ds, 'Class docstring should not have parameters:'
+          print('OK: class docstring has no parameters:')
+          "
+          # Second sync should be idempotent (exit 0)
+          douki sync "$TMPDIR/dirty_class.py"
+          douki check "$TMPDIR/dirty_class.py"
           rm -rf "$TMPDIR"
 
   package:

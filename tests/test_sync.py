@@ -382,21 +382,57 @@ def test_sync_source_no_functions() -> None:
     assert result == src
 
 
-def test_sync_source_classdef_with_init() -> None:
+def test_sync_source_classdef_no_params_from_init() -> None:
+    """
+    title: >-
+      Class docstring should NOT get parameters: from __init__; use attributes:
+      instead.
+    """
     src = '''\
 class MyClass:
     """
     title: My class docstring
     """
     def __init__(self, count: int, name: str = "test"):
+        """
+        title: Init MyClass
+        """
         self.count = count
         self.name = name
 '''
     result = sync_source(src)
-    assert 'parameters:' in result
+    # Class docstring should NOT have parameters: injected
+    class_doc_end = result.index('def __init__')
+    class_docstring_region = result[:class_doc_end]
+    assert 'parameters:' not in class_docstring_region
+    # But __init__ docstring SHOULD get its parameters synced
     assert 'count:' in result
     assert 'name:' in result
     assert 'type: int' in result
+
+
+def test_sync_source_classdef_preserves_attributes() -> None:
+    """
+    title: 'Class docstring attributes: section is preserved on sync.'
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    attributes:
+      count:
+        type: int
+        description: The count.
+    """
+    def __init__(self, count: int):
+        self.count = count
+'''
+    result = sync_source(src)
+    assert 'attributes:' in result
+    assert 'count:' in result
+    # parameters: should definitely not appear in the class docstring region
+    class_doc_end = result.index('def __init__')
+    assert 'parameters:' not in result[:class_doc_end]
 
 
 def test_sync_source_nested_class_and_method() -> None:
@@ -419,7 +455,7 @@ class Outer:
     # The inner method should have its parameter synced
     assert 'val:' in result
     assert 'type: float' in result
-    # There should only be one parameters: block (from the method)
+    # parameters: only comes from the method, not from class docstrings
     assert result.count('parameters:') == 1
 
 

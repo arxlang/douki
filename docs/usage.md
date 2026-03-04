@@ -104,8 +104,45 @@ def add(a: int, b: int = 0) -> int:
 
 ### Classes and Methods
 
-Douki fully supports synchronizing docstrings for methods and classes.
-When synchronizing a class docstring, Douki will automatically extract the parameters of the class's `__init__` method and add them to the class docstring's `parameters` section. Methods (including nested methods and `@classmethod`) are fully supported and will have their `parameters` and `returns` sections synchronized.
+Douki follows the same philosophy as **numpydoc**: the class-level docstring
+describes the class itself (purpose, attributes, notes), while the `__init__`
+docstring describes how to instantiate the class (parameters).
+
+```python
+class MyCounter:
+    """
+    title: A simple counter
+    summary: Counts how many times an event has occurred.
+    attributes:
+      value:
+        type: int
+        description: The current count.
+    """
+
+    def __init__(self, start: int = 0) -> None:
+        """
+        title: Initialize the counter
+        """
+        self.value = start
+
+    def increment(self, step: int = 1) -> None:
+        """
+        title: Increment the counter
+        """
+        self.value += step
+```
+
+Running `douki sync` will:
+
+- Leave the class docstring's `attributes:` section **untouched** — Douki
+  never injects `parameters:` into class-level docstrings.
+- Sync the `__init__` docstring with its constructor's `parameters:` and
+  `returns:` based on the actual signature.
+- Sync every method docstring independently.
+
+> **Tip:** Use `attributes:` in the class docstring to document instance
+> variables. Use `parameters:` in `__init__` to document constructor
+> arguments.
 
 ### All Fields
 

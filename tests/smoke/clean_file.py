@@ -29,7 +29,20 @@ def add(x: int, y: int) -> int:
 class Calculator:
     """
     title: Basic calculator
+    attributes:
+      result:
+        type: int
+        description: The last computed result.
     """
+
+    def __init__(self, initial: int = 0) -> None:
+        """
+        title: Initialize Calculator
+        parameters:
+          initial:
+            type: int
+        """
+        self.result = initial
 
     def multiply(self, a: int, b: int) -> int:
         """

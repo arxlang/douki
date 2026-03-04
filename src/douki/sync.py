@@ -238,21 +238,13 @@ class _FuncExtractor(ast.NodeVisitor):
         ):
             ds_node = node.body[0].value
 
-        # Look for __init__ to extract parameters for the class docstring
-        init_params: List[ParamInfo] = []
-        for child in node.body:
-            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if child.name == '__init__':
-                    fi = _extract_func(child, is_method=True)
-                    init_params = fi.params
-                    break
-
         if ds_node is not None:
             self.results.append(
                 FuncInfo(
                     name=node.name,
                     lineno=node.lineno,
-                    params=init_params,  # Use __init__ params!
+                    # Class docstring uses attributes:, not parameters:
+                    params=[],
                     docstring_node=ds_node,
                 )
             )
