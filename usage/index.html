@@ -1300,7 +1300,15 @@ class vars) for instance/class variables. Use <code class="language-python highl
 for constructor arguments.</p>
 </blockquote>
 <h4 id="auto-attribute-extraction">Auto-attribute extraction</h4>
-<p>Any class-level annotation is picked up:</p>
+<p>Douki picks up attributes from <strong>two sources</strong>:</p>
+<ol>
+<li><strong>Class-level annotations</strong> (<code class="language-python highlight"><span class="n">x</span><span class="p">:</span> <span class="nb">int</span></code>, <code class="language-python highlight"><span class="n">MAX</span><span class="p">:</span> <span class="n">ClassVar</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span></code>).</li>
+<li><strong><code class="language-python highlight"><span class="bp">self</span><span class="o">.*</span></code> assignments in <code class="language-python highlight"><span class="fm">__init__</span></code></strong> — both <code class="language-python highlight"><span class="bp">self</span><span class="o">.</span><span class="n">_x</span> <span class="o">=</span> <span class="n">val</span></code> (plain) and
+   <code class="language-python highlight"><span class="bp">self</span><span class="o">.</span><span class="n">_x</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">val</span></code> (annotated). This catches private attributes that
+   are never declared at class level.</li>
+</ol>
+<p>Class-level annotations always take precedence if the same name appears in
+both places.</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClassVar</span>
 
 <span class="k">class</span><span class="w"> </span><span class="nc">Buffer</span><span class="p">:</span>
