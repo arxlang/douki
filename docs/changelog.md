@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+## [0.10.2](https://github.com/arxlang/douki/compare/0.10.1...0.10.2) (2026-03-04)
+
+
+### Bug Fixes
+
+* Auto populate private attributes to the docstring ([#20](https://github.com/arxlang/douki/issues/20)) ([e6e48b0](https://github.com/arxlang/douki/commit/e6e48b08232ba87f356581aa8ba58789edb28c3b))
+
 ## [0.10.1](https://github.com/arxlang/douki/compare/0.10.0...0.10.1) (2026-03-04)
 
 
