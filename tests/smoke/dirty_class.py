@@ -1,13 +1,20 @@
-class MyClass:
+class Calculator:
     """
-    title: My Class
+    title: Basic calculator
     """
 
-    def __init__(self, count: int, extra: str):
-        self.count = count
+    result: int
+    history: list
 
-    def do_something(self, val: float) -> bool:
+    def __init__(self, initial: int = 0):
         """
-        title: Do something
+        title: Initialize Calculator
         """
-        return True
+        self.result = initial
+        self.history = []
+
+    def multiply(self, a: int, b: int) -> int:
+        """
+        title: Multiply two numbers
+        """
+        return a * b

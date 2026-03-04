@@ -382,21 +382,208 @@ def test_sync_source_no_functions() -> None:
     assert result == src
 
 
-def test_sync_source_classdef_with_init() -> None:
+def test_sync_source_classdef_no_params_from_init() -> None:
+    """
+    title: >-
+      Class docstring should NOT get parameters: from __init__; use attributes:
+      instead.
+    """
     src = '''\
 class MyClass:
     """
     title: My class docstring
     """
     def __init__(self, count: int, name: str = "test"):
+        """
+        title: Init MyClass
+        """
         self.count = count
         self.name = name
 '''
     result = sync_source(src)
-    assert 'parameters:' in result
+    # Class docstring should NOT have parameters: injected
+    class_doc_end = result.index('def __init__')
+    class_docstring_region = result[:class_doc_end]
+    assert 'parameters:' not in class_docstring_region
+    # But __init__ docstring SHOULD get its parameters synced
     assert 'count:' in result
     assert 'name:' in result
     assert 'type: int' in result
+
+
+def test_sync_source_classdef_auto_attributes() -> None:
+    """
+    title: >-
+      Class-level annotated vars are auto-populated into attributes: section.
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    """
+    value: int
+    name: str
+    def __init__(self, value: int, name: str) -> None:
+        self.value = value
+        self.name = name
+'''
+    result = sync_source(src)
+    # Class docstring must have attributes: with both vars
+    class_doc_end = result.index('def __init__')
+    class_region = result[:class_doc_end]
+    assert 'attributes:' in class_region
+    assert 'value:' in class_region
+    assert 'name:' in class_region
+    # No parameters: in the class docstring
+    assert 'parameters:' not in class_region
+
+
+def test_sync_source_classdef_classvar_annotation_passthrough() -> None:
+    """
+    title: 'ClassVar annotation flows through unchanged into attributes: type.'
+    """
+    src = '''\
+from typing import ClassVar
+
+class MyClass:
+    """
+    title: My class
+    """
+    MAX: ClassVar[int] = 100
+    count: int
+'''
+    result = sync_source(src)
+    # attributes: header must appear before the class body variables
+    assert 'attributes:' in result
+    # Both annotated vars must appear as attribute keys
+    assert 'MAX:' in result
+    assert 'count:' in result
+    # ClassVar type flows through verbatim
+    assert 'ClassVar[int]' in result
+    # No parameters: should be injected into the class docstring
+    assert 'parameters:' not in result
+
+
+def test_sync_source_classdef_attributes_preserves_description() -> None:
+    """
+    title: 'Existing description in attributes: is preserved after re-sync.'
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    attributes:
+      count:
+        type: int
+        description: The count.
+    """
+    count: int
+'''
+    result = sync_source(src)
+    assert 'attributes:' in result
+    assert 'The count.' in result
+    # Idempotent
+    second = sync_source(result)
+    assert result == second
+
+
+def test_sync_source_classdef_inherits_base_attrs() -> None:
+    """
+    title: >-
+      Derived class attributes: includes base class annotated vars from same
+      file.
+    """
+    src = '''\
+class Base:
+    """
+    title: Base class
+    """
+    x: int
+    y: str
+
+class Derived(Base):
+    """
+    title: Derived class
+    """
+    z: float
+'''
+    result = sync_source(src)
+    # Find the Derived class docstring region
+    derived_start = result.index('class Derived')
+    derived_region = result[derived_start:]
+    doc_start = derived_region.index('title: Derived')
+    doc_end = derived_region.index('z: float')
+    doc_region = derived_region[doc_start:doc_end]
+    # Should contain own attr AND inherited attrs
+    assert 'x:' in doc_region
+    assert 'y:' in doc_region
+    assert 'z:' in doc_region
+    assert 'type: int' in doc_region
+    assert 'type: str' in doc_region
+
+
+def test_sync_source_classdef_multilevel_inheritance() -> None:
+    """
+    title: Multi-level inheritance chains attrs transitively.
+    """
+    src = '''\
+class A:
+    """
+    title: A
+    """
+    a: int
+
+class B(A):
+    """
+    title: B
+    """
+    b: str
+
+class C(B):
+    """
+    title: C
+    """
+    c: float
+'''
+    result = sync_source(src)
+    c_start = result.index('class C')
+    c_region = result[c_start:]
+    # C should have a:, b:, and c: all in its attributes
+    assert 'a:' in c_region
+    assert 'b:' in c_region
+    assert 'c:' in c_region
+
+
+def test_sync_source_classdef_own_attr_overrides_base() -> None:
+    """
+    title: >-
+      When derived re-declares a base attr, derived type takes precedence in
+      attributes:.
+    """
+    src = '''\
+class Base:
+    """
+    title: Base
+    """
+    value: int
+
+class Derived(Base):
+    """
+    title: Derived
+    """
+    value: float  # override with narrower type
+'''
+    result = sync_source(src)
+    derived_start = result.index('class Derived')
+    derived_region = result[derived_start:]
+    # Isolate the docstring (between triple quotes)
+    ds_start = derived_region.index('"""') + 3
+    ds_end = derived_region.index('"""', ds_start)
+    ds_region = derived_region[ds_start:ds_end]
+    # Only one 'value:' entry in the docstring, and it should be float
+    assert ds_region.count('value:') == 1
+    assert 'type: float' in ds_region
+    assert 'type: int' not in ds_region
 
 
 def test_sync_source_nested_class_and_method() -> None:
@@ -419,7 +606,7 @@ class Outer:
     # The inner method should have its parameter synced
     assert 'val:' in result
     assert 'type: float' in result
-    # There should only be one parameters: block (from the method)
+    # parameters: only comes from the method, not from class docstrings
     assert result.count('parameters:') == 1
 
 

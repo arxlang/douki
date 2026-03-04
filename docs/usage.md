@@ -104,10 +104,116 @@ def add(a: int, b: int = 0) -> int:
 
 ### Classes and Methods
 
-Douki fully supports synchronizing docstrings for methods and classes.
-When synchronizing a class docstring, Douki will automatically extract the parameters of the class's `__init__` method and add them to the class docstring's `parameters` section. Methods (including nested methods and `@classmethod`) are fully supported and will have their `parameters` and `returns` sections synchronized.
+Douki follows the same philosophy as **numpydoc**: the class-level docstring
+describes the class itself (purpose, attributes, notes), while the `__init__`
+docstring describes how to instantiate the class (parameters).
 
-### All Fields
+```python
+class MyCounter:
+    """
+    title: A simple counter
+    summary: Counts how many times an event has occurred.
+    attributes:
+      value:
+        type: int
+        description: The current count.
+    """
+
+    def __init__(self, start: int = 0) -> None:
+        """
+        title: Initialize the counter
+        """
+        self.value = start
+
+    def increment(self, step: int = 1) -> None:
+        """
+        title: Increment the counter
+        """
+        self.value += step
+```
+
+Running `douki sync` will:
+
+- **Auto-populate `attributes:`** from class-level annotated variables
+  (`x: int`, `name: str = "default"`, `total: ClassVar[int]`, etc.).
+  Existing descriptions are preserved; only missing vars are added.
+- Leave the class docstring's `parameters:` section **completely alone** —
+  Douki never injects constructor arguments into the class docstring.
+- **Sync `__init__`** docstring with its constructor's `parameters:` and
+  `returns:` based on the actual signature.
+- **Sync every method** docstring independently.
+
+> **Tip:** Use `attributes:` (populated automatically from type-annotated
+> class vars) for instance/class variables. Use `parameters:` in `__init__`
+> for constructor arguments.
+
+#### Auto-attribute extraction
+
+Any class-level annotation is picked up:
+
+```python
+from typing import ClassVar
+
+class Buffer:
+    """
+    title: A byte buffer
+    """
+    MAX_SIZE: ClassVar[int] = 4096  # ClassVar flows through as-is
+    data: bytes
+    position: int
+```
+
+After `douki sync`:
+
+```python
+class Buffer:
+    """
+    title: A byte buffer
+    attributes:
+      MAX_SIZE:
+        type: ClassVar[int]
+      data:
+        type: bytes
+      position:
+        type: int
+    """
+    MAX_SIZE: ClassVar[int] = 4096
+    data: bytes
+    position: int
+```
+
+#### Inheritance
+
+Douki resolves base class annotated variables for classes defined in the
+**same file**. Base classes from external modules are silently skipped.
+
+- Inherited attrs appear **before** the derived class's own attrs.
+- If a derived class re-declares an attr with a different annotation, the
+  **derived type takes precedence** (base entry is dropped).
+
+```python
+class Shape:
+    """
+    title: A shape
+    """
+    color: str
+
+class Circle(Shape):
+    """
+    title: A circle
+    """
+    radius: float
+```
+
+After `douki sync`, `Circle` gets:
+
+```yaml
+attributes:
+  color: # ← inherited from Shape
+    type: str
+  radius: # ← Circle's own
+    type: float
+```
 
 | Field        | Type                 | Description                                          |
 | ------------ | -------------------- | ---------------------------------------------------- |

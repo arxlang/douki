@@ -36,6 +36,13 @@ class DocstringValidationError(ValueError):
 class ParamInfo:
     """
     title: A single parameter extracted from an ``ast`` signature.
+    attributes:
+      name:
+        type: str
+      annotation:
+        type: str
+      kind:
+        type: str
     """
 
     name: str
@@ -51,11 +58,29 @@ class FuncInfo:
     title: >-
       Everything we need to know about a single def / async def / class /
       module.
+    attributes:
+      name:
+        type: str
+      lineno:
+        type: int
+      params:
+        type: List[ParamInfo]
+      attrs:
+        type: List[ParamInfo]
+      return_annotation:
+        type: str
+      docstring_node:
+        type: Optional[ast.Constant]
+      is_method:
+        type: bool
     """
 
     name: str
     lineno: int  # 1-based line of the *def* keyword, or 1 for module
     params: List[ParamInfo] = field(default_factory=list)
+    # Class-level annotated vars, extracted from the class body by
+    # _FuncExtractor
+    attrs: List[ParamInfo] = field(default_factory=list)
     return_annotation: str = ''
     docstring_node: Optional[ast.Constant] = None
     is_method: bool = False
@@ -211,6 +236,9 @@ class _FuncExtractor(ast.NodeVisitor):
     def __init__(self) -> None:
         self.results: List[FuncInfo] = []
         self.in_class: bool = False
+        # Maps class name → full list of attrs (own + inherited)
+        # built up as we visit classes top-to-bottom.
+        self._class_attrs_map: Dict[str, List[ParamInfo]] = {}
 
     def visit_Module(self, node: ast.Module) -> None:
         if (
@@ -238,21 +266,49 @@ class _FuncExtractor(ast.NodeVisitor):
         ):
             ds_node = node.body[0].value
 
-        # Look for __init__ to extract parameters for the class docstring
-        init_params: List[ParamInfo] = []
+        # Extract class-level annotated variables for attributes: sync
+        own_attrs: List[ParamInfo] = []
         for child in node.body:
-            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                if child.name == '__init__':
-                    fi = _extract_func(child, is_method=True)
-                    init_params = fi.params
-                    break
+            if isinstance(child, ast.AnnAssign) and isinstance(
+                child.target, ast.Name
+            ):
+                own_attrs.append(
+                    ParamInfo(
+                        name=child.target.id,
+                        annotation=_annotation_to_str(child.annotation),
+                        kind='regular',
+                    )
+                )
+
+        # Resolve base class attrs from same-file classes (order: base first)
+        inherited: List[ParamInfo] = []
+        seen_names: set[str] = {p.name for p in own_attrs}
+        for base in node.bases:
+            base_name = None
+            if isinstance(base, ast.Name):
+                base_name = base.id
+            elif isinstance(base, ast.Attribute):
+                base_name = base.attr  # best-effort for dotted names
+            if base_name and base_name in self._class_attrs_map:
+                for a in self._class_attrs_map[base_name]:
+                    if a.name not in seen_names:
+                        inherited.append(a)
+                        seen_names.add(a.name)
+
+        # Full list: inherited first, then own attrs (own take precedence)
+        all_attrs = inherited + own_attrs
+
+        # Store for subclasses that may inherit from this class
+        self._class_attrs_map[node.name] = all_attrs
 
         if ds_node is not None:
             self.results.append(
                 FuncInfo(
                     name=node.name,
                     lineno=node.lineno,
-                    params=init_params,  # Use __init__ params!
+                    # Class docstring uses attributes:, not parameters:
+                    params=[],
+                    attrs=all_attrs,
                     docstring_node=ds_node,
                 )
             )
@@ -419,6 +475,7 @@ def sync_docstring(
     params: Sequence[ParamInfo],
     return_annotation: str,
     *,
+    attrs: Sequence[ParamInfo] = (),
     is_method: bool = False,
     func_name: str = '<unknown>',
     content_indent: int = 4,
@@ -435,6 +492,11 @@ def sync_docstring(
         type: Sequence[ParamInfo]
       return_annotation:
         type: str
+      attrs:
+        type: Sequence[ParamInfo]
+        description: >-
+          Class-level annotated variables used to sync the attributes: section.
+          Only meaningful for ClassDef docstrings.
       is_method:
         type: bool
       func_name:
@@ -495,6 +557,27 @@ def sync_docstring(
         data['parameters'] = new_params
     else:
         data.pop('parameters', None)
+
+    # --- attributes (class-level annotated vars) ---
+    if attrs:
+        existing_attrs: Dict[str, Any] = data.get('attributes', {}) or {}
+        new_attrs: Dict[str, Any] = {}
+        for a in attrs:
+            old_a = existing_attrs.get(a.name)
+            desc = _extract_param_desc(old_a)
+            attr_entry: Dict[str, Any] = {}
+            if a.annotation:
+                attr_entry['type'] = a.annotation
+            if desc:
+                attr_entry['description'] = desc
+            # Carry forward description and optional from existing entry
+            if isinstance(old_a, dict):
+                if 'optional' in old_a and old_a['optional'] is not None:
+                    attr_entry['optional'] = old_a['optional']
+            new_attrs[a.name] = attr_entry
+        data['attributes'] = new_attrs
+    # Note: we do NOT pop attributes: when attrs is empty —
+    # the developer may have manually written it.
 
     # --- returns ---
     if return_annotation and return_annotation != 'None':
@@ -991,6 +1074,7 @@ def sync_source(
                 raw,
                 func.params,
                 func.return_annotation,
+                attrs=func.attrs,
                 is_method=func.is_method,
                 func_name=func.name,
                 content_indent=len(content_indent),
