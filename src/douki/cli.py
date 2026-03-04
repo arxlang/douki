@@ -18,11 +18,11 @@ import typer
 
 from rich.console import Console
 
-# Import the language registry to auto-register built-in languages
-import douki._python  # noqa: F401
-
-from douki._base.language import get_language
-from douki.sync import DocstringValidationError
+from douki.sync import (
+    DocstringValidationError,
+    resolve_files,
+    sync_source,
+)
 
 
 class MigrateFormat(str, Enum):
@@ -64,10 +64,7 @@ def _resolve_files(
     returns:
       type: List[Path]
     """
-    language = get_language(lang)
-    excludes = language.config.load_exclude_patterns(Path.cwd())
-    raw = files if files else [Path('.')]
-    target_files = language.config.collect_files(raw, excludes)
+    target_files = resolve_files(files, lang=lang)
     if not target_files:
         console.print(f'[dim]No {lang} files found.[/]')
         raise typer.Exit(code=0)
@@ -140,8 +137,6 @@ def sync(
       lang:
         type: str
     """
-    language = get_language(lang)
-    migrate_val = None
     target_files = _resolve_files(files, lang=lang)
     errors = False
     changed = 0
@@ -158,10 +153,7 @@ def sync(
             continue
 
         try:
-            updated = language.sync_source(
-                original,
-                migrate=migrate_val,
-            )
+            updated = sync_source(original, lang=lang)
         except DocstringValidationError as exc:
             console.print(
                 f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
@@ -218,8 +210,6 @@ def check(
       lang:
         type: str
     """
-    language = get_language(lang)
-    migrate_val = None
     target_files = _resolve_files(files, lang=lang)
     any_diff = False
     errors = False
@@ -235,10 +225,7 @@ def check(
             continue
 
         try:
-            updated = language.sync_source(
-                original,
-                migrate=migrate_val,
-            )
+            updated = sync_source(original, lang=lang)
         except DocstringValidationError as exc:
             console.print(
                 f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
@@ -289,7 +276,6 @@ def migrate(
       lang:
         type: str
     """
-    language = get_language(lang)
     migrate_val = from_format.value
     target_files = _resolve_files(files, lang=lang)
     errors = False
@@ -307,8 +293,9 @@ def migrate(
             continue
 
         try:
-            updated = language.sync_source(
+            updated = sync_source(
                 original,
+                lang=lang,
                 migrate=migrate_val,
             )
         except DocstringValidationError as exc:

@@ -9,16 +9,16 @@ from __future__ import annotations
 # -------------------------------------------------------------------
 import pytest
 
-from douki.sync import (
+from douki._base.sync import (
     ParamInfo,
     _extract_returns_desc,
     _load_docstring_yaml,
     _yaml_scalar,
-    extract_functions,
     sync_docstring,
-    sync_source,
     validate_docstring,
 )
+from douki._python.extractor import extract_functions
+from douki._python.sync import sync_source
 
 
 def test_validate_docstring_valid() -> None:
@@ -1494,7 +1494,7 @@ def test_sync_source_validation_errors_multiple() -> None:
         '    """Also plain text."""\n'
         '    pass\n'
     )
-    from douki.sync import DocstringValidationError
+    from douki._base.sync import DocstringValidationError
 
     with pytest.raises(DocstringValidationError):
         sync_source(src)

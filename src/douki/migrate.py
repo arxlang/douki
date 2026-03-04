@@ -1,22 +1,37 @@
 """
-title: Backward-compatible re-exports for douki.migrate.
-summary: The actual implementation lives in ``douki._python.migrate``.
+title: Public API for migrating docstrings to Douki YAML.
+summary: >-
+  Provides the ``migrate_source`` dispatch function that routes to the
+  appropriate language plugin.
 """
 
-from douki._python.migrate import (
-    _is_numpydoc_docstring,
-    _parse_map_section,
-    _parse_simple_section,
-    _serialize_douki_yaml,
-    _split_sections,
-    numpydoc_to_douki_yaml,
-)
+from __future__ import annotations
 
 __all__ = [
-    '_is_numpydoc_docstring',
-    '_parse_map_section',
-    '_parse_simple_section',
-    '_serialize_douki_yaml',
-    '_split_sections',
-    'numpydoc_to_douki_yaml',
+    'migrate_source',
 ]
+
+
+def migrate_source(
+    source: str,
+    *,
+    from_format: str,
+    lang: str = 'python',
+) -> str:
+    """
+    title: Migrate docstrings from another format to Douki YAML.
+    summary: Dispatches to ``sync_source`` with the *migrate* parameter set.
+    parameters:
+      source:
+        type: str
+      from_format:
+        type: str
+      lang:
+        type: str
+        optional: true
+    returns:
+      type: str
+    """
+    from douki.sync import sync_source
+
+    return sync_source(source, lang=lang, migrate=from_format)
