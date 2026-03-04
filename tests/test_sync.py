@@ -17,6 +17,7 @@ from douki._base.sync import (
     sync_docstring,
     validate_docstring,
 )
+from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
 from douki._python.sync import sync_source
 
@@ -921,13 +922,13 @@ def test_sync_with_examples_list() -> None:
 
 def test_sync_with_visibility_non_default() -> None:
     raw = 'title: test\nvisibility: private\n'
-    result = sync_docstring(raw, [], '')
+    result = sync_docstring(raw, [], '', language_defaults=PYTHON_DEFAULTS)
     assert 'visibility: private' in result
 
 
 def test_sync_omits_default_visibility() -> None:
     raw = 'title: test\nvisibility: public\n'
-    result = sync_docstring(raw, [], '')
+    result = sync_docstring(raw, [], '', language_defaults=PYTHON_DEFAULTS)
     assert 'visibility' not in result
 
 

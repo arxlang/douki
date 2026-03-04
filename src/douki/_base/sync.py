@@ -326,7 +326,7 @@ def sync_docstring(
     defaults = (
         language_defaults.get_field_defaults()
         if language_defaults
-        else _PYTHON_DEFAULTS_COMPAT
+        else _EMPTY_DEFAULTS
     )
     return _rebuild_yaml(data, content_indent, field_defaults=defaults)
 
@@ -353,12 +353,8 @@ _KEY_ORDER = [
     'methods',
 ]
 
-# Backward-compat defaults matching the old hardcoded Python behaviour
-_PYTHON_DEFAULTS_COMPAT: Dict[str, Any] = {
-    'visibility': 'public',
-    'mutability': 'mutable',
-    'scope': 'static',
-}
+# Fallback when no language defaults are provided — omit nothing.
+_EMPTY_DEFAULTS: Dict[str, Any] = {}
 
 # Sub-keys omitted when they match these defaults
 _PARAM_DEFAULTS: Dict[str, Any] = {
@@ -388,7 +384,7 @@ def _rebuild_yaml(
       type: str
     """
     if field_defaults is None:
-        field_defaults = _PYTHON_DEFAULTS_COMPAT
+        field_defaults = _EMPTY_DEFAULTS
 
     ordered: List[Tuple[str, Any]] = []
     for key in _KEY_ORDER:
