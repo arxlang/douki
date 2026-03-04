@@ -23,7 +23,7 @@ def _schema() -> dict[str, Any]:
     global _schema_cache
 
     if _schema_cache is None:
-        with files('douki._base').joinpath('schema.json').open() as fh:
+        with files('douki').joinpath('schema.json').open() as fh:
             _schema_cache = json.load(fh)
     return _schema_cache
 

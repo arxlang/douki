@@ -30,7 +30,6 @@ packages = [
 include = [
   "src/douki/py.typed",
   "src/douki/schema.json",
-  "src/douki/_base/schema.json",
 ]
 exclude = [
   ".git/*",
