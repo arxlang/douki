@@ -36,6 +36,13 @@ class DocstringValidationError(ValueError):
 class ParamInfo:
     """
     title: A single parameter extracted from an ``ast`` signature.
+    attributes:
+      name:
+        type: str
+      annotation:
+        type: str
+      kind:
+        type: str
     """
 
     name: str
@@ -51,11 +58,29 @@ class FuncInfo:
     title: >-
       Everything we need to know about a single def / async def / class /
       module.
+    attributes:
+      name:
+        type: str
+      lineno:
+        type: int
+      params:
+        type: List[ParamInfo]
+      attrs:
+        type: List[ParamInfo]
+      return_annotation:
+        type: str
+      docstring_node:
+        type: Optional[ast.Constant]
+      is_method:
+        type: bool
     """
 
     name: str
     lineno: int  # 1-based line of the *def* keyword, or 1 for module
     params: List[ParamInfo] = field(default_factory=list)
+    # Class-level annotated vars, extracted from the class body by
+    # _FuncExtractor
+    attrs: List[ParamInfo] = field(default_factory=list)
     return_annotation: str = ''
     docstring_node: Optional[ast.Constant] = None
     is_method: bool = False
@@ -238,6 +263,20 @@ class _FuncExtractor(ast.NodeVisitor):
         ):
             ds_node = node.body[0].value
 
+        # Extract class-level annotated variables for attributes: sync
+        cls_attrs: List[ParamInfo] = []
+        for child in node.body:
+            if isinstance(child, ast.AnnAssign) and isinstance(
+                child.target, ast.Name
+            ):
+                cls_attrs.append(
+                    ParamInfo(
+                        name=child.target.id,
+                        annotation=_annotation_to_str(child.annotation),
+                        kind='regular',
+                    )
+                )
+
         if ds_node is not None:
             self.results.append(
                 FuncInfo(
@@ -245,6 +284,7 @@ class _FuncExtractor(ast.NodeVisitor):
                     lineno=node.lineno,
                     # Class docstring uses attributes:, not parameters:
                     params=[],
+                    attrs=cls_attrs,
                     docstring_node=ds_node,
                 )
             )
@@ -411,6 +451,7 @@ def sync_docstring(
     params: Sequence[ParamInfo],
     return_annotation: str,
     *,
+    attrs: Sequence[ParamInfo] = (),
     is_method: bool = False,
     func_name: str = '<unknown>',
     content_indent: int = 4,
@@ -427,6 +468,11 @@ def sync_docstring(
         type: Sequence[ParamInfo]
       return_annotation:
         type: str
+      attrs:
+        type: Sequence[ParamInfo]
+        description: >-
+          Class-level annotated variables used to sync the attributes: section.
+          Only meaningful for ClassDef docstrings.
       is_method:
         type: bool
       func_name:
@@ -487,6 +533,27 @@ def sync_docstring(
         data['parameters'] = new_params
     else:
         data.pop('parameters', None)
+
+    # --- attributes (class-level annotated vars) ---
+    if attrs:
+        existing_attrs: Dict[str, Any] = data.get('attributes', {}) or {}
+        new_attrs: Dict[str, Any] = {}
+        for a in attrs:
+            old_a = existing_attrs.get(a.name)
+            desc = _extract_param_desc(old_a)
+            attr_entry: Dict[str, Any] = {}
+            if a.annotation:
+                attr_entry['type'] = a.annotation
+            if desc:
+                attr_entry['description'] = desc
+            # Carry forward description and optional from existing entry
+            if isinstance(old_a, dict):
+                if 'optional' in old_a and old_a['optional'] is not None:
+                    attr_entry['optional'] = old_a['optional']
+            new_attrs[a.name] = attr_entry
+        data['attributes'] = new_attrs
+    # Note: we do NOT pop attributes: when attrs is empty —
+    # the developer may have manually written it.
 
     # --- returns ---
     if return_annotation and return_annotation != 'None':
@@ -983,6 +1050,7 @@ def sync_source(
                 raw,
                 func.params,
                 func.return_annotation,
+                attrs=func.attrs,
                 is_method=func.is_method,
                 func_name=func.name,
                 content_indent=len(content_indent),

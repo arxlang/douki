@@ -134,15 +134,53 @@ class MyCounter:
 
 Running `douki sync` will:
 
-- Leave the class docstring's `attributes:` section **untouched** — Douki
-  never injects `parameters:` into class-level docstrings.
-- Sync the `__init__` docstring with its constructor's `parameters:` and
+- **Auto-populate `attributes:`** from class-level annotated variables
+  (`x: int`, `name: str = "default"`, `total: ClassVar[int]`, etc.).
+  Existing descriptions are preserved; only missing vars are added.
+- Leave the class docstring's `parameters:` section **completely alone** —
+  Douki never injects constructor arguments into the class docstring.
+- **Sync `__init__`** docstring with its constructor's `parameters:` and
   `returns:` based on the actual signature.
-- Sync every method docstring independently.
+- **Sync every method** docstring independently.
 
-> **Tip:** Use `attributes:` in the class docstring to document instance
-> variables. Use `parameters:` in `__init__` to document constructor
-> arguments.
+> **Tip:** Use `attributes:` (populated automatically from type-annotated
+> class vars) for instance/class variables. Use `parameters:` in `__init__`
+> for constructor arguments.
+
+#### Auto-attribute extraction
+
+Any class-level annotation is picked up:
+
+```python
+from typing import ClassVar
+
+class Buffer:
+    """
+    title: A byte buffer
+    """
+    MAX_SIZE: ClassVar[int] = 4096  # ClassVar flows through as-is
+    data: bytes
+    position: int
+```
+
+After `douki sync`:
+
+```python
+class Buffer:
+    """
+    title: A byte buffer
+    attributes:
+      MAX_SIZE:
+        type: ClassVar[int]
+      data:
+        type: bytes
+      position:
+        type: int
+    """
+    MAX_SIZE: ClassVar[int] = 4096
+    data: bytes
+    position: int
+```
 
 ### All Fields
 

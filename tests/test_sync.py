@@ -411,28 +411,80 @@ class MyClass:
     assert 'type: int' in result
 
 
-def test_sync_source_classdef_preserves_attributes() -> None:
+def test_sync_source_classdef_auto_attributes() -> None:
     """
-    title: 'Class docstring attributes: section is preserved on sync.'
+    title: >-
+      Class-level annotated vars are auto-populated into attributes: section.
     """
-    src = (
-        'class MyClass:\n'
-        '    """\n'
-        '    title: My class\n'
-        '    attributes:\n'
-        '    count:\n'
-        '        type: int\n'
-        '        description: The count.\n'
-        '    """\n'
-        '    def __init__(self, count: int):\n'
-        '        self.count = count\n'
-    )
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    """
+    value: int
+    name: str
+    def __init__(self, value: int, name: str) -> None:
+        self.value = value
+        self.name = name
+'''
+    result = sync_source(src)
+    # Class docstring must have attributes: with both vars
+    class_doc_end = result.index('def __init__')
+    class_region = result[:class_doc_end]
+    assert 'attributes:' in class_region
+    assert 'value:' in class_region
+    assert 'name:' in class_region
+    # No parameters: in the class docstring
+    assert 'parameters:' not in class_region
+
+
+def test_sync_source_classdef_classvar_annotation_passthrough() -> None:
+    """
+    title: 'ClassVar annotation flows through unchanged into attributes: type.'
+    """
+    src = '''\
+from typing import ClassVar
+
+class MyClass:
+    """
+    title: My class
+    """
+    MAX: ClassVar[int] = 100
+    count: int
+'''
+    result = sync_source(src)
+    # attributes: header must appear before the class body variables
+    assert 'attributes:' in result
+    # Both annotated vars must appear as attribute keys
+    assert 'MAX:' in result
+    assert 'count:' in result
+    # ClassVar type flows through verbatim
+    assert 'ClassVar[int]' in result
+    # No parameters: should be injected into the class docstring
+    assert 'parameters:' not in result
+
+
+def test_sync_source_classdef_attributes_preserves_description() -> None:
+    """
+    title: 'Existing description in attributes: is preserved after re-sync.'
+    """
+    src = '''\
+class MyClass:
+    """
+    title: My class
+    attributes:
+      count:
+        type: int
+        description: The count.
+    """
+    count: int
+'''
     result = sync_source(src)
     assert 'attributes:' in result
-    assert 'count:' in result
-    # parameters: should definitely not appear in the class docstring region
-    class_doc_end = result.index('def __init__')
-    assert 'parameters:' not in result[:class_doc_end]
+    assert 'The count.' in result
+    # Idempotent
+    second = sync_source(result)
+    assert result == second
 
 
 def test_sync_source_nested_class_and_method() -> None:

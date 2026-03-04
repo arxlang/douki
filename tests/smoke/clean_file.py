@@ -33,7 +33,13 @@ class Calculator:
       result:
         type: int
         description: The last computed result.
+      history:
+        type: list
+        description: All past results.
     """
+
+    result: int
+    history: list
 
     def __init__(self, initial: int = 0) -> None:
         """

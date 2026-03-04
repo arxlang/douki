@@ -145,15 +145,19 @@ groups:
         run: |
           TMPDIR=$(mktemp -d)
           cp tests/smoke/dirty_class.py "$TMPDIR/dirty_class.py"
-          # Sync should apply changes — __init__ and method params not yet synced
+          # Sync should apply changes — attributes: and method params not yet synced
           douki sync "$TMPDIR/dirty_class.py" && exit 1 || true
-          # __init__ should now have parameters:
+          # Class attr annotations should appear in attributes:
+          grep -q 'attributes:' "$TMPDIR/dirty_class.py"
+          grep -q 'result:' "$TMPDIR/dirty_class.py"
+          grep -q 'history:' "$TMPDIR/dirty_class.py"
+          # __init__ should have parameter synced
           grep -q 'initial:' "$TMPDIR/dirty_class.py"
-          # method should now have parameters:
+          # method should have parameters synced
           grep -q 'parameters:' "$TMPDIR/dirty_class.py"
-          # Class docstring should NOT have parameters: (only attributes:)
+          # Class docstring should NOT have parameters:
           python3 -c "
-          import ast, sys
+          import ast
           src = open('$TMPDIR/dirty_class.py').read()
           tree = ast.parse(src)
           for node in ast.walk(tree):
@@ -161,7 +165,7 @@ groups:
                   if node.body and isinstance(node.body[0], ast.Expr):
                       ds = node.body[0].value.value
                       assert 'parameters:' not in ds, 'Class docstring should not have parameters:'
-          print('OK: class docstring has no parameters:')
+          print('OK: no parameters: in class docstring')
           "
           # Second sync should be idempotent (exit 0)
           douki sync "$TMPDIR/dirty_class.py"

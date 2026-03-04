@@ -1,17 +1,17 @@
 class Calculator:
     """
     title: Basic calculator
-    attributes:
-      result:
-        type: int
-        description: The last computed result.
     """
+
+    result: int
+    history: list
 
     def __init__(self, initial: int = 0):
         """
         title: Initialize Calculator
         """
         self.result = initial
+        self.history = []
 
     def multiply(self, a: int, b: int) -> int:
         """
