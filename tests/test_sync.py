@@ -415,18 +415,18 @@ def test_sync_source_classdef_preserves_attributes() -> None:
     """
     title: 'Class docstring attributes: section is preserved on sync.'
     """
-    src = '''\
-class MyClass:
-    """
-    title: My class
-    attributes:
-      count:
-        type: int
-        description: The count.
-    """
-    def __init__(self, count: int):
-        self.count = count
-'''
+    src = (
+        'class MyClass:\n'
+        '    """\n'
+        '    title: My class\n'
+        '    attributes:\n'
+        '    count:\n'
+        '        type: int\n'
+        '        description: The count.\n'
+        '    """\n'
+        '    def __init__(self, count: int):\n'
+        '        self.count = count\n'
+    )
     result = sync_source(src)
     assert 'attributes:' in result
     assert 'count:' in result
