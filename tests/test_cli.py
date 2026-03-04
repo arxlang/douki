@@ -409,7 +409,7 @@ def test_exclude_files_via_pyproject(
     # Even if passed explicitly, it should be excluded (like black/ruff)
     result2 = runner.invoke(app, ['check', str(p_ignored)])
     assert result2.exit_code == 0
-    assert 'No .py files found' in result2.output
+    assert 'No python files found' in result2.output
 
 
 # -------------------------------------------------------------------
@@ -508,12 +508,14 @@ def test_sync_generic_exception(
             pass
         ''',
     )
-    import douki.cli
+    import douki._python.language
 
     def _boom(*a, **kw):
         raise RuntimeError('boom')
 
-    monkeypatch.setattr(douki.cli, 'sync_source', _boom)
+    monkeypatch.setattr(
+        douki._python.language.PythonLanguage, 'sync_source', _boom
+    )
     result = runner.invoke(app, ['sync', str(p)])
     assert result.exit_code == 2
     assert 'Error' in result.output
@@ -541,12 +543,14 @@ def test_check_generic_exception(
             pass
         ''',
     )
-    import douki.cli
+    import douki._python.language
 
     def _boom(*a, **kw):
         raise RuntimeError('boom')
 
-    monkeypatch.setattr(douki.cli, 'sync_source', _boom)
+    monkeypatch.setattr(
+        douki._python.language.PythonLanguage, 'sync_source', _boom
+    )
     result = runner.invoke(app, ['check', str(p)])
     assert result.exit_code == 2
     assert 'Error' in result.output
@@ -574,12 +578,14 @@ def test_migrate_generic_exception(
             pass
         ''',
     )
-    import douki.cli
+    import douki._python.language
 
     def _boom(*a, **kw):
         raise RuntimeError('boom')
 
-    monkeypatch.setattr(douki.cli, 'sync_source', _boom)
+    monkeypatch.setattr(
+        douki._python.language.PythonLanguage, 'sync_source', _boom
+    )
     result = runner.invoke(
         app,
         ['migrate', '--from', 'numpydoc', str(p)],

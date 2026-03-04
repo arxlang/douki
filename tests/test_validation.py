@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from douki._validation import validate_schema
+from douki._base.validation import validate_schema
 
 
 def test_valid_schema() -> None:

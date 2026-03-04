@@ -114,7 +114,7 @@ quote-style = "single"
 [tool.vulture]
 exclude = ["tests"]
 ignore_decorators = []
-ignore_names = []
+ignore_names = ["cwd", "paths", "excludes"]
 make_whitelist = true
 min_confidence = 80
 paths = ["./"]

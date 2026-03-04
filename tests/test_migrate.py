@@ -4,7 +4,7 @@ title: Tests for douki.migrate — NumPy docstring conversion.
 
 from __future__ import annotations
 
-from douki.migrate import (
+from douki._python.migrate import (
     _is_numpydoc_docstring,
     _parse_map_section,
     _serialize_douki_yaml,

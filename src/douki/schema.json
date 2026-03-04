@@ -33,6 +33,33 @@
         "description": { "type": "string" }
       }
     },
+    "attr_entry": {
+      "anyOf": [
+        { "type": "string" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "type": { "type": "string" },
+            "optional": { "type": ["boolean", "null"] },
+            "description": { "type": "string" },
+            "default": {},
+            "visibility": {
+              "type": "string",
+              "enum": ["public", "private", "protected", "internal"]
+            },
+            "mutability": {
+              "type": "string",
+              "enum": ["mutable", "immutable", "constant"]
+            },
+            "scope": {
+              "type": "string",
+              "enum": ["instance", "static", "class"]
+            }
+          }
+        }
+      ]
+    },
     "example_entry": {
       "anyOf": [
         { "type": "string" },
@@ -144,7 +171,7 @@
 
     "attributes": {
       "type": "object",
-      "additionalProperties": { "$ref": "#/definitions/param_entry" }
+      "additionalProperties": { "$ref": "#/definitions/attr_entry" }
     },
 
     "methods": {
