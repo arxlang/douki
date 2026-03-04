@@ -280,6 +280,50 @@ class _FuncExtractor(ast.NodeVisitor):
                     )
                 )
 
+        # Also extract self.* assignments from __init__ that are
+        # not already declared at class level.
+        own_names = {p.name for p in own_attrs}
+        for child in node.body:
+            if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                continue
+            if child.name != '__init__':
+                continue
+            for stmt in ast.walk(child):
+                # self.x: T = ... (annotated assignment)
+                if (
+                    isinstance(stmt, ast.AnnAssign)
+                    and isinstance(stmt.target, ast.Attribute)
+                    and isinstance(stmt.target.value, ast.Name)
+                    and stmt.target.value.id == 'self'
+                    and stmt.target.attr not in own_names
+                ):
+                    own_attrs.append(
+                        ParamInfo(
+                            name=stmt.target.attr,
+                            annotation=_annotation_to_str(stmt.annotation),
+                            kind='regular',
+                        )
+                    )
+                    own_names.add(stmt.target.attr)
+                # self.x = ... (plain assignment)
+                elif isinstance(stmt, ast.Assign):
+                    for target in stmt.targets:
+                        if (
+                            isinstance(target, ast.Attribute)
+                            and isinstance(target.value, ast.Name)
+                            and target.value.id == 'self'
+                            and target.attr not in own_names
+                        ):
+                            own_attrs.append(
+                                ParamInfo(
+                                    name=target.attr,
+                                    annotation='',
+                                    kind='regular',
+                                )
+                            )
+                            own_names.add(target.attr)
+            break  # only process the first __init__
+
         # Resolve base class attrs from same-file classes (order: base first)
         inherited: List[ParamInfo] = []
         seen_names: set[str] = {p.name for p in own_attrs}
