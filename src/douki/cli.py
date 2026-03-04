@@ -18,8 +18,11 @@ import typer
 
 from rich.console import Console
 
-from douki._python.config import PythonConfig
-from douki.sync import DocstringValidationError, sync_source
+# Import the language registry to auto-register built-in languages
+import douki._python  # noqa: F401
+
+from douki._base.language import get_language
+from douki.sync import DocstringValidationError
 
 
 class MigrateFormat(str, Enum):
@@ -39,8 +42,6 @@ app = typer.Typer(
 console = Console(stderr=True)
 out_console = Console()  # stdout
 
-_python_config = PythonConfig()
-
 
 @app.callback()
 def _main() -> None:
@@ -51,22 +52,26 @@ def _main() -> None:
 
 def _resolve_files(
     files: Optional[List[Path]],
+    lang: str,
 ) -> List[Path]:
     """
-    title: Turn the optional argument into a list of .py paths.
+    title: Turn the optional argument into a list of paths for the language.
     parameters:
       files:
         type: Optional[List[Path]]
+      lang:
+        type: str
     returns:
       type: List[Path]
     """
-    excludes = _python_config.load_exclude_patterns(Path.cwd())
+    language = get_language(lang)
+    excludes = language.config.load_exclude_patterns(Path.cwd())
     raw = files if files else [Path('.')]
-    py_files = _python_config.collect_files(raw, excludes)
-    if not py_files:
-        console.print('[dim]No .py files found.[/]')
+    target_files = language.config.collect_files(raw, excludes)
+    if not target_files:
+        console.print(f'[dim]No {lang} files found.[/]')
         raise typer.Exit(code=0)
-    return py_files
+    return target_files
 
 
 def _print_diff(
@@ -119,7 +124,12 @@ def _print_diff(
 def sync(
     files: Optional[List[Path]] = typer.Argument(
         default=None,
-        help='Python files or directories (default: ".").',
+        help='Files or directories (default: ".").',
+    ),
+    lang: str = typer.Option(
+        'python',
+        '--lang',
+        help='Programming language to process (e.g. "python").',
     ),
 ) -> None:
     """
@@ -127,14 +137,17 @@ def sync(
     parameters:
       files:
         type: Optional[List[Path]]
+      lang:
+        type: str
     """
+    language = get_language(lang)
     migrate_val = None
-    py_files = _resolve_files(files)
+    target_files = _resolve_files(files, lang=lang)
     errors = False
     changed = 0
     unchanged = 0
 
-    for filepath in py_files:
+    for filepath in target_files:
         try:
             original = filepath.read_text(encoding='utf-8')
         except OSError as exc:
@@ -145,7 +158,7 @@ def sync(
             continue
 
         try:
-            updated = sync_source(
+            updated = language.sync_source(
                 original,
                 migrate=migrate_val,
             )
@@ -189,7 +202,12 @@ def sync(
 def check(
     files: Optional[List[Path]] = typer.Argument(
         default=None,
-        help='Python files or directories (default: ".").',
+        help='Files or directories (default: ".").',
+    ),
+    lang: str = typer.Option(
+        'python',
+        '--lang',
+        help='Programming language to process (e.g. "python").',
     ),
 ) -> None:
     """
@@ -197,13 +215,16 @@ def check(
     parameters:
       files:
         type: Optional[List[Path]]
+      lang:
+        type: str
     """
+    language = get_language(lang)
     migrate_val = None
-    py_files = _resolve_files(files)
+    target_files = _resolve_files(files, lang=lang)
     any_diff = False
     errors = False
 
-    for filepath in py_files:
+    for filepath in target_files:
         try:
             original = filepath.read_text(encoding='utf-8')
         except OSError as exc:
@@ -214,7 +235,7 @@ def check(
             continue
 
         try:
-            updated = sync_source(
+            updated = language.sync_source(
                 original,
                 migrate=migrate_val,
             )
@@ -245,12 +266,17 @@ def check(
 def migrate(
     files: Optional[List[Path]] = typer.Argument(
         default=None,
-        help='Python files or directories (default: ".").',
+        help='Files or directories (default: ".").',
     ),
     from_format: MigrateFormat = typer.Option(
         ...,
         '--from',
         help='Source docstring format (e.g., numpydoc).',
+    ),
+    lang: str = typer.Option(
+        'python',
+        '--lang',
+        help='Programming language to process (e.g. "python").',
     ),
 ) -> None:
     """
@@ -260,14 +286,17 @@ def migrate(
         type: Optional[List[Path]]
       from_format:
         type: MigrateFormat
+      lang:
+        type: str
     """
+    language = get_language(lang)
     migrate_val = from_format.value
-    py_files = _resolve_files(files)
+    target_files = _resolve_files(files, lang=lang)
     errors = False
     changed = 0
     unchanged = 0
 
-    for filepath in py_files:
+    for filepath in target_files:
         try:
             original = filepath.read_text(encoding='utf-8')
         except OSError as exc:
@@ -278,7 +307,7 @@ def migrate(
             continue
 
         try:
-            updated = sync_source(
+            updated = language.sync_source(
                 original,
                 migrate=migrate_val,
             )
