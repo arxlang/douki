@@ -53,7 +53,8 @@ class BaseLanguage(ABC):
         returns:
           type: str
         """
-        ...  # pragma: no cover
+        _ = (source, migrate)
+        raise NotImplementedError  # pragma: no cover
 
 
 # ---------------------------------------------------------------------------

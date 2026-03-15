@@ -8,6 +8,7 @@ summary: >-
 
 from __future__ import annotations
 
+from dataclasses import replace
 from pathlib import Path
 from typing import List, Optional
 
@@ -41,6 +42,7 @@ def resolve_files(
     files: Optional[List[Path]] = None,
     *,
     lang: str = 'python',
+    respect_gitignore: Optional[bool] = None,
 ) -> List[Path]:
     """
     title: Resolve paths into source files for the given language.
@@ -49,6 +51,9 @@ def resolve_files(
         type: Optional[List[Path]]
       lang:
         type: str
+      respect_gitignore:
+        type: Optional[bool]
+        optional: true
     returns:
       type: List[Path]
     """
@@ -56,9 +61,14 @@ def resolve_files(
 
     _ensure_plugins()
     language = get_language(lang)
-    excludes = language.config.load_exclude_patterns(Path.cwd())
+    discovery = language.config.load_discovery_config(Path.cwd())
+    if respect_gitignore is not None:
+        discovery = replace(
+            discovery,
+            respect_gitignore=respect_gitignore,
+        )
     raw = files if files else [Path('.')]
-    return language.config.collect_files(raw, excludes)
+    return language.config.collect_files(raw, discovery)
 
 
 def sync_source(
