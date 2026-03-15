@@ -246,7 +246,7 @@ def _match_exclude_pattern(path_str: str, pattern: str) -> bool:
     returns:
       type: bool
     """
-    normalized = pattern.lstrip('/')
+    normalized = pattern.replace('\\', '/').lstrip('/')
     directory_only = normalized.endswith('/')
     normalized = normalized.rstrip('/')
     if not normalized:

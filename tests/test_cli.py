@@ -414,6 +414,39 @@ def test_exclude_files_via_pyproject(
     assert 'No python files found' in result2.output
 
 
+def test_exclude_files_via_pyproject_windows_separator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    _write(
+        tmp_path,
+        'pyproject.toml',
+        """\
+        [tool.douki]
+        exclude = ["tests\\\\smoke\\\\*"]
+        """,
+    )
+
+    smoke_dir = tmp_path / 'tests' / 'smoke'
+    smoke_dir.mkdir(parents=True)
+    _write(
+        smoke_dir,
+        'dirty.py',
+        '''\
+        def dirty(value: int) -> int:
+            """
+            title: dirty
+            """
+            return value
+        ''',
+    )
+
+    result = runner.invoke(app, ['check'])
+    assert result.exit_code == 0
+    assert 'No python files found' in result.output
+
+
 def test_gitignore_files_are_ignored_by_default(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
