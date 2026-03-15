@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+# [0.12.0](https://github.com/arxlang/douki/compare/0.11.0...0.12.0) (2026-03-15)
+
+
+### Features
+
+* Add support for respecting gitignore rules ([#22](https://github.com/arxlang/douki/issues/22)) ([7119d43](https://github.com/arxlang/douki/commit/7119d43a9a252b3a825ebd9fc3db838b69dd3b7c))
+
 # [0.11.0](https://github.com/arxlang/douki/compare/0.10.2...0.11.0) (2026-03-04)
 
 
