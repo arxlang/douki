@@ -383,10 +383,13 @@ def test_exclude_files_via_pyproject(
     p_ignored = _write(
         tmp_path,
         'ignored.py',
-        """\
-        def bad() -> None:
-            pass
-        """,
+        '''\
+        def bad(value: int) -> int:
+            """
+            title: bad
+            """
+            return value
+        ''',
     )
 
     smoke_dir = tmp_path / 'tests' / 'smoke'
@@ -401,7 +404,6 @@ def test_exclude_files_via_pyproject(
     )
 
     result = runner.invoke(app, ['check'])
-    print('OUTPUT WAS:', result.output)
     # Because clean.py is clean, and ignored.py/dirty.py are excluded,
     # it should exit 0
     assert result.exit_code == 0
@@ -410,6 +412,150 @@ def test_exclude_files_via_pyproject(
     result2 = runner.invoke(app, ['check', str(p_ignored)])
     assert result2.exit_code == 0
     assert 'No python files found' in result2.output
+
+
+def test_gitignore_files_are_ignored_by_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    _write(
+        tmp_path,
+        '.gitignore',
+        """\
+        ignored.py
+        """,
+    )
+
+    p_ignored = _write(
+        tmp_path,
+        'ignored.py',
+        '''\
+        def bad(value: int) -> int:
+            """
+            title: bad
+            """
+            return value
+        ''',
+    )
+
+    result = runner.invoke(app, ['check'])
+    assert result.exit_code == 0
+    assert 'No python files found' in result.output
+
+    result2 = runner.invoke(app, ['check', str(p_ignored)])
+    assert result2.exit_code == 0
+    assert 'No python files found' in result2.output
+
+
+def test_nested_gitignore_respected_unless_disabled(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    nested = tmp_path / 'pkg'
+    nested.mkdir()
+    _write(
+        nested,
+        '.gitignore',
+        """\
+        ignored.py
+        """,
+    )
+    _write(
+        nested,
+        'ignored.py',
+        '''\
+        def bad(value: int) -> int:
+            """
+            title: bad
+            """
+            return value
+        ''',
+    )
+
+    result = runner.invoke(app, ['check', str(tmp_path)])
+    assert result.exit_code == 0
+    assert 'No python files found' in result.output
+
+    result2 = runner.invoke(
+        app,
+        ['check', '--no-respect-gitignore', str(tmp_path)],
+    )
+    assert result2.exit_code == 1
+
+
+def test_pyproject_can_disable_gitignore(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    _write(
+        tmp_path,
+        'pyproject.toml',
+        """\
+        [tool.douki]
+        respect-gitignore = false
+        """,
+    )
+    _write(
+        tmp_path,
+        '.gitignore',
+        """\
+        ignored.py
+        """,
+    )
+    _write(
+        tmp_path,
+        'ignored.py',
+        '''\
+        def bad(value: int) -> int:
+            """
+            title: bad
+            """
+            return value
+        ''',
+    )
+
+    result = runner.invoke(app, ['check'])
+    assert result.exit_code == 1
+
+
+def test_cli_flag_overrides_pyproject_gitignore_setting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+
+    _write(
+        tmp_path,
+        'pyproject.toml',
+        """\
+        [tool.douki]
+        respect-gitignore = false
+        """,
+    )
+    _write(
+        tmp_path,
+        '.gitignore',
+        """\
+        ignored.py
+        """,
+    )
+    _write(
+        tmp_path,
+        'ignored.py',
+        '''\
+        def bad(value: int) -> int:
+            """
+            title: bad
+            """
+            return value
+        ''',
+    )
+
+    result = runner.invoke(app, ['check', '--respect-gitignore'])
+    assert result.exit_code == 0
+    assert 'No python files found' in result.output
 
 
 # -------------------------------------------------------------------
@@ -510,7 +656,7 @@ def test_sync_generic_exception(
     )
     import douki._python.language
 
-    def _boom(*a, **kw):
+    def _boom(*a: object, **kw: object) -> str:
         raise RuntimeError('boom')
 
     monkeypatch.setattr(
@@ -545,7 +691,7 @@ def test_check_generic_exception(
     )
     import douki._python.language
 
-    def _boom(*a, **kw):
+    def _boom(*a: object, **kw: object) -> str:
         raise RuntimeError('boom')
 
     monkeypatch.setattr(
@@ -580,7 +726,7 @@ def test_migrate_generic_exception(
     )
     import douki._python.language
 
-    def _boom(*a, **kw):
+    def _boom(*a: object, **kw: object) -> str:
         raise RuntimeError('boom')
 
     monkeypatch.setattr(

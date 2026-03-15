@@ -53,6 +53,7 @@ def _main() -> None:
 def _resolve_files(
     files: Optional[List[Path]],
     lang: str,
+    respect_gitignore: Optional[bool],
 ) -> List[Path]:
     """
     title: Turn the optional argument into a list of paths for the language.
@@ -61,10 +62,16 @@ def _resolve_files(
         type: Optional[List[Path]]
       lang:
         type: str
+      respect_gitignore:
+        type: Optional[bool]
     returns:
       type: List[Path]
     """
-    target_files = resolve_files(files, lang=lang)
+    target_files = resolve_files(
+        files,
+        lang=lang,
+        respect_gitignore=respect_gitignore,
+    )
     if not target_files:
         console.print(f'[dim]No {lang} files found.[/]')
         raise typer.Exit(code=0)
@@ -128,6 +135,11 @@ def sync(
         '--lang',
         help='Programming language to process (e.g. "python").',
     ),
+    respect_gitignore: Optional[bool] = typer.Option(
+        None,
+        '--respect-gitignore/--no-respect-gitignore',
+        help='Respect .gitignore patterns during file discovery.',
+    ),
 ) -> None:
     """
     title: Apply docstring sync changes to files in-place.
@@ -136,8 +148,15 @@ def sync(
         type: Optional[List[Path]]
       lang:
         type: str
+      respect_gitignore:
+        type: Optional[bool]
+        optional: true
     """
-    target_files = _resolve_files(files, lang=lang)
+    target_files = _resolve_files(
+        files,
+        lang=lang,
+        respect_gitignore=respect_gitignore,
+    )
     errors = False
     changed = 0
     unchanged = 0
@@ -201,6 +220,11 @@ def check(
         '--lang',
         help='Programming language to process (e.g. "python").',
     ),
+    respect_gitignore: Optional[bool] = typer.Option(
+        None,
+        '--respect-gitignore/--no-respect-gitignore',
+        help='Respect .gitignore patterns during file discovery.',
+    ),
 ) -> None:
     """
     title: Print a diff of proposed changes. Exit 1 if any.
@@ -209,8 +233,15 @@ def check(
         type: Optional[List[Path]]
       lang:
         type: str
+      respect_gitignore:
+        type: Optional[bool]
+        optional: true
     """
-    target_files = _resolve_files(files, lang=lang)
+    target_files = _resolve_files(
+        files,
+        lang=lang,
+        respect_gitignore=respect_gitignore,
+    )
     any_diff = False
     errors = False
 
@@ -265,6 +296,11 @@ def migrate(
         '--lang',
         help='Programming language to process (e.g. "python").',
     ),
+    respect_gitignore: Optional[bool] = typer.Option(
+        None,
+        '--respect-gitignore/--no-respect-gitignore',
+        help='Respect .gitignore patterns during file discovery.',
+    ),
 ) -> None:
     """
     title: Migrate docstrings from another format to Douki YAML.
@@ -275,9 +311,16 @@ def migrate(
         type: MigrateFormat
       lang:
         type: str
+      respect_gitignore:
+        type: Optional[bool]
+        optional: true
     """
     migrate_val = from_format.value
-    target_files = _resolve_files(files, lang=lang)
+    target_files = _resolve_files(
+        files,
+        lang=lang,
+        respect_gitignore=respect_gitignore,
+    )
     errors = False
     changed = 0
     unchanged = 0

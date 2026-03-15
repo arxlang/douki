@@ -59,6 +59,10 @@ douki check src/
 douki sync src/
 ```
 
+By default, Douki respects `.gitignore` during file discovery. You can
+disable that per run with `--no-respect-gitignore`, or set
+`[tool.douki] respect-gitignore = false` in `pyproject.toml`.
+
 ## What's Next?
 
 - [Installation](installation.md) — install via pip, conda, or from source

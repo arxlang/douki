@@ -356,10 +356,15 @@ def add(x, y):
 
 ## Configuration
 
-You can configure Douki using a `pyproject.toml` file in your project root. Currently, Douki supports excluding files or directories using glob patterns.
+You can configure Douki using a `pyproject.toml` file in your project root.
+Douki supports excluding files or directories using glob patterns, and it
+respects `.gitignore` during file discovery by default.
 
 ```toml
 [tool.douki]
+# Respect `.gitignore` by default. Set to false to opt out globally.
+respect-gitignore = true
+
 # Exclude specific files or entire directories
 exclude = [
   "tests/smoke/*",
@@ -367,7 +372,10 @@ exclude = [
 ]
 ```
 
-When running `douki sync` or `douki check`, any file matching these patterns will be ignored.
+When running `douki sync`, `douki check`, or `douki migrate`, any file
+matching these patterns will be ignored. You can override the `.gitignore`
+setting for a single run with `--respect-gitignore` or
+`--no-respect-gitignore`.
 
 ---
 

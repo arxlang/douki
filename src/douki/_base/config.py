@@ -6,7 +6,13 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
+
+from douki._base.discovery import (
+    DiscoveryConfig,
+    collect_source_files,
+    load_douki_discovery_config,
+)
 
 
 class BaseConfig(ABC):
@@ -17,30 +23,44 @@ class BaseConfig(ABC):
       source files are discovered.
     """
 
+    @property
     @abstractmethod
-    def load_exclude_patterns(self, cwd: Path) -> List[str]:
+    def file_extensions(self) -> Tuple[str, ...]:
         """
-        title: Load exclude patterns from a config file.
+        title: File extensions handled by the language backend.
+        returns:
+          type: Tuple[str, Ellipsis]
+        """
+        ...  # pragma: no cover
+
+    def load_discovery_config(self, cwd: Path) -> DiscoveryConfig:
+        """
+        title: Load shared discovery settings from project configuration.
         parameters:
           cwd:
             type: Path
         returns:
-          type: List[str]
+          type: DiscoveryConfig
         """
-        ...  # pragma: no cover
+        return load_douki_discovery_config(cwd)
 
-    @abstractmethod
     def collect_files(
-        self, paths: List[Path], excludes: List[str]
+        self,
+        paths: List[Path],
+        discovery: DiscoveryConfig,
     ) -> List[Path]:
         """
         title: Expand paths into source files, filtering excluded ones.
         parameters:
           paths:
             type: List[Path]
-          excludes:
-            type: List[str]
+          discovery:
+            type: DiscoveryConfig
         returns:
           type: List[Path]
         """
-        ...  # pragma: no cover
+        return collect_source_files(
+            paths,
+            file_extensions=self.file_extensions,
+            discovery=discovery,
+        )
