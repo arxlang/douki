@@ -589,6 +589,8 @@
       
         
       
+        
+      
     
     
     
@@ -681,6 +683,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/_base/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> discovery
   
 
     
@@ -1262,6 +1292,9 @@ douki<span class="w"> </span>check<span class="w"> </span>src/
 <span class="c1"># Apply changes in-place</span>
 douki<span class="w"> </span>sync<span class="w"> </span>src/
 </code></pre></div>
+<p>By default, Douki respects <code class="language-python highlight"><span class="o">.</span><span class="n">gitignore</span></code> during file discovery. You can
+disable that per run with <code class="language-python highlight"><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span></code>, or set
+<code class="language-python highlight"><span class="p">[</span><span class="n">tool</span><span class="o">.</span><span class="n">douki</span><span class="p">]</span> <span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span> <span class="o">=</span> <span class="n">false</span></code> in <code class="language-python highlight"><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span></code>.</p>
 <h2 id="whats-next">What's Next?</h2>
 <ul>
 <li><a href="installation/">Installation</a> — install via pip, conda, or from source</li>

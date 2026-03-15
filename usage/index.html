@@ -792,6 +792,8 @@
       
         
       
+        
+      
     
     
     
@@ -884,6 +886,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/_base/discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> discovery
   
 
     
@@ -2085,15 +2115,23 @@ douki<span class="w"> </span>migrate<span class="w"> </span>numpydoc<span class=
 </code></pre></div>
 <hr />
 <h2 id="configuration">Configuration</h2>
-<p>You can configure Douki using a <code class="language-python highlight"><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span></code> file in your project root. Currently, Douki supports excluding files or directories using glob patterns.</p>
+<p>You can configure Douki using a <code class="language-python highlight"><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span></code> file in your project root.
+Douki supports excluding files or directories using glob patterns, and it
+respects <code class="language-python highlight"><span class="o">.</span><span class="n">gitignore</span></code> during file discovery by default.</p>
 <div class="language-toml highlight"><pre><span></span><code><span class="k">[tool.douki]</span>
+<span class="c1"># Respect `.gitignore` by default. Set to false to opt out globally.</span>
+<span class="n">respect-gitignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
 <span class="c1"># Exclude specific files or entire directories</span>
 <span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
 <span class="w">  </span><span class="s2">&quot;tests/smoke/*&quot;</span><span class="p">,</span>
 <span class="w">  </span><span class="s2">&quot;legacy_module.py&quot;</span>
 <span class="p">]</span>
 </code></pre></div>
-<p>When running <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code> or <code class="language-python highlight"><span class="n">douki</span> <span class="n">check</span></code>, any file matching these patterns will be ignored.</p>
+<p>When running <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code>, <code class="language-python highlight"><span class="n">douki</span> <span class="n">check</span></code>, or <code class="language-python highlight"><span class="n">douki</span> <span class="n">migrate</span></code>, any file
+matching these patterns will be ignored. You can override the <code class="language-python highlight"><span class="o">.</span><span class="n">gitignore</span></code>
+setting for a single run with <code class="language-python highlight"><span class="o">--</span><span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span></code> or
+<code class="language-python highlight"><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span></code>.</p>
 <hr />
 <h2 id="pre-commit-integration">Pre-commit Integration</h2>
 <p>Add Douki as a pre-commit hook to catch docstring issues automatically:</p>

@@ -517,6 +517,8 @@
       
         
       
+        
+      
     
     
     
@@ -645,6 +647,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#douki._base.config.BaseConfig.file_extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;file_extensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#douki._base.config.BaseConfig.collect_files" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -656,10 +669,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#douki._base.config.BaseConfig.load_exclude_patterns" class="md-nav__link">
+  <a href="#douki._base.config.BaseConfig.load_discovery_config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;load_exclude_patterns
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;load_discovery_config
       
     </span>
   </a>
@@ -695,6 +708,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> defaults
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../discovery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> discovery
   
 
     
@@ -1188,6 +1229,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#douki._base.config.BaseConfig.file_extensions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;file_extensions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#douki._base.config.BaseConfig.collect_files" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1199,10 +1251,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#douki._base.config.BaseConfig.load_exclude_patterns" class="md-nav__link">
+  <a href="#douki._base.config.BaseConfig.load_discovery_config" class="md-nav__link">
     <span class="md-ellipsis">
       
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;load_exclude_patterns
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;load_discovery_config
       
     </span>
   </a>
@@ -1318,24 +1370,14 @@
 <p><span class="doc-section-title">Methods:</span></p>
     <ul>
           <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="            collect_files
-
-
-  
-      abstractmethod
-   (douki._base.config.BaseConfig.collect_files)" href="#douki._base.config.BaseConfig.collect_files">collect_files</a></code></b>
+            <b><code><a class="autorefs autorefs-internal" title="            collect_files (douki._base.config.BaseConfig.collect_files)" href="#douki._base.config.BaseConfig.collect_files">collect_files</a></code></b>
             –
             <div class="doc-md-description">
               
             </div>
           </li>
           <li class="doc-section-item field-body">
-            <b><code><a class="autorefs autorefs-internal" title="            load_exclude_patterns
-
-
-  
-      abstractmethod
-   (douki._base.config.BaseConfig.load_exclude_patterns)" href="#douki._base.config.BaseConfig.load_exclude_patterns">load_exclude_patterns</a></code></b>
+            <b><code><a class="autorefs autorefs-internal" title="            load_discovery_config (douki._base.config.BaseConfig.load_discovery_config)" href="#douki._base.config.BaseConfig.load_discovery_config">load_discovery_config</a></code></b>
             –
             <div class="doc-md-description">
               
@@ -1344,6 +1386,25 @@
     </ul>
 
 
+
+
+<p><span class="doc-section-title">Attributes:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+          <b><code><a class="autorefs autorefs-internal" title="            file_extensions
+
+
+  
+      abstractmethod
+      property
+   (douki._base.config.BaseConfig.file_extensions)" href="#douki._base.config.BaseConfig.file_extensions">file_extensions</a></code></b>
+              (<code><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, ...]</code>)
+          –
+          <div class="doc-md-description">
+            
+          </div>
+        </li>
+    </ul>
 
 
 
@@ -1356,6 +1417,31 @@
 
 
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="douki._base.config.BaseConfig.file_extensions" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">file_extensions</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="n">file_extensions</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+    </div>
+
+</div>
+
 
 
 
@@ -1366,13 +1452,14 @@
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">collect_files</span>
 
 
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
-  </span>
-
 </h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">collect_files</span><span class="p">(</span>
-    <span class="n">paths</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">],</span> <span class="n">excludes</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">],</span> <span class="n">discovery</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            DiscoveryConfig
+
+
+  
+      dataclass
+   (douki._base.discovery.DiscoveryConfig)" href="../discovery/#douki._base.discovery.DiscoveryConfig">DiscoveryConfig</a></span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]</span>
 </code></pre></div>
 
@@ -1383,35 +1470,45 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/_base/config.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">collect_files</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> <span class="n">paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">excludes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span>
+<span class="normal">52</span>
+<span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span>
+<span class="normal">58</span>
+<span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">collect_files</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">paths</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
+    <span class="n">discovery</span><span class="p">:</span> <span class="n">DiscoveryConfig</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    title: Expand paths into source files, filtering excluded ones.</span>
 <span class="sd">    parameters:</span>
 <span class="sd">      paths:</span>
 <span class="sd">        type: List[Path]</span>
-<span class="sd">      excludes:</span>
-<span class="sd">        type: List[str]</span>
+<span class="sd">      discovery:</span>
+<span class="sd">        type: DiscoveryConfig</span>
 <span class="sd">    returns:</span>
 <span class="sd">      type: List[Path]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="o">...</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">return</span> <span class="n">collect_source_files</span><span class="p">(</span>
+        <span class="n">paths</span><span class="p">,</span>
+        <span class="n">file_extensions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">file_extensions</span><span class="p">,</span>
+        <span class="n">discovery</span><span class="o">=</span><span class="n">discovery</span><span class="p">,</span>
+    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1421,16 +1518,17 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="douki._base.config.BaseConfig.load_exclude_patterns" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">load_exclude_patterns</span>
+<h3 id="douki._base.config.BaseConfig.load_discovery_config" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">load_discovery_config</span>
 
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
-  </span>
 
 </h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">load_exclude_patterns</span><span class="p">(</span><span class="n">cwd</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">load_discovery_config</span><span class="p">(</span><span class="n">cwd</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            DiscoveryConfig
+
+
+  
+      dataclass
+   (douki._base.discovery.DiscoveryConfig)" href="../discovery/#douki._base.discovery.DiscoveryConfig">DiscoveryConfig</a></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1440,27 +1538,25 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/_base/config.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@abstractmethod</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_exclude_patterns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
+<span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_discovery_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiscoveryConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    title: Load exclude patterns from a config file.</span>
+<span class="sd">    title: Load shared discovery settings from project configuration.</span>
 <span class="sd">    parameters:</span>
 <span class="sd">      cwd:</span>
 <span class="sd">        type: Path</span>
 <span class="sd">    returns:</span>
-<span class="sd">      type: List[str]</span>
+<span class="sd">      type: DiscoveryConfig</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="o">...</span>  <span class="c1"># pragma: no cover</span>
+    <span class="k">return</span> <span class="n">load_douki_discovery_config</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
