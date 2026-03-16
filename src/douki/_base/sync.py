@@ -11,7 +11,7 @@ from __future__ import annotations
 import textwrap
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence
 
 import yaml
 
@@ -63,9 +63,9 @@ class FuncInfo:
       lineno:
         type: int
       params:
-        type: List[ParamInfo]
+        type: list[ParamInfo]
       attrs:
-        type: List[ParamInfo]
+        type: list[ParamInfo]
       return_annotation:
         type: str
       docstring_node:
@@ -76,10 +76,10 @@ class FuncInfo:
 
     name: str
     lineno: int  # 1-based line of the *def* keyword, or 1 for module
-    params: List[ParamInfo] = field(default_factory=list)
+    params: list[ParamInfo] = field(default_factory=list)
     # Class-level annotated vars, extracted from the class body by
     # the language extractor
-    attrs: List[ParamInfo] = field(default_factory=list)
+    attrs: list[ParamInfo] = field(default_factory=list)
     return_annotation: str = ''
     docstring_node: Optional[Any] = None
     is_method: bool = False
@@ -90,14 +90,14 @@ class FuncInfo:
 # ---------------------------------------------------------------------------
 
 
-def _load_docstring_yaml(raw: str) -> Dict[str, Any]:
+def _load_docstring_yaml(raw: str) -> dict[str, Any]:
     """
     title: Load YAML safely, converting single-line strings to titles.
     parameters:
       raw:
         type: str
     returns:
-      type: Dict[str, Any]
+      type: dict[str, Any]
     """
     try:
         data = yaml.safe_load(textwrap.dedent(raw))
@@ -241,12 +241,12 @@ def sync_docstring(
     if not validate_docstring(raw_docstring, func_name):
         return raw_docstring
 
-    data: Dict[str, Any] = _load_docstring_yaml(raw_docstring)
+    data: dict[str, Any] = _load_docstring_yaml(raw_docstring)
 
     # --- parameters ---
     if params:
-        existing: Dict[str, Any] = data.get('parameters', {}) or {}
-        new_params: Dict[str, Any] = {}
+        existing: dict[str, Any] = data.get('parameters', {}) or {}
+        new_params: dict[str, Any] = {}
         for p in params:
             yaml_key = _param_name_for_yaml(p)
             # Look up by plain name first, then fall back to
@@ -258,7 +258,7 @@ def sync_docstring(
                 old = existing.get(f'**{p.name}', None)
             desc = _extract_param_desc(old)
 
-            entry: Dict[str, Any] = {}
+            entry: dict[str, Any] = {}
             if p.annotation:
                 entry['type'] = p.annotation
             if desc:
@@ -292,12 +292,12 @@ def sync_docstring(
 
     # --- attributes (class-level annotated vars) ---
     if attrs:
-        existing_attrs: Dict[str, Any] = data.get('attributes', {}) or {}
-        new_attrs: Dict[str, Any] = {}
+        existing_attrs: dict[str, Any] = data.get('attributes', {}) or {}
+        new_attrs: dict[str, Any] = {}
         for a in attrs:
             old_a = existing_attrs.get(a.name)
             desc = _extract_param_desc(old_a)
-            attr_entry: Dict[str, Any] = {}
+            attr_entry: dict[str, Any] = {}
             if a.annotation:
                 attr_entry['type'] = a.annotation
             if desc:
@@ -315,7 +315,7 @@ def sync_docstring(
     if return_annotation and return_annotation != 'None':
         existing_ret = data.get('returns')
         desc = _extract_returns_desc(existing_ret)
-        ret_entry: Dict[str, Any] = {'type': return_annotation}
+        ret_entry: dict[str, Any] = {'type': return_annotation}
         if desc:
             ret_entry['description'] = desc
         data['returns'] = ret_entry
@@ -354,10 +354,10 @@ _KEY_ORDER = [
 ]
 
 # Fallback when no language defaults are provided — omit nothing.
-_EMPTY_DEFAULTS: Dict[str, Any] = {}
+_EMPTY_DEFAULTS: dict[str, Any] = {}
 
 # Sub-keys omitted when they match these defaults
-_PARAM_DEFAULTS: Dict[str, Any] = {
+_PARAM_DEFAULTS: dict[str, Any] = {
     'optional': None,
     'default': None,
     'variadic': None,
@@ -365,28 +365,28 @@ _PARAM_DEFAULTS: Dict[str, Any] = {
 
 
 def _rebuild_yaml(
-    data: Dict[str, Any],
+    data: dict[str, Any],
     content_indent: int = 4,
     *,
-    field_defaults: Optional[Dict[str, Any]] = None,
+    field_defaults: Optional[dict[str, Any]] = None,
 ) -> str:
     """
     title: Serialize *data* to YAML with canonical key order.
     summary: Omits fields that match language defaults.
     parameters:
       data:
-        type: Dict[str, Any]
+        type: dict[str, Any]
       content_indent:
         type: int
       field_defaults:
-        type: Optional[Dict[str, Any]]
+        type: Optional[dict[str, Any]]
     returns:
       type: str
     """
     if field_defaults is None:
         field_defaults = _EMPTY_DEFAULTS
 
-    ordered: List[Tuple[str, Any]] = []
+    ordered: list[tuple[str, Any]] = []
     for key in _KEY_ORDER:
         if key in data:
             ordered.append((key, data[key]))
@@ -394,7 +394,7 @@ def _rebuild_yaml(
         if key not in _KEY_ORDER:
             ordered.append((key, data[key]))
 
-    lines: List[str] = []
+    lines: list[str] = []
     for key, value in ordered:
         # Skip None / empty values
         if value is None or value == '' or value == {}:
@@ -428,7 +428,7 @@ def _rebuild_yaml(
 
 
 def _emit_key_value(
-    lines: List[str],
+    lines: list[str],
     indent_str: str,
     key: str,
     value: Any,
@@ -439,7 +439,7 @@ def _emit_key_value(
       Safely emit a key-value pair, folding long strings into block scalars.
     parameters:
       lines:
-        type: List[str]
+        type: list[str]
       indent_str:
         type: str
       key:
@@ -500,20 +500,20 @@ def _emit_key_value(
 
 
 def _emit_parameters(
-    lines: List[str],
+    lines: list[str],
     key: str,
-    params: Dict[str, Any],
+    params: dict[str, Any],
     content_indent: int = 4,
 ) -> None:
     """
     title: Emit ``parameters:`` or ``attributes:`` section.
     parameters:
       lines:
-        type: List[str]
+        type: list[str]
       key:
         type: str
       params:
-        type: Dict[str, Any]
+        type: dict[str, Any]
       content_indent:
         type: int
     """
@@ -542,7 +542,7 @@ def _emit_parameters(
 
 
 def _emit_typed_list(
-    lines: List[str],
+    lines: list[str],
     key: str,
     value: Any,
     content_indent: int = 4,
@@ -551,7 +551,7 @@ def _emit_typed_list(
     title: Emit list-based types (methods, attributes).
     parameters:
       lines:
-        type: List[str]
+        type: list[str]
       key:
         type: str
       value:
@@ -583,7 +583,7 @@ def _emit_typed_list(
 
 
 def _emit_typed_entry(
-    lines: List[str],
+    lines: list[str],
     key: str,
     value: Any,
     content_indent: int = 4,
@@ -592,7 +592,7 @@ def _emit_typed_entry(
     title: Emit returns/yields/receives as a single dictionary.
     parameters:
       lines:
-        type: List[str]
+        type: list[str]
       key:
         type: str
       value:
@@ -614,7 +614,7 @@ def _emit_typed_entry(
 
 
 def _emit_raises(
-    lines: List[str],
+    lines: list[str],
     key: str,
     value: Any,
     content_indent: int = 4,
@@ -623,7 +623,7 @@ def _emit_raises(
     title: Emit raises/warnings (dict or list format).
     parameters:
       lines:
-        type: List[str]
+        type: list[str]
       key:
         type: str
       value:
@@ -656,17 +656,17 @@ def _emit_raises(
 
 
 def _emit_examples(
-    lines: List[str],
-    value: List[Any],
+    lines: list[str],
+    value: list[Any],
     content_indent: int = 4,
 ) -> None:
     """
     title: Emit examples as list.
     parameters:
       lines:
-        type: List[str]
+        type: list[str]
       value:
-        type: List[Any]
+        type: list[Any]
       content_indent:
         type: int
     """

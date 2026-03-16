@@ -4,8 +4,6 @@ title: Python-specific configuration loading.
 
 from __future__ import annotations
 
-from typing import Tuple
-
 from douki._base.config import BaseConfig
 from douki._python.defaults import PYTHON_DEFAULTS
 
@@ -17,10 +15,10 @@ class PythonConfig(BaseConfig):
     """
 
     @property
-    def file_extensions(self) -> Tuple[str, ...]:
+    def file_extensions(self) -> tuple[str, ...]:
         """
         title: File extensions handled by the Python backend.
         returns:
-          type: Tuple[str, Ellipsis]
+          type: tuple[str, Ellipsis]
         """
         return PYTHON_DEFAULTS.file_extensions

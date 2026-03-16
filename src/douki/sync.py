@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from dataclasses import replace
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from douki._base.sync import (
     DocstringValidationError,
@@ -39,23 +39,23 @@ def _ensure_plugins() -> None:
 
 
 def resolve_files(
-    files: Optional[List[Path]] = None,
+    files: Optional[list[Path]] = None,
     *,
     lang: str = 'python',
     respect_gitignore: Optional[bool] = None,
-) -> List[Path]:
+) -> list[Path]:
     """
     title: Resolve paths into source files for the given language.
     parameters:
       files:
-        type: Optional[List[Path]]
+        type: Optional[list[Path]]
       lang:
         type: str
       respect_gitignore:
         type: Optional[bool]
         optional: true
     returns:
-      type: List[Path]
+      type: list[Path]
     """
     from douki._base.language import get_language
 

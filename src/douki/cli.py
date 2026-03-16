@@ -12,7 +12,7 @@ import difflib
 
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import typer
 
@@ -51,21 +51,21 @@ def _main() -> None:
 
 
 def _resolve_files(
-    files: Optional[List[Path]],
+    files: Optional[list[Path]],
     lang: str,
     respect_gitignore: Optional[bool],
-) -> List[Path]:
+) -> list[Path]:
     """
     title: Turn the optional argument into a list of paths for the language.
     parameters:
       files:
-        type: Optional[List[Path]]
+        type: Optional[list[Path]]
       lang:
         type: str
       respect_gitignore:
         type: Optional[bool]
     returns:
-      type: List[Path]
+      type: list[Path]
     """
     target_files = resolve_files(
         files,
@@ -126,7 +126,7 @@ def _print_diff(
 
 @app.command()
 def sync(
-    files: Optional[List[Path]] = typer.Argument(
+    files: Optional[list[Path]] = typer.Argument(
         default=None,
         help='Files or directories (default: ".").',
     ),
@@ -145,7 +145,7 @@ def sync(
     title: Apply docstring sync changes to files in-place.
     parameters:
       files:
-        type: Optional[List[Path]]
+        type: Optional[list[Path]]
       lang:
         type: str
       respect_gitignore:
@@ -211,7 +211,7 @@ def sync(
 
 @app.command()
 def check(
-    files: Optional[List[Path]] = typer.Argument(
+    files: Optional[list[Path]] = typer.Argument(
         default=None,
         help='Files or directories (default: ".").',
     ),
@@ -230,7 +230,7 @@ def check(
     title: Print a diff of proposed changes. Exit 1 if any.
     parameters:
       files:
-        type: Optional[List[Path]]
+        type: Optional[list[Path]]
       lang:
         type: str
       respect_gitignore:
@@ -282,7 +282,7 @@ def check(
 
 @app.command()
 def migrate(
-    files: Optional[List[Path]] = typer.Argument(
+    files: Optional[list[Path]] = typer.Argument(
         default=None,
         help='Files or directories (default: ".").',
     ),
@@ -306,7 +306,7 @@ def migrate(
     title: Migrate docstrings from another format to Douki YAML.
     parameters:
       files:
-        type: Optional[List[Path]]
+        type: Optional[list[Path]]
       from_format:
         type: MigrateFormat
       lang:

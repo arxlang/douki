@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import ast
 
-from typing import Dict, List, Optional
+from typing import Optional
 
 from douki._base.sync import FuncInfo, ParamInfo
 
@@ -117,7 +117,7 @@ def _extract_func(
     returns:
       type: FuncInfo
     """
-    params: List[ParamInfo] = []
+    params: list[ParamInfo] = []
     all_args: list[ast.arg] = (
         node.args.posonlyargs + node.args.args + node.args.kwonlyargs
     )
@@ -164,19 +164,19 @@ class _FuncExtractor(ast.NodeVisitor):
     title: AST visitor that collects FuncInfo for each docstring site.
     attributes:
       results:
-        type: List[FuncInfo]
+        type: list[FuncInfo]
       in_class:
         type: bool
       _class_attrs_map:
-        type: Dict[str, List[ParamInfo]]
+        type: dict[str, list[ParamInfo]]
     """
 
     def __init__(self) -> None:
-        self.results: List[FuncInfo] = []
+        self.results: list[FuncInfo] = []
         self.in_class: bool = False
         # Maps class name → full list of attrs (own + inherited)
         # built up as we visit classes top-to-bottom.
-        self._class_attrs_map: Dict[str, List[ParamInfo]] = {}
+        self._class_attrs_map: dict[str, list[ParamInfo]] = {}
 
     def visit_Module(self, node: ast.Module) -> None:
         """
@@ -217,7 +217,7 @@ class _FuncExtractor(ast.NodeVisitor):
             ds_node = node.body[0].value
 
         # Extract class-level annotated variables for attributes: sync
-        own_attrs: List[ParamInfo] = []
+        own_attrs: list[ParamInfo] = []
         for child in node.body:
             if isinstance(child, ast.AnnAssign) and isinstance(
                 child.target, ast.Name
@@ -276,7 +276,7 @@ class _FuncExtractor(ast.NodeVisitor):
 
         # Resolve base class attrs from same-file classes
         # (order: base first)
-        inherited: List[ParamInfo] = []
+        inherited: list[ParamInfo] = []
         seen_names: set[str] = {p.name for p in own_attrs}
         for base in node.bases:
             base_name = None
@@ -340,14 +340,14 @@ class _FuncExtractor(ast.NodeVisitor):
         self.in_class = old_in_class
 
 
-def extract_functions(source: str) -> List[FuncInfo]:
+def extract_functions(source: str) -> list[FuncInfo]:
     """
     title: Parse the Python source and return extracted functions/classes.
     parameters:
       source:
         type: str
     returns:
-      type: List[FuncInfo]
+      type: list[FuncInfo]
       description: List of FuncInfo objects in the order they appear.
     """
     try:
