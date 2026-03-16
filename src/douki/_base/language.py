@@ -5,7 +5,7 @@ title: Language plugin interface.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Dict, Optional, Type
+from typing import Optional
 
 from douki._base.config import BaseConfig
 
@@ -61,15 +61,15 @@ class BaseLanguage(ABC):
 # Registry
 # ---------------------------------------------------------------------------
 
-_REGISTRY: Dict[str, Type[BaseLanguage]] = {}
+_REGISTRY: dict[str, type[BaseLanguage]] = {}
 
 
-def register_language(lang_class: Type[BaseLanguage]) -> None:
+def register_language(lang_class: type[BaseLanguage]) -> None:
     """
     title: Register a language plugin class.
     parameters:
       lang_class:
-        type: Type[BaseLanguage]
+        type: type[BaseLanguage]
     """
     # Create a temporary instance just to get its name
     instance = lang_class()

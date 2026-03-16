@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import List, Tuple
 
 from douki._base.discovery import (
     DiscoveryConfig,
@@ -25,11 +24,11 @@ class BaseConfig(ABC):
 
     @property
     @abstractmethod
-    def file_extensions(self) -> Tuple[str, ...]:
+    def file_extensions(self) -> tuple[str, ...]:
         """
         title: File extensions handled by the language backend.
         returns:
-          type: Tuple[str, Ellipsis]
+          type: tuple[str, Ellipsis]
         """
         ...  # pragma: no cover
 
@@ -46,18 +45,18 @@ class BaseConfig(ABC):
 
     def collect_files(
         self,
-        paths: List[Path],
+        paths: list[Path],
         discovery: DiscoveryConfig,
-    ) -> List[Path]:
+    ) -> list[Path]:
         """
         title: Expand paths into source files, filtering excluded ones.
         parameters:
           paths:
-            type: List[Path]
+            type: list[Path]
           discovery:
             type: DiscoveryConfig
         returns:
-          type: List[Path]
+          type: list[Path]
         """
         return collect_source_files(
             paths,

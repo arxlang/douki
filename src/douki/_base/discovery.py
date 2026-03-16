@@ -9,7 +9,7 @@ import sys
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Pattern, Tuple
+from typing import Iterable, Pattern
 
 if sys.version_info >= (3, 11):
     import tomllib
@@ -25,13 +25,13 @@ class DiscoveryConfig:
       root:
         type: Path
       exclude_patterns:
-        type: Tuple[str, Ellipsis]
+        type: tuple[str, Ellipsis]
       respect_gitignore:
         type: bool
     """
 
     root: Path
-    exclude_patterns: Tuple[str, ...] = ()
+    exclude_patterns: tuple[str, ...] = ()
     respect_gitignore: bool = True
 
 
@@ -84,25 +84,25 @@ def load_douki_discovery_config(cwd: Path) -> DiscoveryConfig:
 
 
 def collect_source_files(
-    paths: List[Path],
+    paths: list[Path],
     *,
-    file_extensions: Tuple[str, ...],
+    file_extensions: tuple[str, ...],
     discovery: DiscoveryConfig,
-) -> List[Path]:
+) -> list[Path]:
     """
     title: Expand paths into source files using shared discovery rules.
     parameters:
       paths:
-        type: List[Path]
+        type: list[Path]
       file_extensions:
-        type: Tuple[str, Ellipsis]
+        type: tuple[str, Ellipsis]
       discovery:
         type: DiscoveryConfig
     returns:
-      type: List[Path]
+      type: list[Path]
     """
     matcher = _GitIgnoreMatcher(discovery.root)
-    result: List[Path] = []
+    result: list[Path] = []
 
     for path in paths:
         if path.is_dir():
@@ -138,7 +138,7 @@ def _load_pyproject_discovery_config(pyproject: Path) -> DiscoveryConfig:
     returns:
       type: DiscoveryConfig
     """
-    excludes: Tuple[str, ...] = ()
+    excludes: tuple[str, ...] = ()
     respect_gitignore = True
 
     try:
@@ -164,14 +164,14 @@ def _load_pyproject_discovery_config(pyproject: Path) -> DiscoveryConfig:
     )
 
 
-def _matches_extension(path: Path, file_extensions: Tuple[str, ...]) -> bool:
+def _matches_extension(path: Path, file_extensions: tuple[str, ...]) -> bool:
     """
     title: Check whether a path uses one of the configured file extensions.
     parameters:
       path:
         type: Path
       file_extensions:
-        type: Tuple[str, Ellipsis]
+        type: tuple[str, Ellipsis]
     returns:
       type: bool
     """
@@ -206,7 +206,7 @@ def _is_excluded(
 def _matches_exclude_patterns(
     path: Path,
     *,
-    exclude_patterns: Tuple[str, ...],
+    exclude_patterns: tuple[str, ...],
     root: Path,
 ) -> bool:
     """
@@ -215,7 +215,7 @@ def _matches_exclude_patterns(
       path:
         type: Path
       exclude_patterns:
-        type: Tuple[str, Ellipsis]
+        type: tuple[str, Ellipsis]
       root:
         type: Path
     returns:
@@ -274,12 +274,12 @@ class _GitIgnoreMatcher:
       _root:
         type: Path
       _rules_by_dir:
-        type: Dict[Path, Tuple[_GitIgnoreRule, Ellipsis]]
+        type: dict[Path, tuple[_GitIgnoreRule, Ellipsis]]
     """
 
     def __init__(self, root: Path) -> None:
         self._root: Path = root.resolve()
-        self._rules_by_dir: Dict[Path, Tuple[_GitIgnoreRule, ...]] = {}
+        self._rules_by_dir: dict[Path, tuple[_GitIgnoreRule, ...]] = {}
 
     def is_ignored(self, path: Path) -> bool:
         """
@@ -321,14 +321,14 @@ class _GitIgnoreMatcher:
             curr = curr / part
             yield curr
 
-    def _load_rules(self, scope_dir: Path) -> Tuple[_GitIgnoreRule, ...]:
+    def _load_rules(self, scope_dir: Path) -> tuple[_GitIgnoreRule, ...]:
         """
         title: Load and cache parsed rules for a scope directory.
         parameters:
           scope_dir:
             type: Path
         returns:
-          type: Tuple[_GitIgnoreRule, Ellipsis]
+          type: tuple[_GitIgnoreRule, Ellipsis]
         """
         if scope_dir in self._rules_by_dir:
             return self._rules_by_dir[scope_dir]
@@ -338,7 +338,7 @@ class _GitIgnoreMatcher:
             self._rules_by_dir[scope_dir] = ()
             return ()
 
-        rules: List[_GitIgnoreRule] = []
+        rules: list[_GitIgnoreRule] = []
         try:
             lines = gitignore.read_text(encoding='utf-8').splitlines()
         except OSError:
@@ -432,17 +432,17 @@ def _rule_matches_path(rule: _GitIgnoreRule, path: Path) -> bool:
     return any(rule.regex.fullmatch(prefix) for prefix in prefixes)
 
 
-def _relative_prefixes(path_str: str) -> List[str]:
+def _relative_prefixes(path_str: str) -> list[str]:
     """
     title: Return cumulative relative path prefixes for a path string.
     parameters:
       path_str:
         type: str
     returns:
-      type: List[str]
+      type: list[str]
     """
     parts = [part for part in path_str.split('/') if part]
-    prefixes: List[str] = []
+    prefixes: list[str] = []
     for idx in range(len(parts)):
         prefixes.append('/'.join(parts[: idx + 1]))
     return prefixes
@@ -457,7 +457,7 @@ def _compile_gitignore_regex(pattern: str) -> Pattern[str]:
     returns:
       type: Pattern[str]
     """
-    regex: List[str] = ['^']
+    regex: list[str] = ['^']
     idx = 0
     while idx < len(pattern):
         char = pattern[idx]

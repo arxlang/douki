@@ -11,7 +11,7 @@ from __future__ import annotations
 import ast
 import re
 
-from typing import List, Optional
+from typing import Optional
 
 from douki._base.sync import (
     DocstringValidationError,
@@ -173,7 +173,7 @@ def _migrate_numpydoc(source: str) -> str:
     lines = source.splitlines(keepends=True)
 
     # Collect all docstring nodes
-    ds_nodes: List[ast.Constant] = []
+    ds_nodes: list[ast.Constant] = []
     for node in ast.walk(tree):
         if isinstance(
             node,
