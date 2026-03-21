@@ -172,6 +172,9 @@ class _FuncExtractor(ast.NodeVisitor):
     """
 
     def __init__(self) -> None:
+        """
+        title: Initialize the extractor with empty state.
+        """
         self.results: list[FuncInfo] = []
         self.in_class: bool = False
         # Maps class name → full list of attrs (own + inherited)

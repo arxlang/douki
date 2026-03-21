@@ -21,6 +21,9 @@ class PythonLanguage(BaseLanguage):
     """
 
     def __init__(self) -> None:
+        """
+        title: Initialize the Python language backend.
+        """
         self._config: PythonConfig = PythonConfig()
 
     @property

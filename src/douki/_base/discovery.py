@@ -278,6 +278,12 @@ class _GitIgnoreMatcher:
     """
 
     def __init__(self, root: Path) -> None:
+        """
+        title: Initialize the matcher with a root directory.
+        parameters:
+          root:
+            type: Path
+        """
         self._root: Path = root.resolve()
         self._rules_by_dir: dict[Path, tuple[_GitIgnoreRule, ...]] = {}
 

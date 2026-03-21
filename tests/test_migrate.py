@@ -18,15 +18,24 @@ from douki._python.migrate import (
 
 
 def test_is_numpy_basic() -> None:
+    """
+    title: Standard NumPy docstring is detected.
+    """
     ds = 'Summary.\n\nParameters\n----------\nx : int\n    Desc.\n'
     assert _is_numpydoc_docstring(ds)
 
 
 def test_is_numpy_false_for_plain() -> None:
+    """
+    title: Plain text is not detected as NumPy.
+    """
     assert not _is_numpydoc_docstring('Just a plain docstring.')
 
 
 def test_is_numpy_false_for_yaml() -> None:
+    """
+    title: Douki YAML is not detected as NumPy.
+    """
     assert not _is_numpydoc_docstring('title: test\n')
 
 
@@ -36,6 +45,9 @@ def test_is_numpy_false_for_yaml() -> None:
 
 
 def test_split_sections_basic() -> None:
+    """
+    title: Sections are split by dashed underlines.
+    """
     ds = (
         'Summary line.\n\n'
         'Parameters\n----------\n'
@@ -56,6 +68,9 @@ def test_split_sections_basic() -> None:
 
 
 def test_parse_map_section() -> None:
+    """
+    title: Map section entries are parsed with type and description.
+    """
     body = 'x : int\n    The x value.\ny : str\n    The y value.'
     result = _parse_map_section(body)
     assert result == {
@@ -70,6 +85,9 @@ def test_parse_map_section() -> None:
 
 
 def test_numpy_to_douki_basic() -> None:
+    """
+    title: Full NumPy docstring converts to Douki YAML.
+    """
     ds = (
         'Add two numbers.\n\n'
         'Parameters\n----------\n'
@@ -87,11 +105,17 @@ def test_numpy_to_douki_basic() -> None:
 
 
 def test_numpy_preserves_non_numpy() -> None:
+    """
+    title: Non-NumPy docstring is returned unchanged.
+    """
     raw = 'Just a plain docstring.'
     assert numpydoc_to_douki_yaml(raw) == raw
 
 
 def test_numpy_parses_raises() -> None:
+    """
+    title: Raises section is converted to Douki YAML.
+    """
     ds = 'Do something.\n\nRaises\n------\nValueError\n    If input is bad.\n'
     result = numpydoc_to_douki_yaml(ds)
     assert 'raises:' in result
@@ -99,6 +123,9 @@ def test_numpy_parses_raises() -> None:
 
 
 def test_numpy_with_summary() -> None:
+    """
+    title: Extended summary is preserved as summary field.
+    """
     ds = (
         'Title line.\n\n'
         'Extended summary that goes\n'
@@ -141,12 +168,18 @@ def test_numpy_no_narrative() -> None:
 
 
 def test_numpy_yields_section() -> None:
+    """
+    title: Yields section is converted to Douki YAML.
+    """
     ds = 'Generate stuff.\n\nYields\n------\nint\n    A number.\n'
     result = numpydoc_to_douki_yaml(ds)
     assert 'yields:' in result
 
 
 def test_numpy_warnings_section() -> None:
+    """
+    title: Warnings section is converted to Douki YAML.
+    """
     ds = (
         'Do risky things.\n\n'
         'Warnings\n--------\n'
@@ -158,6 +191,9 @@ def test_numpy_warnings_section() -> None:
 
 
 def test_numpy_notes_section() -> None:
+    """
+    title: Notes section is converted to Douki YAML.
+    """
     ds = 'Some function.\n\nNotes\n-----\nThis is a note.\nMulti-line note.\n'
     result = numpydoc_to_douki_yaml(ds)
     assert 'notes:' in result
