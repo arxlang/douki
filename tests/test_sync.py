@@ -10,6 +10,7 @@ from __future__ import annotations
 import pytest
 
 from douki._base.sync import (
+    DocstringValidationError,
     ParamInfo,
     _extract_returns_desc,
     _load_docstring_yaml,
@@ -23,15 +24,24 @@ from douki._python.sync import sync_source
 
 
 def test_validate_docstring_valid() -> None:
+    """
+    title: Valid Douki YAML returns True.
+    """
     assert validate_docstring('title: hello', 'test')
 
 
 def test_validate_docstring_missing_title() -> None:
+    """
+    title: YAML without title raises ValueError.
+    """
     with pytest.raises(ValueError, match="Missing 'title' field"):
         validate_docstring('summary: no title here', 'test')
 
 
 def test_validate_docstring_plain_text() -> None:
+    """
+    title: Plain text docstring raises ValueError.
+    """
     with pytest.raises(
         ValueError, match='Docstring is not a valid Douki YAML dictionary'
     ):
@@ -39,6 +49,9 @@ def test_validate_docstring_plain_text() -> None:
 
 
 def test_validate_docstring_empty() -> None:
+    """
+    title: Empty string returns False.
+    """
     assert not validate_docstring('', 'test')
 
 
@@ -48,6 +61,9 @@ def test_validate_docstring_empty() -> None:
 
 
 def test_extract_basic_function() -> None:
+    """
+    title: Basic function extraction returns name, params, and return type.
+    """
     src = '''\
 def greet(name: str) -> str:
     """title: Say hello"""
@@ -64,6 +80,9 @@ def greet(name: str) -> str:
 
 
 def test_extract_ignores_self_cls() -> None:
+    """
+    title: self and cls are excluded from extracted params.
+    """
     src = '''\
 class Foo:
     def bar(self, x: int) -> int:
@@ -82,6 +101,9 @@ class Foo:
 
 
 def test_extract_async_function() -> None:
+    """
+    title: Async functions are extracted correctly.
+    """
     src = '''\
 async def fetch(url: str) -> bytes:
     """title: fetch url"""
@@ -94,6 +116,9 @@ async def fetch(url: str) -> bytes:
 
 
 def test_extract_star_args() -> None:
+    """
+    title: '*args and **kwargs are extracted as parameters.'
+    """
     src = '''\
 def variadic(*args: int, **kwargs: str) -> None:
     """title: variadic"""
@@ -107,6 +132,9 @@ def variadic(*args: int, **kwargs: str) -> None:
 
 
 def test_extract_no_docstring() -> None:
+    """
+    title: Function without docstring has docstring_node None.
+    """
     src = """\
 def nodoc(x: int) -> int:
     return x
@@ -126,10 +154,25 @@ def _p(
     ann: str = '',
     kind: str = 'regular',
 ) -> ParamInfo:
+    """
+    title: Shorthand ParamInfo constructor for tests.
+    parameters:
+      name:
+        type: str
+      ann:
+        type: str
+      kind:
+        type: str
+    returns:
+      type: ParamInfo
+    """
     return ParamInfo(name=name, annotation=ann, kind=kind)
 
 
 def test_sync_adds_missing_param() -> None:
+    """
+    title: Missing parameters are added to the docstring.
+    """
     raw = 'title: test\n'
     params = [_p('x', 'int'), _p('y', 'int')]
     result = sync_docstring(raw, params, 'int')
@@ -139,6 +182,9 @@ def test_sync_adds_missing_param() -> None:
 
 
 def test_sync_removes_stale_param() -> None:
+    """
+    title: Parameters no longer in signature are removed.
+    """
     raw = (
         'title: test\nparameters:\n'
         '  x:\n    type: int\n    description: old\n'
@@ -151,6 +197,9 @@ def test_sync_removes_stale_param() -> None:
 
 
 def test_sync_preserves_descriptions() -> None:
+    """
+    title: Existing parameter descriptions are preserved.
+    """
     raw = (
         'title: test\nparameters:\n'
         '  x:\n    type: int\n'
@@ -162,6 +211,9 @@ def test_sync_preserves_descriptions() -> None:
 
 
 def test_sync_updates_return_type() -> None:
+    """
+    title: Return type annotation is synced into returns section.
+    """
     raw = 'title: test\n'
     result = sync_docstring(raw, [], 'float')
     assert 'returns:' in result
@@ -169,12 +221,18 @@ def test_sync_updates_return_type() -> None:
 
 
 def test_sync_raises_on_non_yaml() -> None:
+    """
+    title: Non-YAML docstring raises ValueError.
+    """
     raw = 'Just a plain docstring.'
     with pytest.raises(ValueError, match='not a valid Douki YAML'):
         sync_docstring(raw, [_p('x', 'int')], 'int')
 
 
 def test_sync_idempotent() -> None:
+    """
+    title: Syncing a fully-synced docstring produces no changes.
+    """
     raw = (
         'title: test\n'
         'parameters:\n'
@@ -192,6 +250,9 @@ def test_sync_idempotent() -> None:
 
 
 def test_sync_handles_star_args() -> None:
+    """
+    title: '*args and **kwargs produce variadic markers.'
+    """
     raw = 'title: test\n'
     params = [
         _p('args', 'int', 'var_positional'),
@@ -208,6 +269,9 @@ def test_sync_handles_star_args() -> None:
 
 
 def test_sync_variadic_round_trip() -> None:
+    """
+    title: Variadic parameters survive a round-trip sync.
+    """
     raw = (
         'title: test\n'
         'parameters:\n'
@@ -260,12 +324,18 @@ def test_sync_variadic_backward_compat() -> None:
 
 
 def test_sync_removes_returns_for_none() -> None:
+    """
+    title: Returns section is removed when return type is None.
+    """
     raw = 'title: test\nreturns:\n  type: str\n  description: old\n'
     result = sync_docstring(raw, [], 'None')
     assert 'returns' not in result
 
 
 def test_sync_preserves_other_sections() -> None:
+    """
+    title: Non-parameter sections like summary and raises are preserved.
+    """
     raw = (
         'title: test\n'
         'summary: A summary\n'
@@ -286,6 +356,9 @@ def test_sync_preserves_other_sections() -> None:
 
 
 def test_sync_source_basic() -> None:
+    """
+    title: Basic sync_source adds parameters and types.
+    """
     src = '''\
 def add(x: int, y: int) -> int:
     """
@@ -301,6 +374,9 @@ def add(x: int, y: int) -> int:
 
 
 def test_sync_source_raises_on_non_yaml_docstring() -> None:
+    """
+    title: Plain-text docstring in source raises ValueError.
+    """
     src = '''\
 def plain(x: int) -> int:
     """Just a plain docstring."""
@@ -310,16 +386,22 @@ def plain(x: int) -> int:
         sync_source(src)
 
 
-def test_sync_source_skips_no_docstring() -> None:
+def test_sync_source_raises_on_missing_docstring() -> None:
+    """
+    title: Function without any docstring raises validation error.
+    """
     src = """\
 def nodoc(x: int) -> int:
     return x
 """
-    result = sync_source(src)
-    assert result == src
+    with pytest.raises(DocstringValidationError, match='missing docstring'):
+        sync_source(src)
 
 
 def test_sync_source_idempotent() -> None:
+    """
+    title: Syncing already-synced source produces identical output.
+    """
     src = '''\
 def greet(name: str) -> str:
     """
@@ -340,6 +422,9 @@ def greet(name: str) -> str:
 
 
 def test_sync_source_method_ignores_self() -> None:
+    """
+    title: Method sync excludes self from parameters.
+    """
     src = '''\
 class Foo:
     def bar(self, x: int) -> int:
@@ -354,6 +439,9 @@ class Foo:
 
 
 def test_sync_source_complex_types() -> None:
+    """
+    title: Complex type annotations are synced correctly.
+    """
     src = '''\
 from typing import Optional, List
 
@@ -372,12 +460,18 @@ def process(
 
 
 def test_sync_source_preserves_syntax_error() -> None:
+    """
+    title: Unparseable source is returned unchanged.
+    """
     src = 'def broken( -> None:\n'
     result = sync_source(src)
     assert result == src
 
 
 def test_sync_source_no_functions() -> None:
+    """
+    title: Source with no functions is returned unchanged.
+    """
     src = 'X = 42\n'
     result = sync_source(src)
     assert result == src
@@ -425,6 +519,9 @@ class MyClass:
     value: int
     name: str
     def __init__(self, value: int, name: str) -> None:
+        """
+        title: Initialize MyClass.
+        """
         self.value = value
         self.name = name
 '''
@@ -500,6 +597,9 @@ class MyClass:
     title: My class
     """
     def __init__(self, count: int):
+        """
+        title: Initialize MyClass.
+        """
         self._count = count
         self._cache = {}
 '''
@@ -519,6 +619,9 @@ class MyClass:
     title: My class
     """
     def __init__(self) -> None:
+        """
+        title: Initialize MyClass.
+        """
         self._value: int = 0
         self._name: str = "default"
 '''
@@ -541,6 +644,9 @@ class MyClass:
     """
     count: float  # class-level wins
     def __init__(self, count: int):
+        """
+        title: Initialize MyClass.
+        """
         self.count = count
 '''
     result = sync_source(src)
@@ -653,6 +759,9 @@ class Derived(Base):
 
 
 def test_sync_source_nested_class_and_method() -> None:
+    """
+    title: Nested class method parameters are synced.
+    """
     src = '''\
 class Outer:
     """
@@ -682,6 +791,9 @@ class Outer:
 
 
 def test_sync_source_migrate_numpydoc() -> None:
+    """
+    title: migrate=numpydoc converts NumPy docstrings to Douki YAML.
+    """
     src = '''\
 def add(x, y):
     """Add two numbers.
@@ -707,6 +819,9 @@ def add(x, y):
 
 
 def test_sync_source_migrate_leaves_yaml_alone() -> None:
+    """
+    title: migrate=numpydoc leaves existing Douki YAML unchanged.
+    """
     src = '''\
 def greet(name: str) -> str:
     """
@@ -727,6 +842,9 @@ def greet(name: str) -> str:
 
 
 def test_sync_source_migrate_then_sync() -> None:
+    """
+    title: Migrated output is idempotent under plain sync.
+    """
     src = '''\
 def add(x: int, y: int) -> int:
     """Add two numbers.
@@ -757,6 +875,9 @@ def add(x: int, y: int) -> int:
 
 
 def test_extract_forward_ref_annotation() -> None:
+    """
+    title: Forward-reference string annotations are extracted.
+    """
     src = '''\
 def foo(x: 'MyClass') -> 'MyClass':
     """
@@ -769,6 +890,9 @@ def foo(x: 'MyClass') -> 'MyClass':
 
 
 def test_extract_union_annotation() -> None:
+    """
+    title: Union type annotations (X | Y) are extracted.
+    """
     src = '''\
 def foo(x: int | str) -> int | None:
     """
@@ -781,6 +905,9 @@ def foo(x: int | str) -> int | None:
 
 
 def test_extract_attribute_annotation() -> None:
+    """
+    title: Dotted attribute annotations like os.PathLike are extracted.
+    """
     src = '''\
 import os
 
@@ -795,6 +922,9 @@ def foo(x: os.PathLike) -> None:
 
 
 def test_extract_tuple_annotation() -> None:
+    """
+    title: Subscripted tuple annotations are extracted.
+    """
     src = '''\
 def foo(x: tuple[int, str]) -> None:
     """
@@ -807,6 +937,9 @@ def foo(x: tuple[int, str]) -> None:
 
 
 def test_extract_list_annotation_bare() -> None:
+    """
+    title: Subscripted list annotations are extracted.
+    """
     src = '''\
 def foo(x: list[int]) -> None:
     """
@@ -824,6 +957,9 @@ def foo(x: list[int]) -> None:
 
 
 def test_extract_positional_only() -> None:
+    """
+    title: Positional-only parameters get the correct kind.
+    """
     src = '''\
 def foo(x: int, /, y: int) -> None:
     """
@@ -839,6 +975,9 @@ def foo(x: int, /, y: int) -> None:
 
 
 def test_extract_keyword_only() -> None:
+    """
+    title: Keyword-only parameters get the correct kind.
+    """
     src = '''\
 def foo(*, key: str) -> None:
     """
@@ -884,7 +1023,9 @@ def test_sync_returns_flat_string() -> None:
 
 
 def test_is_douki_yaml_invalid_schema() -> None:
-    # Has title but unknown field should fail schema validation
+    """
+    title: Unknown field in YAML fails schema validation.
+    """
     with pytest.raises(
         ValueError, match='Docstring YAML does not follow douki schema'
     ):
@@ -900,6 +1041,9 @@ def test_is_douki_yaml_invalid_schema() -> None:
 
 
 def test_sync_with_multiline_summary() -> None:
+    """
+    title: Multi-line summary is preserved through sync.
+    """
     raw = 'title: test\nsummary: |\n  Line one\n  Line two\n'
     result = sync_docstring(raw, [], '')
     assert 'Line one' in result
@@ -907,6 +1051,9 @@ def test_sync_with_multiline_summary() -> None:
 
 
 def test_sync_with_raises_list() -> None:
+    """
+    title: raises section with list format is preserved.
+    """
     raw = 'title: test\nraises:\n  - type: ValueError\n    description: bad\n'
     result = sync_docstring(raw, [], '')
     assert 'ValueError' in result
@@ -914,6 +1061,9 @@ def test_sync_with_raises_list() -> None:
 
 
 def test_sync_with_examples_list() -> None:
+    """
+    title: examples section with code blocks is preserved.
+    """
     raw = 'title: test\nexamples:\n  - code: |\n      add(1, 2)\n'
     result = sync_docstring(raw, [], '')
     assert 'examples:' in result
@@ -921,18 +1071,27 @@ def test_sync_with_examples_list() -> None:
 
 
 def test_sync_with_visibility_non_default() -> None:
+    """
+    title: Non-default visibility is preserved.
+    """
     raw = 'title: test\nvisibility: private\n'
     result = sync_docstring(raw, [], '', language_defaults=PYTHON_DEFAULTS)
     assert 'visibility: private' in result
 
 
 def test_sync_omits_default_visibility() -> None:
+    """
+    title: Default visibility (public) is omitted from output.
+    """
     raw = 'title: test\nvisibility: public\n'
     result = sync_docstring(raw, [], '', language_defaults=PYTHON_DEFAULTS)
     assert 'visibility' not in result
 
 
 def test_sync_with_extra_keys() -> None:
+    """
+    title: Extra keys like notes are preserved through sync.
+    """
     raw = 'title: test\nnotes: important note\n'
     result = sync_docstring(raw, [], '')
     assert 'notes: important note' in result
@@ -944,6 +1103,9 @@ def test_sync_with_extra_keys() -> None:
 
 
 def test_sync_param_with_optional_true() -> None:
+    """
+    title: 'optional: true is preserved on parameters.'
+    """
     raw = 'title: test\nparameters:\n  x:\n    type: int\n    optional: true\n'
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, '')
@@ -951,6 +1113,9 @@ def test_sync_param_with_optional_true() -> None:
 
 
 def test_sync_param_with_default_value() -> None:
+    """
+    title: Default value is preserved on parameters.
+    """
     raw = 'title: test\nparameters:\n  x:\n    type: int\n    default: 42\n'
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, '')
@@ -958,6 +1123,9 @@ def test_sync_param_with_default_value() -> None:
 
 
 def test_sync_param_with_special_chars_desc() -> None:
+    """
+    title: Descriptions with YAML special chars are preserved.
+    """
     raw = (
         'title: test\n'
         'parameters:\n'
@@ -976,6 +1144,9 @@ def test_sync_param_with_special_chars_desc() -> None:
 
 
 def test_extract_classmethod() -> None:
+    """
+    title: cls is excluded from classmethod parameters.
+    """
     src = '''\
 class Foo:
     @classmethod
@@ -993,6 +1164,9 @@ class Foo:
 
 
 def test_sync_source_multiple_functions() -> None:
+    """
+    title: Multiple functions in one source are all synced.
+    """
     src = '''\
 def add(x: int, y: int) -> int:
     """
@@ -1013,6 +1187,9 @@ def sub(x: int, y: int) -> int:
 
 
 def test_sync_source_with_no_return_annotation() -> None:
+    """
+    title: No return annotation means no returns section.
+    """
     src = '''\
 def foo(x: int):
     """
@@ -1418,10 +1595,16 @@ def test_sync_with_yields_dict() -> None:
 
 
 def test_yaml_scalar_null() -> None:
+    """
+    title: None is serialized as null.
+    """
     assert _yaml_scalar(None) == 'null'
 
 
 def test_yaml_scalar_bool() -> None:
+    """
+    title: Booleans are serialized as true/false.
+    """
     assert _yaml_scalar(True) == 'true'
     assert _yaml_scalar(False) == 'false'
 
