@@ -1443,13 +1443,13 @@
 <div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">FuncInfo</span><span class="p">(</span>
     <span class="n">name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span><span class="p">,</span>
     <span class="n">lineno</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#int">int</a></span><span class="p">,</span>
-    <span class="n">params</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            ParamInfo
+    <span class="n">params</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            ParamInfo
 
 
   
       dataclass
    (douki._base.sync.ParamInfo)" href="#douki._base.sync.ParamInfo">ParamInfo</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">(),</span>
-    <span class="n">attrs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            ParamInfo
+    <span class="n">attrs</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            ParamInfo
 
 
   
@@ -1473,9 +1473,9 @@ attributes:
   lineno:
     type: int
   params:
-    type: List[ParamInfo]
+    type: list[ParamInfo]
   attrs:
-    type: List[ParamInfo]
+    type: list[ParamInfo]
   return_annotation:
     type: str
   docstring_node:
@@ -1802,12 +1802,12 @@ returns:
     <span class="k">if</span> <span class="ow">not</span> <span class="n">validate_docstring</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">,</span> <span class="n">func_name</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">raw_docstring</span>
 
-    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">_load_docstring_yaml</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">)</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">_load_docstring_yaml</span><span class="p">(</span><span class="n">raw_docstring</span><span class="p">)</span>
 
     <span class="c1"># --- parameters ---</span>
     <span class="k">if</span> <span class="n">params</span><span class="p">:</span>
-        <span class="n">existing</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">new_params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">existing</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;parameters&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">new_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
             <span class="n">yaml_key</span> <span class="o">=</span> <span class="n">_param_name_for_yaml</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
             <span class="c1"># Look up by plain name first, then fall back to</span>
@@ -1819,7 +1819,7 @@ returns:
                 <span class="n">old</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;**</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">desc</span> <span class="o">=</span> <span class="n">_extract_param_desc</span><span class="p">(</span><span class="n">old</span><span class="p">)</span>
 
-            <span class="n">entry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">annotation</span><span class="p">:</span>
                 <span class="n">entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">annotation</span>
             <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
@@ -1853,12 +1853,12 @@ returns:
 
     <span class="c1"># --- attributes (class-level annotated vars) ---</span>
     <span class="k">if</span> <span class="n">attrs</span><span class="p">:</span>
-        <span class="n">existing_attrs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">new_attrs</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">existing_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attributes&#39;</span><span class="p">,</span> <span class="p">{})</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">new_attrs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">attrs</span><span class="p">:</span>
             <span class="n">old_a</span> <span class="o">=</span> <span class="n">existing_attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
             <span class="n">desc</span> <span class="o">=</span> <span class="n">_extract_param_desc</span><span class="p">(</span><span class="n">old_a</span><span class="p">)</span>
-            <span class="n">attr_entry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">attr_entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
             <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">annotation</span><span class="p">:</span>
                 <span class="n">attr_entry</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">annotation</span>
             <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
@@ -1876,7 +1876,7 @@ returns:
     <span class="k">if</span> <span class="n">return_annotation</span> <span class="ow">and</span> <span class="n">return_annotation</span> <span class="o">!=</span> <span class="s1">&#39;None&#39;</span><span class="p">:</span>
         <span class="n">existing_ret</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;returns&#39;</span><span class="p">)</span>
         <span class="n">desc</span> <span class="o">=</span> <span class="n">_extract_returns_desc</span><span class="p">(</span><span class="n">existing_ret</span><span class="p">)</span>
-        <span class="n">ret_entry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">return_annotation</span><span class="p">}</span>
+        <span class="n">ret_entry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="n">return_annotation</span><span class="p">}</span>
         <span class="k">if</span> <span class="n">desc</span><span class="p">:</span>
             <span class="n">ret_entry</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desc</span>
         <span class="n">data</span><span class="p">[</span><span class="s1">&#39;returns&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ret_entry</span>

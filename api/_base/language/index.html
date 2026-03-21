@@ -1738,7 +1738,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">register_language</span><span class="p">(</span><span class="n">lang_class</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Type" href="https://docs.python.org/3/library/typing.html#typing.Type">Type</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            BaseLanguage (douki._base.language.BaseLanguage)" href="#douki._base.language.BaseLanguage">BaseLanguage</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">register_language</span><span class="p">(</span><span class="n">lang_class</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#type">type</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="            BaseLanguage (douki._base.language.BaseLanguage)" href="#douki._base.language.BaseLanguage">BaseLanguage</a></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1757,12 +1757,12 @@
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
-<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">register_language</span><span class="p">(</span><span class="n">lang_class</span><span class="p">:</span> <span class="n">Type</span><span class="p">[</span><span class="n">BaseLanguage</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">register_language</span><span class="p">(</span><span class="n">lang_class</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseLanguage</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    title: Register a language plugin class.</span>
 <span class="sd">    parameters:</span>
 <span class="sd">      lang_class:</span>
-<span class="sd">        type: Type[BaseLanguage]</span>
+<span class="sd">        type: type[BaseLanguage]</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create a temporary instance just to get its name</span>
     <span class="n">instance</span> <span class="o">=</span> <span class="n">lang_class</span><span class="p">()</span>

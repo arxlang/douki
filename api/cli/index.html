@@ -1415,7 +1415,7 @@
 
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">check</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
         <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
@@ -1509,7 +1509,7 @@
 <span class="normal">279</span>
 <span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
@@ -1528,7 +1528,7 @@
 <span class="sd">    title: Print a diff of proposed changes. Exit 1 if any.</span>
 <span class="sd">    parameters:</span>
 <span class="sd">      files:</span>
-<span class="sd">        type: Optional[List[Path]]</span>
+<span class="sd">        type: Optional[list[Path]]</span>
 <span class="sd">      lang:</span>
 <span class="sd">        type: str</span>
 <span class="sd">      respect_gitignore:</span>
@@ -1591,7 +1591,7 @@
 
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">migrate</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
         <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
@@ -1716,7 +1716,7 @@
 <span class="normal">376</span>
 <span class="normal">377</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">migrate</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
@@ -1740,7 +1740,7 @@
 <span class="sd">    title: Migrate docstrings from another format to Douki YAML.</span>
 <span class="sd">    parameters:</span>
 <span class="sd">      files:</span>
-<span class="sd">        type: Optional[List[Path]]</span>
+<span class="sd">        type: Optional[list[Path]]</span>
 <span class="sd">      from_format:</span>
 <span class="sd">        type: MigrateFormat</span>
 <span class="sd">      lang:</span>
@@ -1824,7 +1824,7 @@
 
 </h2>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">sync</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.List" href="https://docs.python.org/3/library/typing.html#typing.List">List</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
         <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
@@ -1932,7 +1932,7 @@
 <span class="normal">208</span>
 <span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">sync</span><span class="p">(</span>
-    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
     <span class="p">),</span>
@@ -1951,7 +1951,7 @@
 <span class="sd">    title: Apply docstring sync changes to files in-place.</span>
 <span class="sd">    parameters:</span>
 <span class="sd">      files:</span>
-<span class="sd">        type: Optional[List[Path]]</span>
+<span class="sd">        type: Optional[list[Path]]</span>
 <span class="sd">      lang:</span>
 <span class="sd">        type: str</span>
 <span class="sd">      respect_gitignore:</span>
