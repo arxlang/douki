@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+## [0.12.1](https://github.com/arxlang/douki/compare/0.12.0...0.12.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* Check if the docstring is defined for modules, classes, class methods, and functions ([#24](https://github.com/arxlang/douki/issues/24)) ([e9e97b0](https://github.com/arxlang/douki/commit/e9e97b0f4e3c2f8f6171852dfe2efdd33f5cb9fd))
+
 # [0.12.0](https://github.com/arxlang/douki/compare/0.11.0...0.12.0) (2026-03-15)
 
 
