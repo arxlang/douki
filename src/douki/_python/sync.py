@@ -55,6 +55,16 @@ def sync_source(
     if not funcs:
         return source
 
+    # Check for missing docstrings — every function, class, and module
+    # must have a docstring.
+    missing = [f for f in funcs if f.docstring_node is None]
+    if missing:
+        errors = []
+        for f in missing:
+            prefix = '<module>' if f.name == '<module>' else f"'{f.name}'"
+            errors.append(f'- {prefix}: missing docstring')
+        raise DocstringValidationError('\n'.join(errors))
+
     lines = source.splitlines(keepends=True)
     # Process in reverse line order so edits don't shift indices.
     funcs_with_ds = [f for f in funcs if f.docstring_node is not None]

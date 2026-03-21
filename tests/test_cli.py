@@ -104,11 +104,130 @@ def test_check_shows_output(tmp_path: Path) -> None:
 
 
 # -------------------------------------------------------------------
+# Missing docstrings on methods
+# -------------------------------------------------------------------
+
+
+def test_check_should_fail_when_method_has_no_docstring(
+    tmp_path: Path,
+) -> None:
+    """
+    title: check should fail (exit != 0) when a class method has no docstring.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    p = _write(
+        tmp_path,
+        'no_docstring.py',
+        '''\
+        class Calculator:
+            """
+            title: A simple calculator.
+            """
+
+            def add(self, x: int, y: int) -> int:
+                return x + y
+        ''',
+    )
+    result = runner.invoke(app, ['check', str(p)])
+    assert result.exit_code != 0, (
+        f'Expected check to fail for method without docstring, '
+        f'but got exit_code={result.exit_code}'
+    )
+
+
+def test_sync_should_fail_when_method_has_no_docstring(
+    tmp_path: Path,
+) -> None:
+    """
+    title: sync should fail (exit != 0) when a class method has no docstring.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    p = _write(
+        tmp_path,
+        'no_docstring.py',
+        '''\
+        class Calculator:
+            """
+            title: A simple calculator.
+            """
+
+            def add(self, x: int, y: int) -> int:
+                return x + y
+        ''',
+    )
+    result = runner.invoke(app, ['sync', str(p)])
+    assert result.exit_code != 0, (
+        f'Expected sync to fail for method without docstring, '
+        f'but got exit_code={result.exit_code}'
+    )
+
+
+def test_check_should_fail_when_function_has_no_docstring(
+    tmp_path: Path,
+) -> None:
+    """
+    title: >-
+      check should fail (exit != 0) when a top-level function has no docstring.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    p = _write(
+        tmp_path,
+        'no_docstring_func.py',
+        """\
+        def add(x: int, y: int) -> int:
+            return x + y
+        """,
+    )
+    result = runner.invoke(app, ['check', str(p)])
+    assert result.exit_code != 0, (
+        f'Expected check to fail for function without docstring, '
+        f'but got exit_code={result.exit_code}'
+    )
+
+
+def test_sync_should_fail_when_function_has_no_docstring(
+    tmp_path: Path,
+) -> None:
+    """
+    title: >-
+      sync should fail (exit != 0) when a top-level function has no docstring.
+    parameters:
+      tmp_path:
+        type: Path
+    """
+    p = _write(
+        tmp_path,
+        'no_docstring_func.py',
+        """\
+        def add(x: int, y: int) -> int:
+            return x + y
+        """,
+    )
+    result = runner.invoke(app, ['sync', str(p)])
+    assert result.exit_code != 0, (
+        f'Expected sync to fail for function without docstring, '
+        f'but got exit_code={result.exit_code}'
+    )
+
+
+# -------------------------------------------------------------------
 # douki sync
 # -------------------------------------------------------------------
 
 
 def test_sync_updates_file(tmp_path: Path) -> None:
+    """
+    title: sync should update file and exit 1.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
         'apply.py',
@@ -127,6 +246,12 @@ def test_sync_updates_file(tmp_path: Path) -> None:
 
 
 def test_sync_idempotent(tmp_path: Path) -> None:
+    """
+    title: Running sync twice produces no further changes.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
         'idem.py',
@@ -151,6 +276,12 @@ def test_sync_idempotent(tmp_path: Path) -> None:
 
 
 def test_multiple_files(tmp_path: Path) -> None:
+    """
+    title: Multiple files are all processed by check.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p1 = _write(
         tmp_path,
         'a.py',
@@ -183,6 +314,12 @@ def test_multiple_files(tmp_path: Path) -> None:
 
 
 def test_skips_non_py_files(tmp_path: Path) -> None:
+    """
+    title: Non-Python files are silently skipped.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = tmp_path / 'data.txt'
     p.write_text('hello', encoding='utf-8')
     result = runner.invoke(app, ['check', str(p)])
@@ -190,6 +327,12 @@ def test_skips_non_py_files(tmp_path: Path) -> None:
 
 
 def test_directory_discovers_py_files(tmp_path: Path) -> None:
+    """
+    title: Passing a directory discovers .py files inside it.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     _write(
         tmp_path,
         'mod.py',
@@ -215,6 +358,12 @@ def test_directory_discovers_py_files(tmp_path: Path) -> None:
 
 
 def test_migrate_numpydoc(tmp_path: Path) -> None:
+    """
+    title: migrate converts NumPy docstrings to Douki YAML.
+    parameters:
+      tmp_path:
+        type: Path
+    """
     p = _write(
         tmp_path,
         'numpy.py',
@@ -333,18 +482,27 @@ def test_check_empty_directory(tmp_path: Path) -> None:
 
 
 def test_help_output() -> None:
+    """
+    title: Top-level --help exits 0 and mentions douki.
+    """
     result = runner.invoke(app, ['--help'])
     assert result.exit_code == 0
     assert 'douki' in result.output.lower()
 
 
 def test_sync_help_output() -> None:
+    """
+    title: sync --help exits 0 and mentions sync.
+    """
     result = runner.invoke(app, ['sync', '--help'])
     assert result.exit_code == 0
     assert 'sync' in result.output.lower()
 
 
 def test_check_help_output() -> None:
+    """
+    title: check --help exits 0 and mentions check.
+    """
     result = runner.invoke(app, ['check', '--help'])
     assert result.exit_code == 0
     assert 'check' in result.output.lower()
@@ -358,6 +516,14 @@ def test_check_help_output() -> None:
 def test_exclude_files_via_pyproject(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """
+    title: Files matching exclude patterns in pyproject.toml are skipped.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
     monkeypatch.chdir(tmp_path)
 
     _write(
@@ -417,6 +583,14 @@ def test_exclude_files_via_pyproject(
 def test_exclude_files_via_pyproject_windows_separator(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """
+    title: Backslash separators in exclude patterns work on all platforms.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
     monkeypatch.chdir(tmp_path)
 
     _write(
@@ -450,6 +624,14 @@ def test_exclude_files_via_pyproject_windows_separator(
 def test_gitignore_files_are_ignored_by_default(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """
+    title: Files listed in .gitignore are skipped by default.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
     monkeypatch.chdir(tmp_path)
 
     _write(
@@ -484,6 +666,15 @@ def test_gitignore_files_are_ignored_by_default(
 def test_nested_gitignore_respected_unless_disabled(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """
+    title: >-
+      Nested .gitignore is respected unless --no-respect-gitignore is passed.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
     monkeypatch.chdir(tmp_path)
 
     nested = tmp_path / 'pkg'
@@ -521,6 +712,16 @@ def test_nested_gitignore_respected_unless_disabled(
 def test_pyproject_can_disable_gitignore(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """
+    title: >-
+      Setting respect-gitignore = false in pyproject.toml disables gitignore
+      filtering.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
     monkeypatch.chdir(tmp_path)
 
     _write(
@@ -557,6 +758,14 @@ def test_pyproject_can_disable_gitignore(
 def test_cli_flag_overrides_pyproject_gitignore_setting(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    """
+    title: CLI --respect-gitignore flag overrides pyproject.toml.
+    parameters:
+      tmp_path:
+        type: Path
+      monkeypatch:
+        type: pytest.MonkeyPatch
+    """
     monkeypatch.chdir(tmp_path)
 
     _write(
@@ -690,6 +899,18 @@ def test_sync_generic_exception(
     import douki._python.language
 
     def _boom(*a: object, **kw: object) -> str:
+        """
+        title: Stub that always raises RuntimeError.
+        parameters:
+          a:
+            type: object
+            variadic: positional
+          kw:
+            type: object
+            variadic: keyword
+        returns:
+          type: str
+        """
         raise RuntimeError('boom')
 
     monkeypatch.setattr(
@@ -725,6 +946,18 @@ def test_check_generic_exception(
     import douki._python.language
 
     def _boom(*a: object, **kw: object) -> str:
+        """
+        title: Stub that always raises RuntimeError.
+        parameters:
+          a:
+            type: object
+            variadic: positional
+          kw:
+            type: object
+            variadic: keyword
+        returns:
+          type: str
+        """
         raise RuntimeError('boom')
 
     monkeypatch.setattr(
@@ -760,6 +993,18 @@ def test_migrate_generic_exception(
     import douki._python.language
 
     def _boom(*a: object, **kw: object) -> str:
+        """
+        title: Stub that always raises RuntimeError.
+        parameters:
+          a:
+            type: object
+            variadic: positional
+          kw:
+            type: object
+            variadic: keyword
+        returns:
+          type: str
+        """
         raise RuntimeError('boom')
 
     monkeypatch.setattr(
