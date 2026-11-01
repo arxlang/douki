@@ -1,0 +1,106 @@
+name: Performance benchmarks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    - cron: "13 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pr-comparison:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Fetch upstream main
+        run: git fetch origin main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install benchmark tools
+        run: |
+          python -m pip install "asv>=0.6,<0.7" "virtualenv>=20"
+          python -m pip install -e .
+
+      - name: Validate ASV benchmark suite
+        run: asv check --python=same
+
+      - name: Compare PR with upstream main
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: bash scripts/benchmark_pr.sh
+
+      - name: Upload performance comparison
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: douki-asv-comparison
+          path: |
+            asv-report.md
+            asv-comparison.log
+          if-no-files-found: warn
+          retention-days: 30
+
+  history:
+    if: >-
+      github.repository == 'arxlang/douki' &&
+      github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    permissions:
+      contents: write
+    concurrency:
+      group: douki-asv-history
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ASV
+        run: python -m pip install "asv>=0.6,<0.7" "virtualenv>=20"
+
+      - name: Restore historical benchmark results
+        run: |
+          mkdir -p .asv/results
+          if git fetch origin \
+            refs/heads/benchmark-results:refs/remotes/origin/benchmark-results; then
+            git archive refs/remotes/origin/benchmark-results | \
+              tar -x -C .asv/results
+          fi
+
+      - name: Benchmark the current main commit
+        run: |
+          asv machine --machine github-ubuntu-python311 --yes
+          asv run --machine github-ubuntu-python311 \
+            --show-stderr "${GITHUB_SHA}^!"
+
+      - name: Publish benchmark history
+        run: bash scripts/publish_benchmark_results.sh
+
+      - name: Upload benchmark history snapshot
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: douki-asv-history
+          path: .asv/results/
+          if-no-files-found: warn
+          retention-days: 90
