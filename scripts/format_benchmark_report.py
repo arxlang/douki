@@ -68,7 +68,11 @@ def collect_results(
         for name, row in results.items():
             if not isinstance(name, str):
                 continue
-            raw = row[index] if isinstance(row, list) and len(row) > index else None
+            raw = (
+                row[index]
+                if isinstance(row, list) and len(row) > index
+                else None
+            )
             collected[(name, environment)] = _measurement(raw)
     return collected
 
@@ -131,8 +135,8 @@ def build_report(
     lines = [
         '## Douki PR performance comparison',
         '',
-        f'**Upstream main:** \`{base_sha}\`  ',
-        f'**PR head:** \`{head_sha}\`',
+        f'**Upstream main:** `{base_sha}`  ',
+        f'**PR head:** `{head_sha}`',
         '',
         'The same GitHub Actions runner measures both revisions with '
         'Python 3.11 and ASV. Lower execution times are better.',
@@ -158,7 +162,7 @@ def build_report(
             if before is None or after is None:
                 count['missing'] += 1
                 lines.append(
-                    f'| \`{label}\` | '
+                    f'| `{label}` | '
                     f'{_format_seconds(before) if before else "n/a"} | '
                     f'{_format_seconds(after) if after else "n/a"} | '
                     'n/a | n/a | Not comparable |'
@@ -176,7 +180,7 @@ def build_report(
                 state = 'Similar'
                 count['similar'] += 1
             lines.append(
-                f'| \`{label}\` | {_format_seconds(before)} | '
+                f'| `{label}` | {_format_seconds(before)} | '
                 f'{_format_seconds(after)} | {change:+.1f}% | '
                 f'{speedup:.2f}× | {state} |'
             )
