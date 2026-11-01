@@ -7,7 +7,7 @@ from __future__ import annotations
 import os
 
 from pathlib import Path
-from typing import Iterator
+from typing import Callable, Iterator
 
 import pytest
 import yaml
@@ -105,22 +105,27 @@ def test_prunes_ignored_directories(
 
     def tracked_walk(
         top: str | os.PathLike[str],
-        *args: object,
-        **kwargs: object,
+        topdown: bool = True,
+        onerror: Callable[[OSError], None] | None = None,
+        followlinks: bool = False,
     ) -> Iterator[tuple[str, list[str], list[str]]]:
         """
         title: Record directories reached by discovery.
         parameters:
           top:
             type: str | os.PathLike[str]
-          args:
-            type: object
-          kwargs:
-            type: object
+          topdown:
+            type: bool
+          onerror:
+            type: Callable[[OSError], None] | None
+          followlinks:
+            type: bool
         returns:
           type: Iterator[tuple[str, list[str], list[str]]]
         """
-        for root, dirs, names in original_walk(top, *args, **kwargs):
+        for root, dirs, names in original_walk(
+            top, topdown=topdown, onerror=onerror, followlinks=followlinks
+        ):
             visited.append(Path(root))
             yield root, dirs, names
 
