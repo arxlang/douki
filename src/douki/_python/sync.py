@@ -15,8 +15,8 @@ from typing import Optional
 
 from douki._base.sync import (
     DocstringValidationError,
-    sync_docstring,
-    validate_docstring,
+    _parse_validated_docstring,
+    _sync_docstring_data,
 )
 from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
@@ -81,16 +81,17 @@ def sync_source(
 
         raw = str(ds_node.value)
 
-        # We enforce validation for every docstring that exists.
-        if raw.strip():
-            try:
-                validate_docstring(raw, func.name)
-            except ValueError as e:
-                prefix = (
-                    '<module>' if func.name == '<module>' else f"'{func.name}'"
-                )
-                errors.append(f'- {prefix}: {e}')
-                continue
+        # Parse and validate once, then pass the mapping to the sync engine.
+        if not raw.strip():
+            continue
+        try:
+            parsed = _parse_validated_docstring(raw)
+        except ValueError as e:
+            prefix = (
+                '<module>' if func.name == '<module>' else f"'{func.name}'"
+            )
+            errors.append(f'- {prefix}: {e}')
+            continue
 
         # We need the start/end lines of the docstring.
         ds_start = ds_node.lineno - 1  # 0-based
@@ -124,8 +125,8 @@ def sync_source(
                 break
 
         try:
-            synced = sync_docstring(
-                raw,
+            synced = _sync_docstring_data(
+                parsed,
                 func.params,
                 func.return_annotation,
                 attrs=func.attrs,
