@@ -67,5 +67,6 @@ disable that per run with `--no-respect-gitignore`, or set
 
 - [Installation](installation.md) — install via pip, conda, or from source
 - [Usage Guide](usage.md) — CLI commands, YAML schema, and migration
+- [Performance benchmarks](performance.md) — ASV history and PR comparisons
 - [Changelog](changelog.md) — release history
 - [Contributing](contributing.md) — how to contribute
