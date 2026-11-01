@@ -93,8 +93,11 @@ jobs:
             if (fs.existsSync(path)) {
               report = fs.readFileSync(path, 'utf8');
               // Do not overwrite a newer comparison with an older run.
-              if (!report.includes('**PR head:** `' + pr.head.sha + '`')) {
-                core.info('Discarding a stale comparison for this PR');
+              if (
+                !report.includes('**PR head:** `' + pr.head.sha + '`') ||
+                !report.includes('**Upstream main:** `' + pr.base.sha + '`')
+              ) {
+                core.info('Discarding stale base/head comparison');
                 return;
               }
             } else {
