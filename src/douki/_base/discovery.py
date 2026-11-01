@@ -4,6 +4,7 @@ title: Shared file discovery helpers for language backends.
 
 from __future__ import annotations
 
+import os
 import re
 import sys
 
@@ -106,17 +107,28 @@ def collect_source_files(
 
     for path in paths:
         if path.is_dir():
-            for child in path.rglob('*'):
-                if not child.is_file():
-                    continue
-                if not _matches_extension(child, file_extensions):
-                    continue
-                if not _is_excluded(
-                    child,
-                    discovery=discovery,
-                    matcher=matcher,
-                ):
-                    result.append(child)
+            # Top-down traversal lets us skip excluded subtrees entirely.
+            for root, directories, filenames in os.walk(path):
+                parent = Path(root)
+                directories[:] = [
+                    name
+                    for name in directories
+                    if not _can_prune_directory(
+                        parent / name,
+                        discovery=discovery,
+                        matcher=matcher,
+                    )
+                ]
+                for name in filenames:
+                    child = parent / name
+                    if (
+                        child.is_file()
+                        and _matches_extension(child, file_extensions)
+                        and not _is_excluded(
+                            child, discovery=discovery, matcher=matcher
+                        )
+                    ):
+                        result.append(child)
             continue
 
         if _matches_extension(path, file_extensions) and not _is_excluded(
@@ -127,6 +139,47 @@ def collect_source_files(
             result.append(path)
 
     return sorted(set(result))
+
+
+def _can_prune_directory(
+    directory: Path,
+    *,
+    discovery: DiscoveryConfig,
+    matcher: '_GitIgnoreMatcher',
+) -> bool:
+    """
+    title: Prune subtrees excluded by whole-directory patterns or gitignore.
+    parameters:
+      directory:
+        type: Path
+      discovery:
+        type: DiscoveryConfig
+      matcher:
+        type: _GitIgnoreMatcher
+    returns:
+      type: bool
+    """
+    for pattern in discovery.exclude_patterns:
+        normalized = pattern.replace('\\', '/').lstrip('/')
+        if normalized.endswith('/**'):
+            normalized = normalized[:-3]
+        elif normalized.endswith('/*'):
+            normalized = normalized[:-2]
+        else:
+            normalized = normalized.rstrip('/')
+        if normalized and _matches_exclude_patterns(
+            directory,
+            exclude_patterns=(normalized,),
+            root=discovery.root,
+        ):
+            return True
+
+    if not discovery.respect_gitignore:
+        return False
+    # An ancestor !rule may re-include a descendant. Be conservative.
+    return matcher.is_ignored(
+        directory, is_directory=True
+    ) and not matcher.has_negated_rules(directory)
 
 
 def _load_pyproject_discovery_config(pyproject: Path) -> DiscoveryConfig:
@@ -287,7 +340,7 @@ class _GitIgnoreMatcher:
         self._root: Path = root.resolve()
         self._rules_by_dir: dict[Path, tuple[_GitIgnoreRule, ...]] = {}
 
-    def is_ignored(self, path: Path) -> bool:
+    def is_ignored(self, path: Path, *, is_directory: bool = False) -> bool:
         """
         title: Check whether a path is ignored by any applicable `.gitignore`.
         parameters:
@@ -305,9 +358,31 @@ class _GitIgnoreMatcher:
         ignored = False
         for scope_dir in self._iter_scope_dirs(resolved):
             for rule in self._load_rules(scope_dir):
-                if _rule_matches_path(rule, resolved):
+                if _rule_matches_path(
+                    rule, resolved, is_directory=is_directory
+                ):
                     ignored = not rule.negated
         return ignored
+
+    def has_negated_rules(self, directory: Path) -> bool:
+        """
+        title: Detect inherited negations before pruning a directory.
+        parameters:
+          directory:
+            type: Path
+        returns:
+          type: bool
+        """
+        resolved = directory.resolve()
+        try:
+            resolved.relative_to(self._root)
+        except ValueError:
+            return False
+        return any(
+            rule.negated
+            for scope in self._iter_scope_dirs(resolved)
+            for rule in self._load_rules(scope)
+        )
 
     def _iter_scope_dirs(self, path: Path) -> Iterable[Path]:
         """
@@ -410,7 +485,9 @@ def _parse_gitignore_rule(
     )
 
 
-def _rule_matches_path(rule: _GitIgnoreRule, path: Path) -> bool:
+def _rule_matches_path(
+    rule: _GitIgnoreRule, path: Path, *, is_directory: bool = False
+) -> bool:
     """
     title: Check whether a parsed `.gitignore` rule matches a path.
     parameters:
@@ -428,12 +505,12 @@ def _rule_matches_path(rule: _GitIgnoreRule, path: Path) -> bool:
 
     if rule.basename_only:
         parts = rel_path.split('/')
-        if rule.directory_only:
+        if rule.directory_only and not is_directory:
             parts = parts[:-1]
         return any(rule.regex.fullmatch(part) for part in parts)
 
     prefixes = _relative_prefixes(rel_path)
-    if rule.directory_only:
+    if rule.directory_only and not is_directory:
         prefixes = prefixes[:-1]
     return any(rule.regex.fullmatch(prefix) for prefix in prefixes)
 
