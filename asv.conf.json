@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "project": "douki",
+  "project_url": "https://github.com/arxlang/douki",
+  "repo": ".",
+  "branches": [
+    "main"
+  ],
+  "environment_type": "virtualenv",
+  "pythons": [
+    "3.11"
+  ],
+  "benchmark_dir": "benchmarks",
+  "env_dir": ".asv/env",
+  "results_dir": ".asv/results",
+  "html_dir": ".asv/html",
+  "show_commit_url": "https://github.com/arxlang/douki/commit/"
+}
