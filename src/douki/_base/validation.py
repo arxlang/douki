@@ -6,10 +6,9 @@ from __future__ import annotations
 
 import json
 
+from functools import lru_cache
 from importlib.resources import files
 from typing import Any
-
-from functools import lru_cache
 
 from jsonschema import ValidationError
 from jsonschema.validators import validator_for
