@@ -3,6 +3,7 @@ name: Performance benchmarks
 on:
   pull_request:
     branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
   push:
     branches: [main]
   schedule:
@@ -13,18 +14,23 @@ permissions:
   contents: read
 
 jobs:
-  pr-comparison:
+  compare-pr-performance:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    concurrency:
+      group: douki-performance-pr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
+      - name: Check out the exact PR commit
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: false
 
-      - name: Fetch upstream main
-        run: git fetch origin main
+      - name: Make upstream main available
+        run: git fetch --no-tags origin main
 
       - uses: actions/setup-python@v5
         with:
@@ -35,16 +41,17 @@ jobs:
           python -m pip install "asv>=0.6,<0.7" "virtualenv>=20"
           python -m pip install -e .
 
-      - name: Validate ASV benchmark suite
-        run: asv check --python=same
+      - name: Check ASV benchmark definitions
+        run: asv check -E existing
 
-      - name: Compare PR with upstream main
+      - name: Compare upstream main with the PR
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash scripts/benchmark_pr.sh
 
-      - name: Upload performance comparison
+      - name: Upload the PR comparison for the comment workflow
         if: always()
         uses: actions/upload-artifact@v4
         with:
