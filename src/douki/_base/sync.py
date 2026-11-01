@@ -18,6 +18,21 @@ import yaml
 from douki._base.defaults import LanguageDefaults
 from douki._base.validation import validate_schema
 
+_SAFE_LOADER = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
+
+
+def _safe_load(raw: str) -> Any:
+    """
+    title: Load docstring YAML with the safe C loader when available.
+    parameters:
+      raw:
+        type: str
+    returns:
+      type: Any
+    """
+    return yaml.load(textwrap.dedent(raw), Loader=_SAFE_LOADER)
+
+
 # ---------------------------------------------------------------------------
 # Data structures
 # ---------------------------------------------------------------------------
@@ -100,7 +115,7 @@ def _load_docstring_yaml(raw: str) -> dict[str, Any]:
       type: dict[str, Any]
     """
     try:
-        data = yaml.safe_load(textwrap.dedent(raw))
+        data = _safe_load(raw)
     except yaml.YAMLError:
         raise ValueError('Could not parse YAML')
 
@@ -119,6 +134,29 @@ def _load_docstring_yaml(raw: str) -> dict[str, Any]:
     return data
 
 
+def _parse_validated_docstring(raw: str) -> dict[str, Any]:
+    """
+    title: Parse and validate a Douki docstring exactly once.
+    parameters:
+      raw:
+        type: str
+    returns:
+      type: dict[str, Any]
+    """
+    try:
+        data = _safe_load(raw)
+    except yaml.YAMLError as exc:
+        raise ValueError('Could not parse YAML') from exc
+
+    if not isinstance(data, dict):
+        raise ValueError('Docstring is not a valid Douki YAML dictionary')
+    if 'title' not in data:
+        raise ValueError("Missing 'title' field")
+
+    validate_schema(data)
+    return data
+
+
 def validate_docstring(raw: str, func_name: str) -> bool:
     """
     title: Check whether *raw* is a valid Douki YAML docstring.
@@ -134,22 +172,7 @@ def validate_docstring(raw: str, func_name: str) -> bool:
     if not raw or not raw.strip():
         return False
 
-    try:
-        data = yaml.safe_load(textwrap.dedent(raw))
-    except yaml.YAMLError:
-        raise ValueError('Could not parse YAML')
-
-    if not isinstance(data, dict):
-        raise ValueError('Docstring is not a valid Douki YAML dictionary')
-
-    if 'title' not in data:
-        raise ValueError("Missing 'title' field")
-
-    try:
-        validate_schema(data)
-    except ValueError as e:
-        raise ValueError(str(e))
-
+    _parse_validated_docstring(raw)
     return True
 
 
@@ -238,11 +261,47 @@ def sync_docstring(
     returns:
       type: str
     """
-    if not validate_docstring(raw_docstring, func_name):
+    if not raw_docstring or not raw_docstring.strip():
         return raw_docstring
 
-    data: dict[str, Any] = _load_docstring_yaml(raw_docstring)
+    data = _parse_validated_docstring(raw_docstring)
+    return _sync_docstring_data(
+        data,
+        params,
+        return_annotation,
+        attrs=attrs,
+        content_indent=content_indent,
+        language_defaults=language_defaults,
+    )
 
+
+def _sync_docstring_data(
+    data: dict[str, Any],
+    params: Sequence[ParamInfo],
+    return_annotation: str,
+    *,
+    attrs: Sequence[ParamInfo] = (),
+    content_indent: int = 4,
+    language_defaults: Optional[LanguageDefaults] = None,
+) -> str:
+    """
+    title: Synchronize an already validated YAML mapping without reparsing.
+    parameters:
+      data:
+        type: dict[str, Any]
+      params:
+        type: Sequence[ParamInfo]
+      return_annotation:
+        type: str
+      attrs:
+        type: Sequence[ParamInfo]
+      content_indent:
+        type: int
+      language_defaults:
+        type: Optional[LanguageDefaults]
+    returns:
+      type: str
+    """
     # --- parameters ---
     if params:
         existing: dict[str, Any] = data.get('parameters', {}) or {}
