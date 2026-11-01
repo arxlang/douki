@@ -1,0 +1,84 @@
+name: Comment on PR performance
+
+on:
+  workflow_run:
+    workflows: ["Performance benchmarks"]
+    types: [completed]
+
+permissions:
+  actions: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  comment:
+    if: >-
+      github.repository == 'arxlang/douki' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      # This privileged workflow only reads benchmark output as text.
+      # Never check out or execute code from the untrusted PR.
+      - uses: actions/download-artifact@v4
+        with:
+          name: douki-asv-comparison
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: performance-report
+
+      - name: Create or update comparison comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const run = context.payload.workflow_run;
+            let number = run.pull_requests?.[0]?.number;
+            if (!number && run.head_repository && run.head_branch) {
+              const head = run.head_repository.owner.login +
+                ':' + run.head_branch;
+              const response = await github.rest.pulls.list({
+                ...context.repo, state: 'open', head
+              });
+              number = response.data.find(
+                pr => pr.base.ref === 'main'
+              )?.number;
+            }
+            if (!number) {
+              core.info('No matching open pull request for this run');
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo, pull_number: number
+            });
+            const raw = fs.readFileSync(
+              'performance-report/asv-report.md', 'utf8'
+            );
+            // Ignore stale runs after a PR was pushed again.
+            if (!raw.includes(pr.head.sha)) {
+              core.info('Comparison targets an outdated PR commit');
+              return;
+            }
+            const marker = '<!-- douki-asv-comparison -->';
+            // Treat the artifact as untrusted display text, not commands.
+            const body = marker + '\n' +
+              raw.slice(0, 58000).replace(/@/g, '＠');
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...context.repo, issue_number: number, per_page: 100 }
+            );
+            const previous = comments.find(
+              c => c.user?.type === 'Bot' &&
+                c.body?.startsWith(marker)
+            );
+            if (previous) {
+              await github.rest.issues.updateComment({
+                ...context.repo, comment_id: previous.id, body
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo, issue_number: number, body
+              });
+            }
