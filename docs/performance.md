@@ -12,7 +12,7 @@ Install Douki and ASV in a Python 3.11 environment:
 
 ```bash
 python -m pip install -e .
-python -m pip install "asv>=0.6,<0.7" "virtualenv>=20"
+python -m pip install "asv==0.6.5" "virtualenv>=20"
 asv check -E existing
 asv machine --yes
 ```
