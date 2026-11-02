@@ -38,7 +38,7 @@ jobs:
 
       - name: Install benchmark tools
         run: |
-          python -m pip install "asv>=0.6,<0.7" "virtualenv>=20"
+          python -m pip install "asv==0.6.5" "virtualenv>=20"
           python -m pip install -e .
 
       - name: Check ASV benchmark definitions
@@ -83,7 +83,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install ASV
-        run: python -m pip install "asv>=0.6,<0.7" "virtualenv>=20"
+        run: python -m pip install "asv==0.6.5" "virtualenv>=20"
 
       - name: Restore historical benchmark results
         run: |
