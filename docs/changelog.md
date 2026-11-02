@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+# [0.13.0](https://github.com/arxlang/douki/compare/0.12.1...0.13.0) (2026-11-02)
+
+
+### Features
+
+* Perf/single pass validation and benchmarks ([#25](https://github.com/arxlang/douki/issues/25)) ([6d2ea85](https://github.com/arxlang/douki/commit/6d2ea85d51521b68b8205b0ef0e442db4db1b897))
+
 ## [0.12.1](https://github.com/arxlang/douki/compare/0.12.0...0.12.1) (2026-03-21)
 
 
