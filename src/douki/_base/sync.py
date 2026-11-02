@@ -169,6 +169,8 @@ def validate_docstring(raw: str, func_name: str) -> bool:
       type: bool
       description: True if it's a valid Douki YAML docstring.
     """
+    # Keep func_name in the public API for compatibility.
+    _ = func_name
     if not raw or not raw.strip():
         return False
 
@@ -261,6 +263,8 @@ def sync_docstring(
     returns:
       type: str
     """
+    # Keep func_name in the public API for compatibility.
+    _ = func_name
     if not raw_docstring or not raw_docstring.strip():
         return raw_docstring
 
