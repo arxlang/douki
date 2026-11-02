@@ -17,6 +17,7 @@ from douki._base.sync import (
     DocstringValidationError,
     _parse_validated_docstring,
     _sync_docstring_data,
+    validate_docstring,
 )
 from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
