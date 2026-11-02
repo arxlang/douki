@@ -230,6 +230,16 @@ def main() -> None:
     args.output.write_text(report, encoding='utf-8')
     print(report)
 
+    # ASV can report success after failing to install either revision.
+    # A comparison job must not pass without at least one valid pair.
+    base = collect_results(args.results, args.base_sha)
+    head = collect_results(args.results, args.head_sha)
+    if not any(
+        value is not None and head.get(key) is not None
+        for key, value in base.items()
+    ):
+        parser.exit(2, 'No comparable ASV measurements were recorded.\n')
+
 
 if __name__ == '__main__':
     main()
