@@ -14,5 +14,8 @@
   "env_dir": ".asv/env",
   "results_dir": ".asv/results",
   "html_dir": ".asv/html",
-  "show_commit_url": "https://github.com/arxlang/douki/commit/"
+  "show_commit_url": "https://github.com/arxlang/douki/commit/",
+  "build_command": [
+    "python -m pip wheel --no-deps --no-cache-dir -w {build_cache_dir} {build_dir}"
+  ]
 }
