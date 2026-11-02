@@ -12,9 +12,7 @@ from typing import Callable, Iterator
 import pytest
 import yaml
 
-from douki._base import discovery
-from douki._base import sync as core_sync
-from douki._base import validation
+from douki._base import discovery, sync as core_sync, validation
 from douki._python.sync import sync_source
 
 
