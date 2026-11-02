@@ -155,7 +155,8 @@ def build_report(
     if keys:
         lines.extend(
             [
-                '| Benchmark | main | PR | Time change | Speedup | Assessment |',
+                '| Benchmark | main | PR | Time change | '
+                'Speedup | Assessment |',
                 '| --- | ---: | ---: | ---: | ---: | --- |',
             ]
         )
@@ -193,7 +194,8 @@ def build_report(
                 '',
                 '**Summary:** '
                 f'{count["faster"]} faster, {count["slower"]} slower, '
-                f'{count["similar"]} similar, {count["missing"]} not comparable.',
+                f'{count["similar"]} similar, '
+                f'{count["missing"]} not comparable.',
             ]
         )
     else:
