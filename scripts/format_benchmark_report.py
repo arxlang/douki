@@ -182,7 +182,7 @@ def build_report(
             lines.append(
                 f'| `{label}` | {_format_seconds(before)} | '
                 f'{_format_seconds(after)} | {change:+.1f}% | '
-                f'{speedup:.2f}× | {state} |'
+                f'{speedup:.2f}x | {state} |'
             )
         lines.extend([
             '',
