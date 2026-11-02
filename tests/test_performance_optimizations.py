@@ -12,7 +12,8 @@ from typing import Callable, Iterator
 import pytest
 import yaml
 
-from douki._base import discovery, sync as core_sync, validation
+from douki._base import discovery, validation
+from douki._base import sync as core_sync
 from douki._python.sync import sync_source
 
 
@@ -76,9 +77,7 @@ def test_safe_python_yaml_loader_fallback(
     """
     monkeypatch.setattr(core_sync, '_SAFE_LOADER', yaml.SafeLoader)
     assert core_sync.validate_docstring('title: safe', 'safe')
-    assert core_sync.sync_docstring('title: safe', [], '') == (
-        'title: safe\n'
-    )
+    assert core_sync.sync_docstring('title: safe', [], '') == ('title: safe\n')
 
 
 def test_prunes_ignored_directories(

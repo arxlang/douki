@@ -346,6 +346,8 @@ class _GitIgnoreMatcher:
         parameters:
           path:
             type: Path
+          is_directory:
+            type: bool
         returns:
           type: bool
         """
@@ -495,6 +497,8 @@ def _rule_matches_path(
         type: _GitIgnoreRule
       path:
         type: Path
+      is_directory:
+        type: bool
     returns:
       type: bool
     """

@@ -30,10 +30,7 @@ def _write_result(
         'commit_hash': sha,
         'env_name': 'virtualenv-py3.11',
         'result_columns': ['result', 'params', 'version'],
-        'results': {
-            key: [value, [], '1']
-            for key, value in results.items()
-        },
+        'results': {key: [value, [], '1'] for key, value in results.items()},
     }
     (destination / f'{sha[:8]}-virtualenv-py3.11.json').write_text(
         json.dumps(payload), encoding='utf-8'

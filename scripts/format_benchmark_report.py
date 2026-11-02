@@ -144,17 +144,21 @@ def build_report(
     ]
 
     if asv_status not in (0, 1):
-        lines.extend([
-            '**Benchmark execution failed.** Some measurements may be '
-            'missing; inspect the CI log before interpreting results.',
-            '',
-        ])
+        lines.extend(
+            [
+                '**Benchmark execution failed.** Some measurements may be '
+                'missing; inspect the CI log before interpreting results.',
+                '',
+            ]
+        )
 
     if keys:
-        lines.extend([
-            '| Benchmark | main | PR | Time change | Speedup | Assessment |',
-            '| --- | ---: | ---: | ---: | ---: | --- |',
-        ])
+        lines.extend(
+            [
+                '| Benchmark | main | PR | Time change | Speedup | Assessment |',
+                '| --- | ---: | ---: | ---: | ---: | --- |',
+            ]
+        )
         for name, env in keys:
             before = base_results.get((name, env))
             after = head_results.get((name, env))
@@ -184,27 +188,31 @@ def build_report(
                 f'{_format_seconds(after)} | {change:+.1f}% | '
                 f'{speedup:.2f}x | {state} |'
             )
-        lines.extend([
-            '',
-            '**Summary:** '
-            f'{count["faster"]} faster, {count["slower"]} slower, '
-            f'{count["similar"]} similar, {count["missing"]} not comparable.',
-        ])
+        lines.extend(
+            [
+                '',
+                '**Summary:** '
+                f'{count["faster"]} faster, {count["slower"]} slower, '
+                f'{count["similar"]} similar, {count["missing"]} not comparable.',
+            ]
+        )
     else:
         lines.append(
             '**No comparable ASV measurements were produced.** '
             'Check the CI log and build artifacts.'
         )
 
-    lines.extend([
-        '',
-        'Assessments reflect a ±10% raw timing threshold, not a '
-        'statistical guarantee. Hosted runners are noisy; treat these '
-        'results as advisory and repeat large regressions.',
-        '',
-        f'[Full benchmark workflow and artifacts]({run_url})',
-        '',
-    ])
+    lines.extend(
+        [
+            '',
+            'Assessments reflect a ±10% raw timing threshold, not a '
+            'statistical guarantee. Hosted runners are noisy; treat these '
+            'results as advisory and repeat large regressions.',
+            '',
+            f'[Full benchmark workflow and artifacts]({run_url})',
+            '',
+        ]
+    )
     return '\n'.join(lines)
 
 
