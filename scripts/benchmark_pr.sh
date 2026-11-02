@@ -20,7 +20,11 @@ asv continuous \
   --interleave-rounds \
   --factor 1.10 \
   --show-stderr \
+  --verbose \
   "${BASE_SHA}" "${HEAD_SHA}" > asv-comparison.log 2>&1 || status=$?
+
+# Always show the ASV build/install log, including when rendering fails.
+cat asv-comparison.log
 
 python scripts/format_benchmark_report.py \
   --results .asv/results \
@@ -30,9 +34,7 @@ python scripts/format_benchmark_report.py \
   --status "${status}" \
   --output asv-report.md
 
-# Include full details in the Actions log and artifact, not in the PR comment.
-cat asv-comparison.log
-
+# Full details stay in the CI log and artifact, not in the PR comment.
 if [[ "${status}" -gt 1 ]]; then
   echo "ASV failed to generate a valid comparison (exit ${status})."
   exit "${status}"
