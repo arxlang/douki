@@ -65,8 +65,8 @@ def test_build_report_includes_changes_and_speedups(
         tmp_path, base, head, 'https://github.com/actions/runs/123', 1
     )
     assert '| Benchmark | main | PR | Time change | Speedup |' in report
-    assert '| -50.0% | 2.00× | Faster |' in report
-    assert '| +50.0% | 0.67× | Slower |' in report
+    assert '| -50.0% | 2.00x | Faster |' in report
+    assert '| +50.0% | 0.67x | Slower |' in report
     assert '1 faster, 1 slower' in report
     assert base in report
     assert head in report
