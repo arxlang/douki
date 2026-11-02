@@ -112,6 +112,10 @@ jobs:
           pre-commit install
           makim tests.linter
 
+      - name: Show autoformatting changes on failure
+        if: failure()
+        run: git --no-pager diff -- src tests scripts benchmarks
+
       - name: Setup tmate session
         if: "${{ failure() && (contains(github.event.pull_request.labels.*.name, 'ci:enable-debugging')) }}"
         uses: mxschmitt/action-tmate@v3

@@ -1,0 +1,144 @@
+# PR benchmarks use a read-only token, including for fork PRs.
+# This trusted workflow publishes their results to the SAME pull request.
+# Never check out or execute a PR's code in this privileged workflow.
+name: Comment on PR performance
+
+on:
+  workflow_run:
+    workflows: ["Performance benchmarks"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  update-pr-comment:
+    if: >-
+      github.repository == 'arxlang/douki' &&
+      github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the benchmark report
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: douki-asv-comparison
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: performance-report
+
+      - name: Post or update the comment on the original PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('node:fs');
+            const run = context.payload.workflow_run;
+            const repo = { ...context.repo };
+            let number = run.pull_requests?.find(
+              pr => pr.base?.ref === 'main'
+            )?.number;
+
+            // A fork's workflow_run.pull_requests can be empty. The
+            // trusted run SHA may identify a synthetic PR merge commit.
+            // Match its parent commit(s) against an actual open PR.
+            const relatedShas = new Set([run.head_sha]);
+            try {
+              const commit = await github.rest.repos.getCommit({
+                ...repo, ref: run.head_sha
+              });
+              for (const parent of commit.data.parents || []) {
+                relatedShas.add(parent.sha);
+              }
+            } catch (error) {
+              core.info('Could not inspect run commit: ' + error.message);
+            }
+
+            if (!number) {
+              const open = await github.paginate(
+                github.rest.pulls.list,
+                { ...repo, state: 'open', per_page: 100 }
+              );
+              number = open.find(
+                pr => pr.base.ref === 'main' &&
+                  relatedShas.has(pr.head.sha) &&
+                  (!run.head_branch || pr.head.ref === run.head_branch)
+              )?.number;
+            }
+
+            // Fallback to the source fork and branch when available.
+            if (!number && run.head_repository && run.head_branch) {
+              const head = run.head_repository.owner.login +
+                ':' + run.head_branch;
+              const response = await github.rest.pulls.list({
+                ...repo, state: 'open', head, per_page: 100
+              });
+              number = response.data.find(
+                pr => pr.base.ref === 'main' &&
+                  pr.head.repo?.full_name === run.head_repository.full_name
+              )?.number;
+            }
+            if (!number) {
+              core.info('Cannot associate this run with an open PR');
+              return;
+            }
+
+            const { data: pr } = await github.rest.pulls.get({
+              ...repo, pull_number: number
+            });
+
+            const path = 'performance-report/asv-report.md';
+            let report;
+            if (fs.existsSync(path)) {
+              report = fs.readFileSync(path, 'utf8');
+              // Do not overwrite a newer comparison with an older run.
+              if (
+                !report.includes('**PR head:** `' + pr.head.sha + '`') ||
+                !report.includes('**Upstream main:** `' + pr.base.sha + '`')
+              ) {
+                core.info('Discarding stale base/head comparison');
+                return;
+              }
+            } else {
+              // Only report a failed run if it still targets the current
+              // head. Missing artifacts otherwise cannot be trusted.
+              if (!relatedShas.has(pr.head.sha)) {
+                core.info('No report and PR head could not be verified');
+                return;
+              }
+              report = [
+                '## Douki PR performance comparison',
+                '',
+                '**The benchmark CI job did not produce a report.**',
+                'Check the workflow logs for installation or ASV errors.',
+                '',
+                '[Benchmark workflow](' + run.html_url + ')'
+              ].join('\n');
+            }
+
+            const marker = '<!-- douki-asv-comparison -->';
+            // Artifacts are untrusted display-only data, not code.
+            const body = marker + '\n' +
+              report.slice(0, 58000).replace(/@/g, '＠');
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...repo, issue_number: number, per_page: 100 }
+            );
+            const previous = comments.find(
+              c => c.user?.type === 'Bot' &&
+                c.body?.startsWith(marker)
+            );
+            if (previous) {
+              await github.rest.issues.updateComment({
+                ...repo, comment_id: previous.id, body
+              });
+              core.info('Updated benchmark comment on PR #' + number);
+            } else {
+              await github.rest.issues.createComment({
+                ...repo, issue_number: number, body
+              });
+              core.info('Posted benchmark comment on PR #' + number);
+            }
