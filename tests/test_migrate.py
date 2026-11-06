@@ -4,6 +4,9 @@ title: Tests for douki.migrate — NumPy docstring conversion.
 
 from __future__ import annotations
 
+import pytest
+import yaml
+
 from douki._python.migrate import (
     _is_numpydoc_docstring,
     _parse_map_section,
@@ -100,7 +103,7 @@ def test_numpy_to_douki_basic() -> None:
     assert 'title:' in result
     assert 'parameters:' in result
     assert 'returns:' in result
-    # New format: nested params with type
+    assert yaml.safe_load(result)['returns'] == 'The sum.'
     assert 'type:' not in result
 
 
@@ -224,7 +227,7 @@ def test_split_sections_no_sections() -> None:
 
 
 # -------------------------------------------------------------------
-# Coverage: multiple return types → tuple
+# Coverage: multiple return descriptions
 # -------------------------------------------------------------------
 
 
@@ -240,8 +243,7 @@ def test_numpy_multiple_returns() -> None:
     )
     result = numpydoc_to_douki_yaml(ds)
     assert 'type:' not in result
-    assert 'x' in result
-    assert 'y' in result
+    assert yaml.safe_load(result)['returns'] == 'The x. The y.'
 
 
 # -------------------------------------------------------------------
@@ -249,13 +251,37 @@ def test_numpy_multiple_returns() -> None:
 # -------------------------------------------------------------------
 
 
-def test_numpy_returns_simple_text() -> None:
+@pytest.mark.parametrize(
+    ('indent', 'description'),
+    [
+        ('', 'A simple description.'),
+        ('    ', 'First line.\nSecond line.'),
+        ('\t', 'yes'),
+    ],
+)
+def test_numpy_returns_simple_text(indent: str, description: str) -> None:
     """
     title: Returns section with no entries gives simple text.
+    parameters:
+      indent: Indentation shared by the section heading and its body.
+      description: Return prose to preserve through YAML serialization.
     """
-    ds = 'Do something.\n\nReturns\n-------\n    A simple description.\n'
+    body = '\n'.join(
+        f'{indent}    {line}' for line in description.splitlines()
+    )
+    ds = f'Do something.\n\n{indent}Returns\n{indent}-------\n{body}\n'
     result = numpydoc_to_douki_yaml(ds)
     assert 'returns:' in result
+    assert yaml.safe_load(result)['returns'] == description
+
+
+def test_numpy_type_only_return_does_not_become_a_description() -> None:
+    """
+    title: Return type declarations are omitted when no prose is present.
+    """
+    ds = 'Do something.\n\nReturns\n-------\nint\n'
+    result = yaml.safe_load(numpydoc_to_douki_yaml(ds))
+    assert result['returns'] == ''
 
 
 # -------------------------------------------------------------------

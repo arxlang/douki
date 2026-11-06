@@ -28,11 +28,9 @@ def _annotation_to_str(node: Optional[ast.expr]) -> str:
     title: Convert an AST annotation node to a readable type string.
     parameters:
       node:
-        description: Annotation expression, or None when no annotation
-          was supplied.
-    returns:
-      description: Readable annotation text, or an empty string when
-        unavailable.
+        description: Annotation expression, or None when no annotation was
+          supplied.
+    returns: Readable annotation text, or an empty string when unavailable.
     """
     if node is None:
         return ''
@@ -92,8 +90,7 @@ def _param_kind(
         description: Name of the parameter whose calling convention is needed.
       func_node:
         description: Function declaration containing the parameter.
-    returns:
-      description: Calling convention for the named parameter.
+    returns: Calling convention for the named parameter.
     """
     for arg in func_node.args.posonlyargs:
         if arg.arg == arg_name:
@@ -118,11 +115,8 @@ def _extract_func(
       node:
         description: Python syntax node to inspect for documentation metadata.
       is_method:
-        description: Whether the function is declared directly in a class
-          body.
-    returns:
-      description: Function metadata with the implicit receiver omitted for
-        methods.
+        description: Whether the function is declared directly in a class body.
+    returns: Function metadata with the implicit receiver omitted for methods.
     """
     params: list[ParamInfo] = []
     all_args: list[ast.arg] = (
@@ -186,9 +180,8 @@ def body_nodes(statements: list[ast.stmt]) -> Iterator[ast.AST]:
     parameters:
       statements:
         description: Statements in the declaration body to traverse.
-    returns:
-      description: Iterator over body nodes, leaving nested declaration
-        bodies unvisited.
+    returns: Iterator over body nodes, leaving nested declaration bodies
+      unvisited.
     """
     pending: list[ast.AST] = list(reversed(statements))
     while pending:
@@ -437,8 +430,7 @@ def extract_functions(source: str) -> list[FuncInfo]:
     parameters:
       source:
         description: Source code whose docstrings are being processed.
-    returns:
-      description: List of FuncInfo objects in the order they appear.
+    returns: List of FuncInfo objects in the order they appear.
     """
     try:
         tree = ast.parse(source)

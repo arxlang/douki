@@ -55,9 +55,8 @@ def resolve_files(
         optional: true
         description: Override gitignore filtering; None uses the project
           setting.
-    returns:
-      description: Sorted, unique source paths after applying discovery and
-        exclusion rules.
+    returns: Sorted, unique source paths after applying discovery and exclusion
+      rules.
     """
     from douki._base.language import get_language
 
@@ -91,9 +90,8 @@ def sync_source(
         optional: true
         description: Docstring format to convert before formatting; None
           disables migration.
-    returns:
-      description: Source with formatted YAML, preserving authored descriptions
-        without inserting types.
+    returns: Source with formatted YAML, preserving authored descriptions
+      without inserting types.
     """
     from douki._base.language import get_language
 

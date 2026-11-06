@@ -28,9 +28,8 @@ def migrate_source(
       lang:
         optional: true
         description: Registered language backend used to process the source.
-    returns:
-      description: Source with supported docstrings converted to formatted
-        Douki YAML.
+    returns: Source with supported docstrings converted to formatted Douki
+      YAML.
     """
     from douki.sync import sync_source
 

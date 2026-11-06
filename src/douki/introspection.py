@@ -36,9 +36,8 @@ def display_annotation(value: object) -> str:
       value:
         description: Annotation value or the inspect sentinel for a missing
           annotation.
-    returns:
-      description: Readable annotation text, or an empty string for the
-        missing sentinel.
+    returns: Readable annotation text, or an empty string for the missing
+      sentinel.
     """
     if value is inspect.Signature.empty:
         return ''
@@ -58,8 +57,7 @@ def callable_signature(obj: object) -> inspect.Signature:
       obj:
         description: Declaration whose documentation or annotation metadata
           is needed.
-    returns:
-      description: Python signature with forward references left unevaluated.
+    returns: Python signature with forward references left unevaluated.
     """
     if not callable(obj):
         raise DocumentationError('signature', 'Object is not callable')
@@ -83,14 +81,11 @@ def callable_metadata(obj: object, skip_receiver: bool) -> Signature:
     title: Adapt a Python signature to the language-independent contract.
     parameters:
       obj:
-        description: Declaration whose documentation or annotation
-          metadata is needed.
+        description: Declaration whose documentation or annotation metadata
+          is needed.
       skip_receiver:
-        description: Whether to omit the first parameter of an unbound
-          method.
-    returns:
-      description: Language-independent parameter and return annotation
-        metadata.
+        description: Whether to omit the first parameter of an unbound method.
+    returns: Language-independent parameter and return annotation metadata.
     """
     signature = callable_signature(obj)
     values = list(signature.parameters.values())
@@ -125,9 +120,8 @@ def attributes(obj: type | ModuleType) -> tuple[Parameter, ...]:
       obj:
         description: Declaration whose documentation or annotation metadata
           is needed.
-    returns:
-      description: Declared attribute annotations, including inherited fields
-        and properties.
+    returns: Declared attribute annotations, including inherited fields and
+      properties.
     """
     owners = reversed(obj.__mro__) if isinstance(obj, type) else [obj]
     result: dict[str, Parameter] = {}
@@ -164,13 +158,13 @@ def metadata(obj: object, skip_receiver: bool = False) -> Signature:
     title: Reject unsupported annotation sources explicitly.
     parameters:
       obj:
-        description: Declaration whose documentation or annotation metadata
-          is needed.
+        description: Declaration whose documentation or annotation
+          metadata is needed.
       skip_receiver:
-        description: Whether to omit the first parameter of an unbound method.
-    returns:
-      description: Language-independent signature or attribute metadata for
-        a supported declaration.
+        description: Whether to omit the first parameter of an unbound
+          method.
+    returns: Language-independent signature or attribute metadata
+      for a supported declaration.
     """
     raise DocumentationError(
         'signature',
@@ -188,13 +182,13 @@ def metadata(
     title: Collect ordinary functions and bound methods.
     parameters:
       obj:
-        description: Declaration whose documentation or annotation metadata
-          is needed.
+        description: Declaration whose documentation or annotation
+          metadata is needed.
       skip_receiver:
-        description: Whether to omit the first parameter of an unbound method.
-    returns:
-      description: Language-independent signature or attribute metadata for
-        a supported declaration.
+        description: Whether to omit the first parameter of an unbound
+          method.
+    returns: Language-independent signature or attribute metadata
+      for a supported declaration.
     """
     return callable_metadata(obj, skip_receiver)
 
@@ -209,13 +203,13 @@ def metadata(
     title: Collect module and class attribute annotations.
     parameters:
       obj:
-        description: Declaration whose documentation or annotation metadata
-          is needed.
+        description: Declaration whose documentation or annotation
+          metadata is needed.
       skip_receiver:
-        description: Whether to omit the first parameter of an unbound method.
-    returns:
-      description: Language-independent signature or attribute metadata for
-        a supported declaration.
+        description: Whether to omit the first parameter of an unbound
+          method.
+    returns: Language-independent signature or attribute metadata
+      for a supported declaration.
     """
     return Signature(attributes=attributes(obj))
 
@@ -227,13 +221,13 @@ def metadata(obj: property, skip_receiver: bool = False) -> Signature:
     title: Document a property's getter without executing it.
     parameters:
       obj:
-        description: Declaration whose documentation or annotation metadata
-          is needed.
+        description: Declaration whose documentation or annotation
+          metadata is needed.
       skip_receiver:
-        description: Whether to omit the first parameter of an unbound method.
-    returns:
-      description: Language-independent signature or attribute metadata for
-        a supported declaration.
+        description: Whether to omit the first parameter of an unbound
+          method.
+    returns: Language-independent signature or attribute metadata
+      for a supported declaration.
     """
     if obj.fget is None:
         return Signature()
@@ -248,9 +242,7 @@ def is_douki(raw: str | None) -> bool:
     parameters:
       raw:
         description: Cleaned docstring text, or None when no docstring exists.
-    returns:
-      description: Whether the docstring parses as a mapping containing a
-        title key.
+    returns: Whether the docstring parses as a mapping containing a title key.
     """
     if raw is None:
         return False
@@ -274,11 +266,9 @@ def getdoc(obj: object, *, skip_receiver: bool = False) -> str | None:
         description: Declaration whose documentation or annotation metadata
           is needed.
       skip_receiver:
-        description: Whether to omit the first parameter of an unbound
-          method.
-    returns:
-      description: Enriched Douki YAML, cleaned ordinary prose, or None
-        when no docstring exists.
+        description: Whether to omit the first parameter of an unbound method.
+    returns: Enriched Douki YAML, cleaned ordinary prose, or None when no
+      docstring exists.
     """
     alternatives = variants(obj)
     if len(alternatives) > 1 or alternatives[0] is not obj:
@@ -307,9 +297,8 @@ def variants(obj: object) -> tuple[object, ...]:
       obj:
         description: Declaration whose documentation or annotation metadata
           is needed.
-    returns:
-      description: Distinct overload implementations, or the original object
-        as a single item.
+    returns: Distinct overload implementations, or the original object as
+      a single item.
     """
     target = obj.__func__ if isinstance(obj, MethodType) else obj
     if isinstance(obj, Function) or (
@@ -355,9 +344,8 @@ def variant_doc(
           no docstring.
       skip_receiver:
         description: Whether to omit the first parameter of an unbound method.
-    returns:
-      description: Enriched variant documentation, ordinary prose, or None
-        when absent.
+    returns: Enriched variant documentation, ordinary prose, or None when
+      absent.
     """
     raw = inspect.getdoc(obj) or inspect.getdoc(implementation)
     if raw is None:

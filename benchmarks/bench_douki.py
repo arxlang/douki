@@ -30,8 +30,7 @@ class DocstringBenchmarks:
             'parameters:\n'
             '  value:\n'
             '    description: The integer to convert.\n'
-            'returns:\n'
-            '  description: The formatted result.\n'
+            'returns: The formatted result.\n'
         )
         self.params = [ParamInfo('value', 'int', 'regular')]
 
@@ -92,9 +91,7 @@ class SourceBenchmarks:
           count:
             description: Number of documented functions to include in the
               synthetic module.
-        returns:
-          description: Synthetic Python source for the source-formatting
-            benchmark.
+        returns: Synthetic Python source for the source-formatting benchmark.
         """
         functions = ['"""title: Benchmark module"""\n']
         for idx in range(count):
@@ -105,8 +102,7 @@ class SourceBenchmarks:
                 '    parameters:\n'
                 '      value:\n'
                 '        description: Details.\n'
-                '    returns:\n'
-                '      description: Details.\n'
+                '    returns: Details.\n'
                 '    """\n'
                 '    return value\n'
             )

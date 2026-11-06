@@ -29,8 +29,7 @@ def _safe_load(raw: str) -> Any:
     parameters:
       raw:
         description: Docstring text to parse as YAML.
-    returns:
-      description: Parsed YAML value without schema validation.
+    returns: Parsed YAML value without schema validation.
     """
     return yaml.load(textwrap.dedent(raw), Loader=_SAFE_LOADER)
 
@@ -123,9 +122,8 @@ def _load_docstring_yaml(raw: str) -> dict[str, Any]:
     parameters:
       raw:
         description: Docstring text to parse as YAML.
-    returns:
-      description: Documentation mapping, with plain one-line prose treated
-        as a title.
+    returns: Documentation mapping, with plain one-line prose treated as
+      a title.
     """
     try:
         data = _safe_load(raw)
@@ -153,9 +151,7 @@ def _parse_validated_docstring(raw: str) -> dict[str, Any]:
     parameters:
       raw:
         description: Docstring text to parse as YAML.
-    returns:
-      description: Parsed documentation mapping that satisfies the source
-        schema.
+    returns: Parsed documentation mapping that satisfies the source schema.
     """
     try:
         data = _safe_load(raw)
@@ -180,8 +176,7 @@ def validate_docstring(raw: str, func_name: str) -> bool:
       func_name:
         description: Declaration name retained for compatibility with existing
           callers.
-    returns:
-      description: True if it's a valid Douki YAML docstring.
+    returns: True if it's a valid Douki YAML docstring.
     """
     # Keep func_name in the public API for compatibility.
     _ = func_name
@@ -198,8 +193,7 @@ def _param_name_for_yaml(p: ParamInfo) -> str:
     parameters:
       p:
         description: Extracted parameter whose name becomes the YAML key.
-    returns:
-      description: Plain parameter name without variadic prefixes.
+    returns: Plain parameter name without variadic prefixes.
     """
     return p.name
 
@@ -211,9 +205,7 @@ def _extract_param_desc(entry: Any) -> str:
       entry:
         description: Existing documentation entry whose description should
           be retained.
-    returns:
-      description: Existing parameter description, or an empty string if
-        absent.
+    returns: Existing parameter description, or an empty string if absent.
     """
     if isinstance(entry, dict):
         return str(entry.get('description', ''))
@@ -229,8 +221,7 @@ def _extract_returns_desc(entry: Any) -> str:
       entry:
         description: Existing documentation entry whose description should
           be retained.
-    returns:
-      description: Existing result description, or an empty string if absent.
+    returns: Existing result description, or an empty string if absent.
     """
     if isinstance(entry, list) and entry:
         first = entry[0]
@@ -260,28 +251,25 @@ def sync_docstring(
       If not valid Douki YAML, raises ValueError.
     parameters:
       raw_docstring:
-        description: Authored Douki YAML without surrounding string
-          delimiters.
+        description: Authored Douki YAML without surrounding string delimiters.
       params:
         description: Parameter metadata extracted from the declaration
           signature.
       return_annotation:
         description: Return annotation supplied by the language adapter.
       attrs:
-        description: 'Class-level annotated variables used to sync
-          the attributes: section. Only meaningful for ClassDef docstrings.'
+        description: 'Class-level annotated variables used to sync the
+          attributes: section. Only meaningful for ClassDef docstrings.'
       func_name:
-        description: Declaration name retained for compatibility
-          with existing callers.
+        description: Declaration name retained for compatibility with existing
+          callers.
       content_indent:
         description: Source indentation width to allow for when wrapping
           YAML.
       language_defaults:
-        description: Language-specific values to omit from generated
-          YAML.
-    returns:
-      description: Annotation-enriched YAML for display, without
-        surrounding string delimiters.
+        description: Language-specific values to omit from generated YAML.
+    returns: Annotation-enriched YAML for display, without surrounding
+      string delimiters.
     """
     # Keep func_name in the public API for compatibility.
     _ = func_name
@@ -342,9 +330,8 @@ def _sync_docstring_data(
       language_defaults:
         description: Language-specific values to omit from generated
           YAML.
-    returns:
-      description: YAML containing signature types and retained authored
-        descriptions.
+    returns: YAML containing signature types and retained authored
+      descriptions.
     """
     # --- parameters ---
     if params:
@@ -485,9 +472,7 @@ def _rebuild_yaml(
       field_defaults:
         description: Top-level field values to omit when they match these
           defaults.
-    returns:
-      description: Serialized YAML with canonical field order and a trailing
-        newline.
+    returns: Serialized YAML with canonical field order and a trailing newline.
     """
     if field_defaults is None:
         field_defaults = _EMPTY_DEFAULTS
@@ -801,8 +786,7 @@ def _yaml_scalar(value: Any) -> str:
     parameters:
       value:
         description: Field value to serialize into YAML.
-    returns:
-      description: Inline YAML representation, quoted when necessary.
+    returns: Inline YAML representation, quoted when necessary.
     """
     if isinstance(value, bool):
         return 'true' if value else 'false'

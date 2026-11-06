@@ -135,8 +135,7 @@ def entry(value: object) -> dict[str, object]:
       value:
         description: Validated description string, entry mapping, or absent
           value.
-    returns:
-      description: New mapping retaining the authored entry metadata.
+    returns: New mapping retaining the authored entry metadata.
     """
     if isinstance(value, str):
         return {'description': value}
@@ -167,9 +166,8 @@ def merge_fields(
       strict:
         description: Whether to reject authored names absent from
           the signature.
-    returns:
-      description: New field mapping combining descriptions with
-        annotation-derived types.
+    returns: New field mapping combining descriptions with annotation-derived
+      types.
     """
     names = {parameter.name for parameter in parameters}
     if strict and (unknown := set(existing) - names):
@@ -239,20 +237,20 @@ def validate_annotations(
 @typechecked
 def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
     """
-    title: Return structured documentation enriched with annotation
-      types.
-    summary: Types come exclusively from annotations. No objects or
-      source files are modified. Missing annotations raise DocumentationError.
+    title: Return structured documentation enriched with
+      annotation types.
+    summary: Types come exclusively from annotations. No
+      objects or source files are modified. Missing annotations
+      raise DocumentationError.
     parameters:
       raw_docstring:
-        description: Authored Douki YAML containing descriptions and
-          no type fields.
+        description: Authored Douki YAML containing descriptions
+          and no type fields.
       signature:
-        description: Annotation metadata supplied by the language
-          adapter.
-    returns:
-      description: New documentation mapping with authored descriptions
-        and annotation-derived types.
+        description: Annotation metadata supplied by the
+          language adapter.
+    returns: New documentation mapping with authored descriptions
+      and annotation-derived types.
     """
     try:
         data = cast(
@@ -303,9 +301,8 @@ def represent_string(
         description: Active YAML dumper to create the scalar node.
       value:
         description: String whose whitespace and line breaks must be preserved.
-    returns:
-      description: YAML scalar node with quoting or block style chosen for
-        the content.
+    returns: YAML scalar node with quoting or block style chosen for the
+      content.
     """
     return dumper.represent_scalar(
         'tag:yaml.org,2002:str',
@@ -345,9 +342,8 @@ def format_documentation(
       enriched:
         description: Whether to allow annotation-derived type fields
           in generated output.
-    returns:
-      description: Serialized YAML with canonical field order and
-        preserved values.
+    returns: Serialized YAML with canonical field order and preserved
+      values.
     """
     try:
         validate_schema(data, enriched=enriched)

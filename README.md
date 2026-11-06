@@ -13,8 +13,7 @@ def add(a: int, b: int = 0) -> int:
     parameters:
       a: First value.
       b: Second value.
-    returns:
-      description: Sum of a and b.
+    returns: Sum of a and b.
     """
     return a + b
 ```

@@ -31,8 +31,7 @@ def greet(name: str, /, *others: str, count: int = 1, **options: bool) -> str:
       others: More people.
       count: Number of greetings.
       options: Greeting options.
-    returns:
-      description: The name repeated for each greeting.
+    returns: The name repeated for each greeting.
     """
     return name * count
 
@@ -56,7 +55,7 @@ def test_getdoc_enriches_without_mutation_or_calling() -> None:
     assert data['parameters']['others']['variadic'] == 'positional'
     assert data['parameters']['options']['variadic'] == 'keyword'
     assert data['returns'] == {
-        **authored['returns'],
+        'description': authored['returns'],
         'type': 'str',
     }
     assert greet.__doc__ == doc

@@ -44,9 +44,7 @@ class LanguageDefaults:
         """
         title: Return the mapping of top-level YAML key to the default value
           that should be omitted.
-        returns:
-          description: Built-in defaults combined with language-specific
-            overrides.
+        returns: Built-in defaults combined with language-specific overrides.
         """
         defaults = {
             'visibility': self.visibility,

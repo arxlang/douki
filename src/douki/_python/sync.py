@@ -44,8 +44,7 @@ def sync_source(
         optional: true
         description: If ``'numpydoc'``, convert NumPy docstrings to Douki
           YAML before syncing.
-    returns:
-      description: The (possibly modified) source string.
+    returns: The (possibly modified) source string.
     """
     # Optional migration pass first
     if migrate == 'numpydoc':
@@ -202,9 +201,7 @@ def _migrate_numpydoc(source: str) -> str:
     parameters:
       source:
         description: Source code whose docstrings are being processed.
-    returns:
-      description: Source with recognized NumPy docstrings converted to Douki
-        YAML.
+    returns: Source with recognized NumPy docstrings converted to Douki YAML.
     """
     from douki._python.migrate import numpydoc_to_douki_yaml
 

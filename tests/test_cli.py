@@ -26,8 +26,7 @@ def _write(tmp_path: Path, name: str, content: str) -> Path:
         description: Filename to create beneath the temporary directory.
       content:
         description: Source text to write to the test file.
-    returns:
-      description: Path to the newly written test file.
+    returns: Path to the newly written test file.
     """
     p = tmp_path / name
     p.write_text(textwrap.dedent(content), encoding='utf-8')
@@ -912,15 +911,14 @@ def test_sync_generic_exception(
         parameters:
           a:
             variadic: positional
-            description: Positional arguments accepted by the failing backend
-              stub.
+            description: Positional arguments accepted by the failing
+              backend stub.
           kw:
             variadic: keyword
-            description: Keyword arguments accepted by the failing backend
-              stub.
-        returns:
-          description: Never returns; raises an error to exercise CLI failure
-            handling.
+            description: Keyword arguments accepted by the failing
+              backend stub.
+        returns: Never returns; raises an error to exercise CLI failure
+          handling.
         """
         raise RuntimeError('boom')
 
@@ -963,15 +961,14 @@ def test_check_generic_exception(
         parameters:
           a:
             variadic: positional
-            description: Positional arguments accepted by the failing backend
-              stub.
+            description: Positional arguments accepted by the failing
+              backend stub.
           kw:
             variadic: keyword
-            description: Keyword arguments accepted by the failing backend
-              stub.
-        returns:
-          description: Never returns; raises an error to exercise CLI failure
-            handling.
+            description: Keyword arguments accepted by the failing
+              backend stub.
+        returns: Never returns; raises an error to exercise CLI failure
+          handling.
         """
         raise RuntimeError('boom')
 
@@ -1014,15 +1011,14 @@ def test_migrate_generic_exception(
         parameters:
           a:
             variadic: positional
-            description: Positional arguments accepted by the failing backend
-              stub.
+            description: Positional arguments accepted by the failing
+              backend stub.
           kw:
             variadic: keyword
-            description: Keyword arguments accepted by the failing backend
-              stub.
-        returns:
-          description: Never returns; raises an error to exercise CLI failure
-            handling.
+            description: Keyword arguments accepted by the failing
+              backend stub.
+        returns: Never returns; raises an error to exercise CLI failure
+          handling.
         """
         raise RuntimeError('boom')
 

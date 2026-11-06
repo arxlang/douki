@@ -36,9 +36,8 @@ def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
     parameters:
       obj:
         description: Object whose documentation or members are being inspected.
-    returns:
-      description: Member names, objects, and flags indicating implicit
-        method receivers.
+    returns: Member names, objects, and flags indicating implicit method
+      receivers.
     """
     values: dict[str, object] = {}
     if isinstance(obj, type):
@@ -75,17 +74,17 @@ def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
 @typechecked
 def contains_douki(obj: object, seen: set[int]) -> bool:
     """
-    title: Leave ordinary Python help unchanged outside documented objects.
+    title: Leave ordinary Python help unchanged outside documented
+      objects.
     parameters:
       obj:
         description: Object whose documentation or members are being
           inspected.
       seen:
-        description: Visited object identities, updated to prevent recursive
-          traversal.
-    returns:
-      description: Whether the object or any inspected member contains
-        Douki documentation.
+        description: Visited object identities, updated to prevent
+          recursive traversal.
+    returns: Whether the object or any inspected member contains
+      Douki documentation.
     """
     if id(obj) in seen:
         return False
@@ -135,9 +134,7 @@ class Renderer:
           skip_receiver:
             description: Whether to omit the first parameter of an unbound
               method.
-        returns:
-          description: Help text for the object and any supported documented
-            members.
+        returns: Help text for the object and any supported documented members.
         """
         return str(pydoc.plaintext.document(obj, name))
 
@@ -160,9 +157,7 @@ class Renderer:
           skip_receiver:
             description: Whether to omit the first parameter of an unbound
               method.
-        returns:
-          description: Help text for the object and any supported documented
-            members.
+        returns: Help text for the object and any supported documented members.
         """
         sections: list[str] = []
         for variant in variants(obj):
@@ -194,9 +189,7 @@ class Renderer:
           skip_receiver:
             description: Whether to omit the first parameter of an unbound
               method.
-        returns:
-          description: Help text for the object and any supported documented
-            members.
+        returns: Help text for the object and any supported documented members.
         """
         return f'{name} (property)\n{getdoc(obj) or ""}'
 
@@ -219,9 +212,7 @@ class Renderer:
           skip_receiver:
             description: Whether to omit the first parameter of an unbound
               method.
-        returns:
-          description: Help text for the object and any supported documented
-            members.
+        returns: Help text for the object and any supported documented members.
         """
         if id(obj) in self.seen:
             return f'{name} (already documented)'

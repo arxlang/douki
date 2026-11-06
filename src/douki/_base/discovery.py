@@ -70,9 +70,7 @@ def load_douki_discovery_config(cwd: Path) -> DiscoveryConfig:
       cwd:
         description: Starting directory for the upward project configuration
           search.
-    returns:
-      description: Nearest project discovery settings, or defaults rooted
-        at cwd.
+    returns: Nearest project discovery settings, or defaults rooted at cwd.
     """
     curr = cwd.resolve()
     while True:
@@ -102,8 +100,7 @@ def collect_source_files(
       discovery:
         description: Project root and exclusion settings used during file
           discovery.
-    returns:
-      description: Sorted, unique source paths after applying exclusion rules.
+    returns: Sorted, unique source paths after applying exclusion rules.
     """
     matcher = _GitIgnoreMatcher(discovery.root)
     result: list[Path] = []
@@ -160,8 +157,7 @@ def _can_prune_directory(
           discovery.
       matcher:
         description: Cached gitignore matcher for the project root.
-    returns:
-      description: Whether traversal can skip the entire directory subtree.
+    returns: Whether traversal can skip the entire directory subtree.
     """
     for pattern in discovery.exclude_patterns:
         normalized = pattern.replace('\\', '/').lstrip('/')
@@ -193,9 +189,7 @@ def _load_pyproject_discovery_config(pyproject: Path) -> DiscoveryConfig:
       pyproject:
         description: Project configuration file containing optional Douki
           settings.
-    returns:
-      description: Parsed settings, with defaults for absent or unreadable
-        values.
+    returns: Parsed settings, with defaults for absent or unreadable values.
     """
     excludes: tuple[str, ...] = ()
     respect_gitignore = True
@@ -231,8 +225,7 @@ def _matches_extension(path: Path, file_extensions: tuple[str, ...]) -> bool:
         description: Candidate path to check against discovery rules.
       file_extensions:
         description: Filename suffixes accepted by the language backend.
-    returns:
-      description: Whether the filename has an accepted suffix.
+    returns: Whether the filename has an accepted suffix.
     """
     return any(path.name.endswith(ext) for ext in file_extensions)
 
@@ -253,8 +246,7 @@ def _is_excluded(
           discovery.
       matcher:
         description: Cached gitignore matcher for the project root.
-    returns:
-      description: Whether configuration or gitignore rules exclude the path.
+    returns: Whether configuration or gitignore rules exclude the path.
     """
     return _matches_exclude_patterns(
         path,
@@ -279,8 +271,7 @@ def _matches_exclude_patterns(
       root:
         description: Project root used to resolve relative paths and discovery
           rules.
-    returns:
-      description: Whether any configured exclusion pattern matches the path.
+    returns: Whether any configured exclusion pattern matches the path.
     """
     if not exclude_patterns:
         return False
@@ -305,9 +296,7 @@ def _match_exclude_pattern(path_str: str, pattern: str) -> bool:
           discovery root.
       pattern:
         description: Gitignore-style glob pattern to match.
-    returns:
-      description: Whether the pattern matches the path or an applicable
-        ancestor.
+    returns: Whether the pattern matches the path or an applicable ancestor.
     """
     normalized = pattern.replace('\\', '/').lstrip('/')
     directory_only = normalized.endswith('/')
@@ -362,9 +351,7 @@ class _GitIgnoreMatcher:
             description: Candidate path to check against discovery rules.
           is_directory:
             description: Whether the candidate itself is a directory.
-        returns:
-          description: Whether the last matching gitignore rule excludes
-            the path.
+        returns: Whether the last matching gitignore rule excludes the path.
         """
         resolved = path.resolve()
         try:
@@ -388,9 +375,7 @@ class _GitIgnoreMatcher:
           directory:
             description: Directory being considered for exclusion
               from traversal.
-        returns:
-          description: Whether an applicable rule may re-include
-            a descendant.
+        returns: Whether an applicable rule may re-include a descendant.
         """
         resolved = directory.resolve()
         try:
@@ -405,13 +390,14 @@ class _GitIgnoreMatcher:
 
     def _iter_scope_dirs(self, path: Path) -> Iterable[Path]:
         """
-        title: Yield directories whose `.gitignore` files apply to `path`.
+        title: Yield directories whose `.gitignore` files apply to
+          `path`.
         parameters:
           path:
-            description: Resolved candidate path beneath the matcher root.
-        returns:
-          description: Iterator over applicable directories, from root to
-            the candidate parent.
+            description: Resolved candidate path beneath the matcher
+              root.
+        returns: Iterator over applicable directories, from root
+          to the candidate parent.
         """
         rel_parent = path.relative_to(self._root).parent
         curr = self._root
@@ -429,9 +415,8 @@ class _GitIgnoreMatcher:
           scope_dir:
             description: Directory containing the gitignore file for these
               rules.
-        returns:
-          description: Rules in file order, or an empty tuple if the file
-            cannot be read.
+        returns: Rules in file order, or an empty tuple if the file cannot
+          be read.
         """
         if scope_dir in self._rules_by_dir:
             return self._rules_by_dir[scope_dir]
@@ -469,8 +454,7 @@ def _parse_gitignore_rule(
         description: Unprocessed line from a gitignore file.
       scope_dir:
         description: Directory containing the gitignore file for these rules.
-    returns:
-      description: Parsed rule, or None for blank, comment, or empty patterns.
+    returns: Parsed rule, or None for blank, comment, or empty patterns.
     """
     line = raw_line.rstrip()
     if not line:
@@ -519,8 +503,7 @@ def _rule_matches_path(
         description: Candidate path to check against discovery rules.
       is_directory:
         description: Whether the candidate itself is a directory.
-    returns:
-      description: Whether the rule matches the path within its scope.
+    returns: Whether the rule matches the path within its scope.
     """
     try:
         rel_path = path.relative_to(rule.scope_dir).as_posix()
@@ -546,9 +529,7 @@ def _relative_prefixes(path_str: str) -> list[str]:
       path_str:
         description: Path expressed with forward slashes relative to its
           discovery root.
-    returns:
-      description: Path prefixes from the first component through the full
-        path.
+    returns: Path prefixes from the first component through the full path.
     """
     parts = [part for part in path_str.split('/') if part]
     prefixes: list[str] = []
@@ -563,8 +544,7 @@ def _compile_gitignore_regex(pattern: str) -> Pattern[str]:
     parameters:
       pattern:
         description: Gitignore-style glob pattern to match.
-    returns:
-      description: Compiled expression implementing the supported glob syntax.
+    returns: Compiled expression implementing the supported glob syntax.
     """
     regex: list[str] = ['^']
     idx = 0

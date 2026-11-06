@@ -67,8 +67,7 @@ def _resolve_files(
       respect_gitignore:
         description: Override gitignore filtering; None uses the project
           setting.
-    returns:
-      description: Source paths to process, after applying discovery rules.
+    returns: Source paths to process, after applying discovery rules.
     """
     target_files = resolve_files(
         files,
@@ -95,8 +94,7 @@ def _print_diff(
         description: File contents before formatting.
       updated:
         description: File contents after formatting.
-    returns:
-      description: True if there is a diff.
+    returns: True if there is a diff.
     """
     if original == updated:
         return False

@@ -11,8 +11,7 @@ def greet(name: str, times: int = 1) -> str:
     parameters:
       name: Person to greet.
       times: Number of greetings.
-    returns:
-      description: The greeting text.
+    returns: The greeting text.
     """
     return "\n".join([f"Hello, {name}!"] * times)
 ```
@@ -21,6 +20,18 @@ A `title` is required. Parameter entries can be description strings or
 mappings with `description`, `default`, `optional` and `variadic`.
 Write parameter and return descriptions in the docstring, as above.
 Annotations supply the types; Douki does not infer these descriptions.
+Use a string for `returns`, or a YAML block scalar for longer text:
+
+```yaml
+returns: >-
+  The greeting text, with one greeting per line.
+  Each greeting includes the supplied name.
+```
+
+Generated help and API documentation expand this to a mapping with
+`description` and the annotation-derived `type`. Existing nested
+`returns: {description: ...}` entries remain supported.
+
 Authored `type` fields are forbidden. The shipped `douki/schema.json` defines
 all supported fields, including `attributes`, `raises`, `yields`, `examples`
 and `notes`.
@@ -155,8 +166,7 @@ data = enrich(
     "parameters:\n"
     "  name: Person to greet.\n"
     "  times: Number of greetings.\n"
-    "returns:\n"
-    "  description: The greeting text.\n",
+    "returns: The greeting text.\n",
     signature,
 )
 text = format_documentation(data, enriched=True)

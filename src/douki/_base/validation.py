@@ -20,8 +20,7 @@ _schema_cache: dict[str, Any] | None = None
 def _schema() -> dict[str, Any]:
     """
     title: Load and cache the Douki JSON schema.
-    returns:
-      description: Cached schema for authored Douki documentation.
+    returns: Cached schema for authored Douki documentation.
     """
     global _schema_cache
 
@@ -39,8 +38,7 @@ def _validator(enriched: bool = False) -> Any:
       enriched:
         description: Whether to allow annotation-derived type fields
           in generated output.
-    returns:
-      description: Cached validator for authored or enriched documentation.
+    returns: Cached validator for authored or enriched documentation.
     """
     schema = _schema()
     if enriched:

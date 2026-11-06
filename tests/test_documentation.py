@@ -34,8 +34,8 @@ parameters:
     description: How many times.
   args:
     description: Other names.
-returns:
-  description: The message.
+returns: >-
+  The message.
 notes: Keep this note.
 """
     signature = Signature(
@@ -189,8 +189,7 @@ def greet(name: str, *, count: int = 1) -> str:
     parameters:
       name: Person to greet.
       count: Number of greetings.
-    returns:
-      description: The name repeated for each greeting.
+    returns: The name repeated for each greeting.
     """
     return name * count
 '''

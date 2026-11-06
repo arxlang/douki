@@ -18,11 +18,10 @@ def _measurement(value: Any) -> float | None:
     title: Extract a finite, positive timing result in seconds.
     parameters:
       value:
-        description: Raw ASV timing value, optionally enclosed in a one-item
-          list.
-    returns:
-      description: Positive finite duration in seconds, or None for invalid
-        measurements.
+        description: Raw ASV timing value, optionally enclosed in
+          a one-item list.
+    returns: Positive finite duration in seconds, or None for invalid
+      measurements.
     """
     if isinstance(value, list):
         if len(value) != 1:
@@ -46,9 +45,8 @@ def collect_results(
       sha:
         description: Exact commit hash whose timing results should
           be collected.
-    returns:
-      description: Timings keyed by benchmark and environment, with
-        None for missing results.
+    returns: Timings keyed by benchmark and environment, with None
+      for missing results.
     """
     collected: dict[tuple[str, str], float | None] = {}
     for path in sorted(directory.rglob('*.json')):
@@ -87,8 +85,7 @@ def _format_seconds(seconds: float) -> str:
     parameters:
       seconds:
         description: Measured execution duration in seconds.
-    returns:
-      description: Duration with a suitable unit and consistent precision.
+    returns: Duration with a suitable unit and consistent precision.
     """
     if seconds < 0.001:
         return f'{seconds * 1_000_000:,.1f} μs'
@@ -103,8 +100,7 @@ def _escape_cell(value: str) -> str:
     parameters:
       value:
         description: Benchmark label to include in a Markdown table cell.
-    returns:
-      description: Single-line label with Markdown table delimiters escaped.
+    returns: Single-line label with Markdown table delimiters escaped.
     """
     return value.replace('|', '&#124;').replace('\n', ' ')
 
@@ -132,9 +128,8 @@ def build_report(
           and artifacts.
       asv_status:
         description: Exit status of the ASV benchmark command.
-    returns:
-      description: Markdown comparison of available base and pull
-        request timings.
+    returns: Markdown comparison of available base and pull request
+      timings.
     """
     base_results = collect_results(directory, base_sha)
     head_results = collect_results(directory, head_sha)

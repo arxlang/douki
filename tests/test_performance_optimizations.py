@@ -36,8 +36,7 @@ def test_source_docstring_is_parsed_once(
         parameters:
           raw:
             description: YAML input forwarded to the original loader.
-        returns:
-          description: YAML value returned by the original loader.
+        returns: YAML value returned by the original loader.
         """
         calls.append(raw)
         return original_load(raw)
@@ -123,9 +122,7 @@ def test_prunes_ignored_directories(
               directories.
           followlinks:
             description: Whether to descend through directory symbolic links.
-        returns:
-          description: Iterator over directory paths, subdirectories, and
-            filenames.
+        returns: Iterator over directory paths, subdirectories, and filenames.
         """
         for root, dirs, names in original_walk(
             top, topdown=topdown, onerror=onerror, followlinks=followlinks

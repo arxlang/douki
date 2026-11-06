@@ -32,8 +32,7 @@ class PythonLanguage(BaseLanguage):
     def name(self) -> str:
         """
         title: Language name (python).
-        returns:
-          description: Registry name identifying the Python backend.
+        returns: Registry name identifying the Python backend.
         """
         return 'python'
 
@@ -41,8 +40,7 @@ class PythonLanguage(BaseLanguage):
     def config(self) -> BaseConfig:
         """
         title: Returns the PythonConfig instance.
-        returns:
-          description: Configuration loader used by this backend instance.
+        returns: Configuration loader used by this backend instance.
         """
         return self._config
 
@@ -58,8 +56,6 @@ class PythonLanguage(BaseLanguage):
             optional: true
             description: Docstring format to convert before formatting; None
               disables migration.
-        returns:
-          description: Python source with validated, formatted Douki YAML
-            docstrings.
+        returns: Python source with validated, formatted Douki YAML docstrings.
         """
         return py_sync_source(source, migrate=migrate)

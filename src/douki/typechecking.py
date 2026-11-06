@@ -19,9 +19,7 @@ def typechecked(function: Callable[P, R]) -> Callable[P, R]:
     parameters:
       function:
         description: Annotated function to instrument for runtime type checks.
-    returns:
-      description: Instrumented function checking all arguments and collection
-        items.
+    returns: Instrumented function checking all arguments and collection items.
     """
     return instrument(
         collection_check_strategy=CollectionCheckStrategy.ALL_ITEMS,

@@ -22,8 +22,7 @@ class BaseLanguage(ABC):
     def name(self) -> str:
         """
         title: The name of the language (e.g. 'python').
-        returns:
-          description: Name used to select the backend in the registry and CLI.
+        returns: Name used to select the backend in the registry and CLI.
         """
         ...  # pragma: no cover
 
@@ -32,9 +31,8 @@ class BaseLanguage(ABC):
     def config(self) -> BaseConfig:
         """
         title: Configuration loader for this language.
-        returns:
-          description: Configuration loader and file discovery settings for
-            this backend.
+        returns: Configuration loader and file discovery settings for this
+          backend.
         """
         ...  # pragma: no cover
 
@@ -51,8 +49,7 @@ class BaseLanguage(ABC):
             optional: true
             description: Docstring format to convert before formatting; None
               disables migration.
-        returns:
-          description: Source code with formatted Douki YAML docstrings.
+        returns: Source code with formatted Douki YAML docstrings.
         """
         _ = (source, migrate)
         raise NotImplementedError  # pragma: no cover
@@ -84,8 +81,7 @@ def get_language(name: str) -> BaseLanguage:
     parameters:
       name:
         description: Name of a registered language backend.
-    returns:
-      description: New instance of the requested language backend.
+    returns: New instance of the requested language backend.
     """
     if name not in _REGISTRY:
         raise ValueError(f"Language '{name}' is not registered.")
@@ -95,7 +91,6 @@ def get_language(name: str) -> BaseLanguage:
 def get_registered_language_names() -> list[str]:
     """
     title: Return a list of registered language plugin names.
-    returns:
-      description: Language names in registration order.
+    returns: Language names in registration order.
     """
     return list(_REGISTRY.keys())

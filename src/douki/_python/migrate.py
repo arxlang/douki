@@ -57,8 +57,7 @@ def _is_numpydoc_docstring(raw: str) -> bool:
     parameters:
       raw:
         description: Original NumPy-style docstring text.
-    returns:
-      description: Whether the text contains a NumPy-style section heading.
+    returns: Whether the text contains a NumPy-style section heading.
     """
     # Must have at least one section header with dashes underline
     return bool(
@@ -78,8 +77,7 @@ def _split_sections(
     parameters:
       raw:
         description: Original NumPy-style docstring text.
-    returns:
-      description: Each section is (header_lower, body_text).
+    returns: Each section is (header_lower, body_text).
     """
     lines = raw.splitlines()
     narrative_lines: list[str] = []
@@ -107,8 +105,14 @@ def _split_sections(
             body_end = section_starts[idx + 1][0]
         else:
             body_end = len(lines)
-        body = '\n'.join(lines[body_start:body_end])
-        sections.append((header, textwrap.dedent(body).strip()))
+        # Keep indentation relative to the heading: indented prose must
+        # not become an unindented type/name entry during map parsing.
+        heading = lines[start]
+        indent = heading[: len(heading) - len(heading.lstrip())]
+        body = '\n'.join(
+            line.removeprefix(indent) for line in lines[body_start:body_end]
+        )
+        sections.append((header, body.strip('\n')))
 
     narrative = '\n'.join(narrative_lines).strip()
     return narrative, sections
@@ -122,8 +126,7 @@ def _parse_map_section(
     parameters:
       body:
         description: Section text after removing its heading and underline.
-    returns:
-      description: 'A dict of `{name: {type: ..., description: ...}}`.'
+    returns: 'A dict of `{name: {type: ..., description: ...}}`.'
     """
     result: dict[str, dict[str, str]] = {}
     current_name: Optional[str] = None
@@ -173,10 +176,9 @@ def _parse_simple_section(body: str) -> str:
     parameters:
       body:
         description: Section text after removing its heading and underline.
-    returns:
-      description: Section text with surrounding whitespace removed.
+    returns: Section text with surrounding whitespace removed.
     """
-    return body.strip()
+    return textwrap.dedent(body).strip()
 
 
 def numpydoc_to_douki_yaml(raw: str) -> str:
@@ -185,9 +187,8 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
     parameters:
       raw:
         description: Original NumPy-style docstring text.
-    returns:
-      description: The YAML string (without triple-quotes). If *raw* is not
-        a valid NumPy docstring, returns it unchanged.
+    returns: The YAML string (without triple-quotes). If *raw* is not a valid
+      NumPy docstring, returns it unchanged.
     """
     if not _is_numpydoc_docstring(raw):
         return raw
@@ -227,13 +228,16 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
         elif douki_key in ('returns', 'yields', 'receives'):
             parsed = _parse_map_section(body)
             if parsed:
-                data[douki_key] = {
-                    'description': ' '.join(
-                        info['description'].strip()
-                        for info in parsed.values()
-                        if info.get('description')
-                    ),
-                }
+                description = ' '.join(
+                    info['description'].strip()
+                    for info in parsed.values()
+                    if info.get('description')
+                )
+                data[douki_key] = (
+                    description
+                    if douki_key == 'returns'
+                    else {'description': description}
+                )
             else:
                 # Simple text
                 data[douki_key] = _parse_simple_section(body)
@@ -250,8 +254,7 @@ def _serialize_douki_yaml(data: dict[str, Any]) -> str:
       data:
         description: Converted documentation mapping to serialize as Douki
           YAML.
-    returns:
-      description: Formatted Douki YAML without surrounding string delimiters.
+    returns: Formatted Douki YAML without surrounding string delimiters.
     """
     lines: list[str] = []
     for key in _KEY_ORDER:

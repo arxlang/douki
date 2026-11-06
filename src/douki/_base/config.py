@@ -26,8 +26,7 @@ class BaseConfig(ABC):
     def file_extensions(self) -> tuple[str, ...]:
         """
         title: File extensions handled by the language backend.
-        returns:
-          description: Filename suffixes accepted by this language backend.
+        returns: Filename suffixes accepted by this language backend.
         """
         ...  # pragma: no cover
 
@@ -38,9 +37,7 @@ class BaseConfig(ABC):
           cwd:
             description: Starting directory for the upward project
               configuration search.
-        returns:
-          description: Discovery settings from the nearest project
-            configuration.
+        returns: Discovery settings from the nearest project configuration.
         """
         return load_douki_discovery_config(cwd)
 
@@ -57,9 +54,7 @@ class BaseConfig(ABC):
           discovery:
             description: Project root and exclusion settings used during
               file discovery.
-        returns:
-          description: Sorted, unique source paths after applying exclusion
-            rules.
+        returns: Sorted, unique source paths after applying exclusion rules.
         """
         return collect_source_files(
             paths,

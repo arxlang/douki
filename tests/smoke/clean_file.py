@@ -4,8 +4,7 @@ def greet(name: str) -> str:
     parameters:
       name:
         description: The name to greet
-    returns:
-      description: a greeting string
+    returns: a greeting string
     """
     return f'Hello {name}'
 
@@ -18,8 +17,7 @@ def add(x: int, y: int) -> int:
         description: First value to add.
       y:
         description: Second value to add.
-    returns:
-      description: Sum of the two supplied values.
+    returns: Sum of the two supplied values.
     """
     return x + y
 
@@ -54,7 +52,6 @@ class Calculator:
             description: first operand
           b:
             description: second operand
-        returns:
-          description: the product
+        returns: the product
         """
         return a * b
