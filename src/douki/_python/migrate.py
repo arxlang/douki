@@ -11,6 +11,7 @@ import textwrap
 from typing import Any, Optional
 
 from douki._base.sync import _KEY_ORDER  # single source of truth
+from douki.documentation import format_documentation
 
 # ---------------------------------------------------------------
 # NumPy-style section names → Douki YAML keys
@@ -55,9 +56,8 @@ def _is_numpydoc_docstring(raw: str) -> bool:
     title: 'Heuristic: does *raw* look like a NumPy-style docstring?'
     parameters:
       raw:
-        type: str
-    returns:
-      type: bool
+        description: Original NumPy-style docstring text.
+    returns: Whether the text contains a NumPy-style section heading.
     """
     # Must have at least one section header with dashes underline
     return bool(
@@ -76,10 +76,8 @@ def _split_sections(
     title: Split a NumPy docstring into (narrative, sections).
     parameters:
       raw:
-        type: str
-    returns:
-      type: tuple[str, list[tuple[str, str]]]
-      description: Each section is (header_lower, body_text).
+        description: Original NumPy-style docstring text.
+    returns: Each section is (header_lower, body_text).
     """
     lines = raw.splitlines()
     narrative_lines: list[str] = []
@@ -107,8 +105,14 @@ def _split_sections(
             body_end = section_starts[idx + 1][0]
         else:
             body_end = len(lines)
-        body = '\n'.join(lines[body_start:body_end])
-        sections.append((header, textwrap.dedent(body).strip()))
+        # Keep indentation relative to the heading: indented prose must
+        # not become an unindented type/name entry during map parsing.
+        heading = lines[start]
+        indent = heading[: len(heading) - len(heading.lstrip())]
+        body = '\n'.join(
+            line.removeprefix(indent) for line in lines[body_start:body_end]
+        )
+        sections.append((header, body.strip('\n')))
 
     narrative = '\n'.join(narrative_lines).strip()
     return narrative, sections
@@ -121,10 +125,8 @@ def _parse_map_section(
     title: Parse a numpy map section (Parameters, Raises, etc).
     parameters:
       body:
-        type: str
-    returns:
-      type: dict[str, dict[str, str]]
-      description: 'A dict of `{name: {type: ..., description: ...}}`.'
+        description: Section text after removing its heading and underline.
+    returns: 'A dict of `{name: {type: ..., description: ...}}`.'
     """
     result: dict[str, dict[str, str]] = {}
     current_name: Optional[str] = None
@@ -173,11 +175,10 @@ def _parse_simple_section(body: str) -> str:
     title: Parse a simple text section (returns, notes, etc).
     parameters:
       body:
-        type: str
-    returns:
-      type: str
+        description: Section text after removing its heading and underline.
+    returns: Section text with surrounding whitespace removed.
     """
-    return body.strip()
+    return textwrap.dedent(body).strip()
 
 
 def numpydoc_to_douki_yaml(raw: str) -> str:
@@ -185,12 +186,9 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
     title: Convert a NumPy-style docstring to Douki YAML format.
     parameters:
       raw:
-        type: str
-    returns:
-      type: str
-      description: >-
-        The YAML string (without triple-quotes). If *raw* is not a valid NumPy
-        docstring, returns it unchanged.
+        description: Original NumPy-style docstring text.
+    returns: The YAML string (without triple-quotes). If *raw* is not a valid
+      NumPy docstring, returns it unchanged.
     """
     if not _is_numpydoc_docstring(raw):
         return raw
@@ -217,46 +215,36 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
         if douki_key is None:
             continue
 
-        if douki_key == 'parameters':
-            data[douki_key] = _parse_map_section(body)
+        if douki_key in ('parameters', 'attributes'):
+            data[douki_key] = {
+                name: {'description': info.get('description', '')}
+                for name, info in _parse_map_section(body).items()
+            }
         elif douki_key in ('raises', 'warnings'):
-            # Build list of {type, description}
-            parsed = _parse_map_section(body)
-            items: list[dict[str, str]] = []
-            for name, info in parsed.items():
-                item: dict[str, str] = {'type': name}
-                desc = info.get('description', '')
-                if desc:
-                    item['description'] = desc
-                items.append(item)
-            data[douki_key] = items
+            data[douki_key] = {
+                name: info.get('description', '')
+                for name, info in _parse_map_section(body).items()
+            }
         elif douki_key in ('returns', 'yields', 'receives'):
-            # Combine multiple into a single dict {type, description}
             parsed = _parse_map_section(body)
             if parsed:
-                types = []
-                descs = []
-                for type_name, info in parsed.items():
-                    types.append(type_name)
-                    desc = info.get('description', '')
-                    if desc:
-                        descs.append(desc.strip())
-
-                type_str = ', '.join(types)
-                if len(types) > 1:
-                    type_str = f'tuple[{type_str}]'
-
-                entry: dict[str, str] = {'type': type_str}
-                if descs:
-                    entry['description'] = ' '.join(descs)
-                data[douki_key] = entry
+                description = ' '.join(
+                    info['description'].strip()
+                    for info in parsed.values()
+                    if info.get('description')
+                )
+                data[douki_key] = (
+                    description
+                    if douki_key == 'returns'
+                    else {'description': description}
+                )
             else:
                 # Simple text
                 data[douki_key] = _parse_simple_section(body)
         else:
             data[douki_key] = _parse_simple_section(body)
 
-    return _serialize_douki_yaml(data)
+    return format_documentation(data)
 
 
 def _serialize_douki_yaml(data: dict[str, Any]) -> str:
@@ -264,9 +252,9 @@ def _serialize_douki_yaml(data: dict[str, Any]) -> str:
     title: Serialize a Douki data dict to YAML text.
     parameters:
       data:
-        type: dict[str, Any]
-    returns:
-      type: str
+        description: Converted documentation mapping to serialize as Douki
+          YAML.
+    returns: Formatted Douki YAML without surrounding string delimiters.
     """
     lines: list[str] = []
     for key in _KEY_ORDER:

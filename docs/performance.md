@@ -100,5 +100,13 @@ benchmark suite evolves, ASV can compare only the cases that exist
 in both revisions; changes to benchmark definitions should be clearly
 identified in the PR discussion.
 
+ASV loads the current benchmark definitions against both installed revisions.
+Keep module-level imports compatible with the baseline. Benchmarks for new
+APIs belong in a separate class whose `setup()` checks for the API and raises
+`NotImplementedError` when it is unavailable. This skips only that benchmark
+on older revisions; shared benchmarks must still run and produce comparable
+measurements. The report shows new-API rows as `n/a` on the baseline instead
+of treating them as speed improvements.
+
 Do not update `poetry.lock` solely for ASV: it is installed by the
 dedicated performance workflow and is not a runtime dependency.

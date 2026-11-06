@@ -1,4 +1,4 @@
-def add(x, y):
+def add(x: int, y: int) -> int:
     """Add two numbers.
 
     Parameters

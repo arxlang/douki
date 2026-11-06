@@ -1,9 +1,8 @@
 """
 title: Public API for syncing Douki YAML docstrings.
-summary: >-
-  Provides the ``sync_source`` and ``resolve_files`` dispatch functions that
-  route to the appropriate language plugin. Also re-exports language-agnostic
-  base types.
+summary: Provides the ``sync_source`` and ``resolve_files`` dispatch
+  functions that route to the appropriate language plugin. Also re-exports
+  language-agnostic base types.
 """
 
 from __future__ import annotations
@@ -48,14 +47,16 @@ def resolve_files(
     title: Resolve paths into source files for the given language.
     parameters:
       files:
-        type: Optional[list[Path]]
+        description: Files or directories to process; an empty value uses
+          the current directory.
       lang:
-        type: str
+        description: Registered language backend used to process the source.
       respect_gitignore:
-        type: Optional[bool]
         optional: true
-    returns:
-      type: list[Path]
+        description: Override gitignore filtering; None uses the project
+          setting.
+    returns: Sorted, unique source paths after applying discovery and exclusion
+      rules.
     """
     from douki._base.language import get_language
 
@@ -78,18 +79,19 @@ def sync_source(
     migrate: Optional[str] = None,
 ) -> str:
     """
-    title: Synchronize Douki YAML docstrings in *source*.
+    title: Format Douki YAML docstrings in *source*.
     summary: Dispatches to the appropriate language plugin based on *lang*.
     parameters:
       source:
-        type: str
+        description: Source code whose docstrings are being processed.
       lang:
-        type: str
+        description: Registered language backend used to process the source.
       migrate:
-        type: Optional[str]
         optional: true
-    returns:
-      type: str
+        description: Docstring format to convert before formatting; None
+          disables migration.
+    returns: Source with formatted YAML, preserving authored descriptions
+      without inserting types.
     """
     from douki._base.language import get_language
 

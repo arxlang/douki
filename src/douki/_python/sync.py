@@ -1,14 +1,17 @@
 """
 title: Python-specific source synchronization.
-summary: |-
+summary: >-
   Wires the Python AST extractor to the base YAML sync engine,
+
   providing the ``sync_source`` function that operates on full
+
   Python source strings.
 """
 
 from __future__ import annotations
 
 import ast
+import inspect
 import re
 
 from typing import Optional
@@ -16,11 +19,15 @@ from typing import Optional
 from douki._base.sync import (
     DocstringValidationError,
     _parse_validated_docstring,
-    _sync_docstring_data,
     validate_docstring,
 )
-from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
+from douki.documentation import (
+    Parameter,
+    Signature,
+    format_documentation,
+    validate_annotations,
+)
 
 
 def sync_source(
@@ -29,20 +36,15 @@ def sync_source(
     migrate: Optional[str] = None,
 ) -> str:
     """
-    title: Synchronize all Douki YAML docstrings in *source*.
+    title: Format all Douki YAML docstrings without materializing annotations.
     parameters:
       source:
-        type: str
         description: Python source code.
       migrate:
-        type: Optional[str]
         optional: true
-        description: >-
-          If ``'numpydoc'``, convert NumPy docstrings to Douki YAML before
-          syncing.
-    returns:
-      type: str
-      description: The (possibly modified) source string.
+        description: If ``'numpydoc'``, convert NumPy docstrings to Douki
+          YAML before syncing.
+    returns: The (possibly modified) source string.
     """
     # Optional migration pass first
     if migrate == 'numpydoc':
@@ -83,10 +85,25 @@ def sync_source(
         raw = str(ds_node.value)
 
         # Parse and validate once, then pass the mapping to the sync engine.
-        if not raw.strip():
-            continue
         try:
-            parsed = _parse_validated_docstring(raw)
+            parsed = _parse_validated_docstring(inspect.cleandoc(raw))
+            validate_annotations(
+                Signature(
+                    parameters=(
+                        tuple(
+                            Parameter(p.name, p.annotation)
+                            for p in func.params
+                        )
+                        if func.is_callable
+                        else None
+                    ),
+                    returns=func.return_annotation,
+                    attributes=tuple(
+                        Parameter(p.name, p.annotation) for p in func.attrs
+                    ),
+                ),
+                parsed,
+            )
         except ValueError as e:
             prefix = (
                 '<module>' if func.name == '<module>' else f"'{func.name}'"
@@ -97,8 +114,20 @@ def sync_source(
         # We need the start/end lines of the docstring.
         ds_start = ds_node.lineno - 1  # 0-based
         ds_end = ds_node.end_lineno
-        if ds_end is None:
+        if ds_end is None or ds_node.end_col_offset is None:
             continue  # safety
+
+        # AST columns are UTF-8 byte offsets. Retain adjacent comments/code.
+        prefix = (
+            lines[ds_start]
+            .encode('utf-8')[: ds_node.col_offset]
+            .decode('utf-8')
+        )
+        suffix = (
+            lines[ds_end - 1]
+            .encode('utf-8')[ds_node.end_col_offset :]
+            .decode('utf-8')
+        )
 
         # Extract the original docstring region
         original_region = ''.join(lines[ds_start:ds_end])
@@ -126,13 +155,9 @@ def sync_source(
                 break
 
         try:
-            synced = _sync_docstring_data(
+            synced = format_documentation(
                 parsed,
-                func.params,
-                func.return_annotation,
-                attrs=func.attrs,
-                content_indent=len(content_indent),
-                language_defaults=PYTHON_DEFAULTS,
+                width=79 - len(content_indent),
             )
         except ValueError as e:
             prefix = (
@@ -153,8 +178,13 @@ def sync_source(
             else:
                 formatted_lines.append('')
         new_content = '\n'.join(formatted_lines)
-
-        new_docstring = f'{indent}{quote}\n{new_content}\n{indent}{quote}\n'
+        new_content = new_content.replace('\\', '\\\\').replace(
+            quote,
+            '\\' + quote,
+        )
+        new_docstring = (
+            f'{prefix}{quote}\n{new_content}\n{indent}{quote}{suffix}'
+        )
 
         lines[ds_start:ds_end] = [new_docstring]
 
@@ -170,9 +200,8 @@ def _migrate_numpydoc(source: str) -> str:
     title: Replace numpydoc-style docstrings with Douki YAML.
     parameters:
       source:
-        type: str
-    returns:
-      type: str
+        description: Source code whose docstrings are being processed.
+    returns: Source with recognized NumPy docstrings converted to Douki YAML.
     """
     from douki._python.migrate import numpydoc_to_douki_yaml
 

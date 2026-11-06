@@ -17,9 +17,8 @@ from douki._base.discovery import (
 class BaseConfig(ABC):
     """
     title: Abstract configuration loader for a language backend.
-    summary: >-
-      Each language plugin subclasses this to define how exclude patterns and
-      source files are discovered.
+    summary: Each language plugin subclasses this to define how exclude
+      patterns and source files are discovered.
     """
 
     @property
@@ -27,8 +26,7 @@ class BaseConfig(ABC):
     def file_extensions(self) -> tuple[str, ...]:
         """
         title: File extensions handled by the language backend.
-        returns:
-          type: tuple[str, Ellipsis]
+        returns: Filename suffixes accepted by this language backend.
         """
         ...  # pragma: no cover
 
@@ -37,9 +35,9 @@ class BaseConfig(ABC):
         title: Load shared discovery settings from project configuration.
         parameters:
           cwd:
-            type: Path
-        returns:
-          type: DiscoveryConfig
+            description: Starting directory for the upward project
+              configuration search.
+        returns: Discovery settings from the nearest project configuration.
         """
         return load_douki_discovery_config(cwd)
 
@@ -52,11 +50,11 @@ class BaseConfig(ABC):
         title: Expand paths into source files, filtering excluded ones.
         parameters:
           paths:
-            type: list[Path]
+            description: Files or directories to expand into source files.
           discovery:
-            type: DiscoveryConfig
-        returns:
-          type: list[Path]
+            description: Project root and exclusion settings used during
+              file discovery.
+        returns: Sorted, unique source paths after applying exclusion rules.
         """
         return collect_source_files(
             paths,

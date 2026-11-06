@@ -1,8 +1,7 @@
 """
 title: Public API for migrating docstrings to Douki YAML.
-summary: >-
-  Provides the ``migrate_source`` dispatch function that routes to the
-  appropriate language plugin.
+summary: Provides the ``migrate_source`` dispatch function that routes
+  to the appropriate language plugin.
 """
 
 from __future__ import annotations
@@ -23,14 +22,14 @@ def migrate_source(
     summary: Dispatches to ``sync_source`` with the *migrate* parameter set.
     parameters:
       source:
-        type: str
+        description: Source code whose docstrings are being processed.
       from_format:
-        type: str
+        description: Original docstring format to convert to Douki YAML.
       lang:
-        type: str
         optional: true
-    returns:
-      type: str
+        description: Registered language backend used to process the source.
+    returns: Source with supported docstrings converted to formatted Douki
+      YAML.
     """
     from douki.sync import sync_source
 
