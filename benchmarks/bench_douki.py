@@ -8,7 +8,8 @@ import tempfile
 
 from pathlib import Path
 
-from douki import Parameter, Signature, enrich
+import douki
+
 from douki._base.discovery import DiscoveryConfig, collect_source_files
 from douki._base.sync import ParamInfo, sync_docstring, validate_docstring
 from douki._python.sync import sync_source
@@ -28,10 +29,8 @@ class DocstringBenchmarks:
             'summary: Convert the given value to a text representation.\n'
             'parameters:\n'
             '  value:\n'
-            '    description: Details.\n'
             '    description: The integer to convert.\n'
             'returns:\n'
-            '  description: Details.\n'
             '  description: The formatted result.\n'
         )
         self.params = [ParamInfo('value', 'int', 'regular')]
@@ -48,11 +47,30 @@ class DocstringBenchmarks:
         """
         sync_docstring(self.raw, self.params, 'str')
 
+
+class EnrichmentBenchmarks:
+    """
+    title: Benchmark annotation enrichment where the API is available.
+    """
+
+    def setup(self) -> None:
+        """
+        title: Skip older revisions without affecting shared benchmarks.
+        """
+        if not hasattr(douki, 'enrich'):
+            raise NotImplementedError('Annotation enrichment is unavailable')
+        fixture = DocstringBenchmarks()
+        fixture.setup()
+        self.raw = fixture.raw
+        self.signature = douki.Signature(
+            (douki.Parameter('value', 'int'),), 'str'
+        )
+
     def time_enrich(self) -> None:
         """
         title: Time structured annotation enrichment without source writes.
         """
-        enrich(self.raw, Signature((Parameter('value', 'int'),), 'str'))
+        douki.enrich(self.raw, self.signature)
 
 
 class SourceBenchmarks:
