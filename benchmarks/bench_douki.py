@@ -28,10 +28,10 @@ class DocstringBenchmarks:
             'summary: Convert the given value to a text representation.\n'
             'parameters:\n'
             '  value:\n'
-            '    type: int\n'
+            '    description: Details.\n'
             '    description: The integer to convert.\n'
             'returns:\n'
-            '  type: str\n'
+            '  description: Details.\n'
             '  description: The formatted result.\n'
         )
         self.params = [ParamInfo('value', 'int', 'regular')]
@@ -70,11 +70,6 @@ class SourceBenchmarks:
     def _module(self, count: int) -> str:
         """
         title: Produce source with documented function signatures.
-        parameters:
-          count:
-            type: int
-        returns:
-          type: str
         """
         functions = ['"""title: Benchmark module"""\n']
         for idx in range(count):
@@ -84,9 +79,9 @@ class SourceBenchmarks:
                 f'    title: Function {idx}\n'
                 '    parameters:\n'
                 '      value:\n'
-                '        type: int\n'
+                '        description: Details.\n'
                 '    returns:\n'
-                '      type: int\n'
+                '      description: Details.\n'
                 '    """\n'
                 '    return value\n'
             )

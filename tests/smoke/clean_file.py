@@ -3,10 +3,8 @@ def greet(name: str) -> str:
     title: Greet someone
     parameters:
       name:
-        type: str
         description: The name to greet
     returns:
-      type: str
       description: a greeting string
     """
     return f'Hello {name}'
@@ -15,13 +13,6 @@ def greet(name: str) -> str:
 def add(x: int, y: int) -> int:
     """
     title: Add two integers
-    parameters:
-      x:
-        type: int
-      y:
-        type: int
-    returns:
-      type: int
     """
     return x + y
 
@@ -31,10 +22,8 @@ class Calculator:
     title: Basic calculator
     attributes:
       result:
-        type: int
         description: The last computed result.
       history:
-        type: list
         description: All past results.
     """
 
@@ -44,9 +33,6 @@ class Calculator:
     def __init__(self, initial: int = 0) -> None:
         """
         title: Initialize Calculator
-        parameters:
-          initial:
-            type: int
         """
         self.result = initial
 
@@ -55,13 +41,10 @@ class Calculator:
         title: Multiply two numbers
         parameters:
           a:
-            type: int
             description: first operand
           b:
-            type: int
             description: second operand
         returns:
-          type: int
           description: the product
         """
         return a * b

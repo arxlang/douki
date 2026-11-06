@@ -113,6 +113,16 @@ def attributes(obj: type | ModuleType) -> tuple[Parameter, ...]:
             annotations = inspect.get_annotations(owner, eval_str=False)
         for name, value in annotations.items():
             result[name] = Parameter(name, display_annotation(value))
+        for name, value in vars(owner).items():
+            if isinstance(value, property):
+                annotation = (
+                    display_annotation(
+                        callable_signature(value.fget).return_annotation
+                    )
+                    if value.fget is not None
+                    else ''
+                )
+                result[name] = Parameter(name, annotation)
     return tuple(result.values())
 
 
@@ -201,7 +211,9 @@ def getdoc(obj: object, *, skip_receiver: bool = False) -> str | None:
     # Ordinary prose remains ordinary prose. A title key opts into Douki.
     if not is_douki(raw):
         return raw
-    return format_documentation(enrich(raw, metadata(obj, skip_receiver)))
+    return format_documentation(
+        enrich(raw, metadata(obj, skip_receiver)), enriched=True
+    )
 
 
 @private
@@ -251,4 +263,6 @@ def variant_doc(
         return None
     if not is_douki(raw):
         return raw
-    return format_documentation(enrich(raw, metadata(obj, skip_receiver)))
+    return format_documentation(
+        enrich(raw, metadata(obj, skip_receiver)), enriched=True
+    )

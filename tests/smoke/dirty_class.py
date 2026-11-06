@@ -6,7 +6,7 @@ class Calculator:
     result: int
     history: list
 
-    def __init__(self, initial: int = 0):
+    def __init__(self, initial: int = 0) -> None:
         """
         title:   Initialize Calculator
         """

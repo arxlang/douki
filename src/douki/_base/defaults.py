@@ -15,24 +15,15 @@ class LanguageDefaults:
     summary: Each language plugin provides an instance of this class. Fields
       whose values match these defaults are omitted from the emitted YAML.
     attributes:
-      visibility:
-        type: str
-      mutability:
-        type: str
       scope_function:
-        type: str
         description: Default scope for stand-alone functions.
       scope_method:
-        type: str
         description: Default scope for class methods.
       file_extensions:
-        type: tuple[str, Ellipsis]
         description: File extensions to collect (e.g. ('.py',)).
       config_files:
-        type: tuple[str, Ellipsis]
         description: Config files to search for exclude patterns.
       field_defaults:
-        type: dict[str, Any]
         description: Mapping of top-level YAML key to the default value that
           should be omitted when emitting.
     """
@@ -49,8 +40,6 @@ class LanguageDefaults:
         """
         title: Return the mapping of top-level YAML key to the default value
           that should be omitted.
-        returns:
-          type: dict[str, Any]
         """
         defaults = {
             'visibility': self.visibility,

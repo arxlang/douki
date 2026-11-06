@@ -1,7 +1,7 @@
 """
 title: Douki CLI — ``douki sync`` and ``douki check`` commands.
 examples:
-- code: >
+- code: >-
     douki sync  [FILES...]   # apply changes in-place
 
     douki check [FILES...]   # print diff, exit 1 if changes needed
@@ -58,15 +58,6 @@ def _resolve_files(
 ) -> list[Path]:
     """
     title: Turn the optional argument into a list of paths for the language.
-    parameters:
-      files:
-        type: Optional[list[Path]]
-      lang:
-        type: str
-      respect_gitignore:
-        type: Optional[bool]
-    returns:
-      type: list[Path]
     """
     target_files = resolve_files(
         files,
@@ -86,15 +77,7 @@ def _print_diff(
 ) -> bool:
     """
     title: Print a coloured unified diff.
-    parameters:
-      path:
-        type: Path
-      original:
-        type: str
-      updated:
-        type: str
     returns:
-      type: bool
       description: True if there is a diff.
     """
     if original == updated:
@@ -145,12 +128,7 @@ def sync(
     """
     title: Format YAML docstrings in-place without inserting annotation types.
     parameters:
-      files:
-        type: Optional[list[Path]]
-      lang:
-        type: str
       respect_gitignore:
-        type: Optional[bool]
         optional: true
     """
     target_files = _resolve_files(
@@ -230,12 +208,7 @@ def check(
     """
     title: Print a diff of proposed changes. Exit 1 if any.
     parameters:
-      files:
-        type: Optional[list[Path]]
-      lang:
-        type: str
       respect_gitignore:
-        type: Optional[bool]
         optional: true
     """
     target_files = _resolve_files(
@@ -306,14 +279,7 @@ def migrate(
     """
     title: Migrate docstrings from another format to Douki YAML.
     parameters:
-      files:
-        type: Optional[list[Path]]
-      from_format:
-        type: MigrateFormat
-      lang:
-        type: str
       respect_gitignore:
-        type: Optional[bool]
         optional: true
     """
     migrate_val = from_format.value

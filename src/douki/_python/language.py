@@ -15,9 +15,6 @@ from douki._python.sync import sync_source as py_sync_source
 class PythonLanguage(BaseLanguage):
     """
     title: The Douki Python language backend.
-    attributes:
-      _config:
-        type: PythonConfig
     """
 
     def __init__(self) -> None:
@@ -30,8 +27,6 @@ class PythonLanguage(BaseLanguage):
     def name(self) -> str:
         """
         title: Language name (python).
-        returns:
-          type: str
         """
         return 'python'
 
@@ -39,8 +34,6 @@ class PythonLanguage(BaseLanguage):
     def config(self) -> BaseConfig:
         """
         title: Returns the PythonConfig instance.
-        returns:
-          type: BaseConfig
         """
         return self._config
 
@@ -50,12 +43,7 @@ class PythonLanguage(BaseLanguage):
         """
         title: Synchronize Python source code using the AST extractor.
         parameters:
-          source:
-            type: str
           migrate:
-            type: Optional[str]
             optional: true
-        returns:
-          type: str
         """
         return py_sync_source(source, migrate=migrate)

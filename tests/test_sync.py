@@ -168,15 +168,6 @@ def _p(
 ) -> ParamInfo:
     """
     title: Shorthand ParamInfo constructor for tests.
-    parameters:
-      name:
-        type: str
-      ann:
-        type: str
-      kind:
-        type: str
-    returns:
-      type: ParamInfo
     """
     return ParamInfo(name=name, annotation=ann, kind=kind)
 
@@ -199,8 +190,8 @@ def test_sync_removes_stale_param() -> None:
     """
     raw = (
         'title: test\nparameters:\n'
-        '  x:\n    type: int\n    description: old\n'
-        '  z:\n    type: str\n    description: stale\n'
+        '  x:\n    description: Details.\n    description: old\n'
+        '  z:\n    description: Details.\n    description: stale\n'
     )
     params = [_p('x', 'int')]
     result = sync_docstring(raw, params, 'int')
@@ -214,7 +205,7 @@ def test_sync_preserves_descriptions() -> None:
     """
     raw = (
         'title: test\nparameters:\n'
-        '  x:\n    type: int\n'
+        '  x:\n    description: Details.\n'
         '    description: My custom description\n'
     )
     params = [_p('x', 'int')]
@@ -249,15 +240,15 @@ def test_sync_idempotent() -> None:
         'title: test\n'
         'parameters:\n'
         '  x:\n'
-        '    type: int\n'
+        '    description: Details.\n'
         '    description: the x value\n'
         'returns:\n'
-        '  type: int\n'
+        '  description: Details.\n'
         '  description: the result\n'
     )
     params = [_p('x', 'int')]
     first = sync_docstring(raw, params, 'int')
-    second = sync_docstring(first, params, 'int')
+    second = sync_docstring(raw, params, 'int')
     assert first == second
 
 
@@ -288,10 +279,10 @@ def test_sync_variadic_round_trip() -> None:
         'title: test\n'
         'parameters:\n'
         '  args:\n'
-        '    type: int\n'
+        '    description: Details.\n'
         '    variadic: positional\n'
         '  kwargs:\n'
-        '    type: str\n'
+        '    description: Details.\n'
         '    variadic: keyword\n'
     )
     params = [
@@ -299,7 +290,7 @@ def test_sync_variadic_round_trip() -> None:
         _p('kwargs', 'str', 'var_keyword'),
     ]
     first = sync_docstring(raw, params, 'None')
-    second = sync_docstring(first, params, 'None')
+    second = sync_docstring(raw, params, 'None')
     assert first == second
     assert 'variadic: positional' in first
     assert 'variadic: keyword' in first
@@ -313,10 +304,10 @@ def test_sync_variadic_backward_compat() -> None:
         'title: test\n'
         'parameters:\n'
         "  '*args':\n"
-        '    type: int\n'
+        '    description: Details.\n'
         '    description: positional items\n'
         "  '**kwargs':\n"
-        '    type: str\n'
+        '    description: Details.\n'
         '    description: keyword items\n'
     )
     params = [
@@ -339,7 +330,7 @@ def test_sync_removes_returns_for_none() -> None:
     """
     title: Returns section is removed when return type is None.
     """
-    raw = 'title: test\nreturns:\n  type: str\n  description: old\n'
+    raw = 'title: test\nreturns:\n  description: old\n'
     result = sync_docstring(raw, [], 'None')
     assert 'returns' not in result
 
@@ -352,8 +343,7 @@ def test_sync_preserves_other_sections() -> None:
         'title: test\n'
         'summary: A summary\n'
         'raises:\n'
-        '  - type: ValueError\n'
-        '    description: bad value\n'
+        '  ValueError: bad value\n'
         'notes: some notes\n'
     )
     result = sync_docstring(raw, [], 'None')
@@ -418,10 +408,10 @@ def greet(name: str) -> str:
     title: Greet someone
     parameters:
       name:
-        type: str
+        description: Details.
         description: The name
     returns:
-      type: str
+      description: Details.
       description: greeting
     """
     return f"Hello {name}"
@@ -496,12 +486,12 @@ class MyClass:
     """
     title: My class docstring
     """
-    def __init__(self, count: int, name: str = "test"):
+    def __init__(self, count: int, name: str = "test") -> None:
         """
         title: Init MyClass
         """
-        self.count = count
-        self.name = name
+        self.count: int = count
+        self.name: str = name
 '''
     result = sync_source(src)
     assert source_documents(result) == source_documents(src)
@@ -570,7 +560,7 @@ class MyClass:
     title: My class
     attributes:
       count:
-        type: int
+        description: Details.
         description: The count.
     """
     count: int
@@ -592,21 +582,15 @@ class MyClass:
     """
     title: My class
     """
-    def __init__(self, count: int):
+    def __init__(self, count: int) -> None:
         """
         title: Initialize MyClass.
         """
         self._count = count
         self._cache = {}
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
-    info = next(f for f in extract_functions(src) if f.name == 'MyClass')
-    assert {a.name: a.annotation for a in info.attrs} == {
-        '_count': '',
-        '_cache': '',
-    }
+    with pytest.raises(DocstringValidationError, match="attribute '_count'"):
+        sync_source(src)
 
 
 def test_sync_source_classdef_annotated_private_attrs_from_init() -> None:
@@ -645,7 +629,7 @@ class MyClass:
     title: My class
     """
     count: float  # class-level wins
-    def __init__(self, count: int):
+    def __init__(self, count: int) -> None:
         """
         title: Initialize MyClass.
         """
@@ -779,7 +763,7 @@ def test_sync_source_migrate_numpydoc() -> None:
     title: migrate=numpydoc converts NumPy docstrings to Douki YAML.
     """
     src = '''\
-def add(x, y):
+def add(x: int, y: int) -> int:
     """Add two numbers.
 
     Parameters
@@ -812,10 +796,10 @@ def greet(name: str) -> str:
     title: Greet someone
     parameters:
       name:
-        type: str
+        description: Details.
         description: The name
     returns:
-      type: str
+      description: Details.
       description: greeting
     """
     return f"Hello {name}"
@@ -1039,9 +1023,8 @@ def test_sync_with_raises_list() -> None:
     title: raises section with list format is preserved.
     """
     raw = 'title: test\nraises:\n  - type: ValueError\n    description: bad\n'
-    result = sync_docstring(raw, [], '')
-    assert 'ValueError' in result
-    assert 'bad' in result
+    with pytest.raises(ValueError, match='schema'):
+        sync_docstring(raw, [], '')
 
 
 def test_sync_with_examples_list() -> None:
@@ -1090,9 +1073,9 @@ def test_sync_param_with_optional_true() -> None:
     """
     title: 'optional: true is preserved on parameters.'
     """
-    raw = 'title: test\nparameters:\n  x:\n    type: int\n    optional: true\n'
+    raw = 'title: test\nparameters:\n  x:\n    optional: true\n'
     params = [_p('x', 'int')]
-    result = sync_docstring(raw, params, '')
+    result = sync_docstring(raw, params, 'None')
     assert 'optional: true' in result
 
 
@@ -1100,9 +1083,9 @@ def test_sync_param_with_default_value() -> None:
     """
     title: Default value is preserved on parameters.
     """
-    raw = 'title: test\nparameters:\n  x:\n    type: int\n    default: 42\n'
+    raw = 'title: test\nparameters:\n  x:\n    default: 42\n'
     params = [_p('x', 'int')]
-    result = sync_docstring(raw, params, '')
+    result = sync_docstring(raw, params, 'None')
     assert 'default: 42' in result
 
 
@@ -1114,11 +1097,11 @@ def test_sync_param_with_special_chars_desc() -> None:
         'title: test\n'
         'parameters:\n'
         '  x:\n'
-        '    type: int\n'
+        '    description: Details.\n'
         '    description: "value: important"\n'
     )
     params = [_p('x', 'int')]
-    result = sync_docstring(raw, params, '')
+    result = sync_docstring(raw, params, 'None')
     assert 'important' in result
 
 
@@ -1180,10 +1163,8 @@ def foo(x: int):
     """
     pass
 '''
-    result = sync_source(src)
-    assert 'x:' in result
-    # No return annotation → no returns section
-    assert 'returns:' not in result
+    with pytest.raises(DocstringValidationError, match='return value'):
+        sync_source(src)
 
 
 def test_sync_with_old_flat_params_preserved() -> None:
@@ -1192,7 +1173,7 @@ def test_sync_with_old_flat_params_preserved() -> None:
     """
     raw = 'title: test\nparameters:\n  x: my description\n'
     params = [_p('x', 'int')]
-    result = sync_docstring(raw, params, '')
+    result = sync_docstring(raw, params, 'None')
     assert 'my description' in result
 
 
@@ -1204,8 +1185,6 @@ def test_sync_with_old_flat_params_preserved() -> None:
 def _long_title_src() -> str:
     """
     title: Build test source with a long | title.
-    returns:
-      type: str
     """
     long_title = (
         'Everything we need to know about'
@@ -1292,11 +1271,11 @@ def test_sync_source_all_lines_within_79() -> None:
         f'          {long_summary}\n'
         '        parameters:\n'
         '          items:\n'
-        '            type: list\n'
+        '            description: Details.\n'
         '          count:\n'
-        '            type: int\n'
+        '            description: Details.\n'
         '        returns:\n'
-        '          type: dict\n'
+        '          description: Details.\n'
         '    """\n'
         '    return {}\n'
     )
@@ -1566,10 +1545,11 @@ def test_sync_with_yields_dict() -> None:
     """
     title: yields as dict.
     """
-    raw = 'title: test\nyields:\n  type: int\n  description: a number\n'
+    raw = 'title: test\nyields:\n  description: a number\n'
     result = sync_docstring(raw, [], '')
     assert 'yields:' in result
-    assert 'type: int' in result
+    assert 'a number' in result
+    assert 'type:' not in result
 
 
 # -------------------------------------------------------------------
@@ -1676,9 +1656,9 @@ def test_sync_param_optional_null_skipped() -> None:
     """
     title: 'optional: null should be omitted.'
     """
-    raw = 'title: test\nparameters:\n  x:\n    type: int\n    optional: null\n'
+    raw = 'title: test\nparameters:\n  x:\n    optional: null\n'
     params = [_p('x', 'int')]
-    result = sync_docstring(raw, params, '')
+    result = sync_docstring(raw, params, 'None')
     assert 'optional' not in result
 
 
@@ -1728,8 +1708,8 @@ class Point:
         """
         title: Create a new Point.
         """
-        self.x = x
-        self.y = y
+        self.x: float = x
+        self.y: float = y
 '''
     result = sync_source(src)
     assert source_documents(result) == source_documents(src)
@@ -1768,10 +1748,10 @@ class Config:
     title: App configuration.
     attributes:
       debug:
-        type: bool
+        description: Details.
         description: Enable debug mode.
       timeout:
-        type: int
+        description: Details.
         description: Request timeout in seconds.
     """
 
@@ -1800,10 +1780,10 @@ class Greeter:
         title: Greet someone.
         parameters:
           name:
-            type: str
+            description: Details.
             description: The name.
         returns:
-          type: str
+          description: Details.
           description: The greeting.
         """
         return f"Hello {name}"

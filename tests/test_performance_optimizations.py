@@ -22,9 +22,6 @@ def test_source_docstring_is_parsed_once(
 ) -> None:
     """
     title: Source synchronization parses each docstring once.
-    parameters:
-      monkeypatch:
-        type: pytest.MonkeyPatch
     """
     original_load = core_sync._safe_load
     calls: list[str] = []
@@ -32,11 +29,6 @@ def test_source_docstring_is_parsed_once(
     def tracked_load(raw: str) -> object:
         """
         title: Record and parse one document.
-        parameters:
-          raw:
-            type: str
-        returns:
-          type: object
         """
         calls.append(raw)
         return original_load(raw)
@@ -71,9 +63,6 @@ def test_safe_python_yaml_loader_fallback(
 ) -> None:
     """
     title: Retain compatibility without the LibYAML C extension.
-    parameters:
-      monkeypatch:
-        type: pytest.MonkeyPatch
     """
     monkeypatch.setattr(core_sync, '_SAFE_LOADER', yaml.SafeLoader)
     assert core_sync.validate_docstring('title: safe', 'safe')
@@ -85,11 +74,6 @@ def test_prunes_ignored_directories(
 ) -> None:
     """
     title: Ignore whole directories before walking their children.
-    parameters:
-      tmp_path:
-        type: Path
-      monkeypatch:
-        type: pytest.MonkeyPatch
     """
     (tmp_path / '.gitignore').write_text('ignored/\n')
     ignored = tmp_path / 'ignored'
@@ -108,17 +92,6 @@ def test_prunes_ignored_directories(
     ) -> Iterator[tuple[str, list[str], list[str]]]:
         """
         title: Record directories reached by discovery.
-        parameters:
-          top:
-            type: str | os.PathLike[str]
-          topdown:
-            type: bool
-          onerror:
-            type: Callable[[OSError], None] | None
-          followlinks:
-            type: bool
-        returns:
-          type: Iterator[tuple[str, list[str], list[str]]]
         """
         for root, dirs, names in original_walk(
             top, topdown=topdown, onerror=onerror, followlinks=followlinks
@@ -139,9 +112,6 @@ def test_prunes_ignored_directories(
 def test_negation_retains_reincluded_files(tmp_path: Path) -> None:
     """
     title: An inherited negation keeps an ignored subtree traversable.
-    parameters:
-      tmp_path:
-        type: Path
     """
     (tmp_path / '.gitignore').write_text('ignored/\n!ignored/\n')
     ignored = tmp_path / 'ignored'
@@ -158,9 +128,6 @@ def test_negation_retains_reincluded_files(tmp_path: Path) -> None:
 def test_prunes_configured_directory(tmp_path: Path) -> None:
     """
     title: Whole-directory exclusions prune descendants.
-    parameters:
-      tmp_path:
-        type: Path
     """
     smoke = tmp_path / 'tests' / 'smoke'
     smoke.mkdir(parents=True)

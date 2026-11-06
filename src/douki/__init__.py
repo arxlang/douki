@@ -25,6 +25,9 @@ if TYPE_CHECKING:
     from douki.documentation import (
         format_documentation as format_documentation,
     )
+    from douki.documentation import (
+        validate_annotations as validate_annotations,
+    )
     from douki.helping import (
         help as help,
     )
@@ -40,8 +43,6 @@ if TYPE_CHECKING:
 def get_version() -> str:
     """
     title: Return the program version.
-    returns:
-      type: str
     """
     try:
         return importlib_metadata.version(__name__)
@@ -68,6 +69,7 @@ __all__ = [
     'help',
     'restore_help',
     'setup',
+    'validate_annotations',
 ]
 
 
@@ -84,6 +86,7 @@ def __getattr__(name: str) -> object:
         'Signature': 'documentation',
         'enrich': 'documentation',
         'format_documentation': 'documentation',
+        'validate_annotations': 'documentation',
         'getdoc': 'introspection',
         'help': 'helping',
         'setup': 'helping',

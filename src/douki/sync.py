@@ -46,15 +46,8 @@ def resolve_files(
     """
     title: Resolve paths into source files for the given language.
     parameters:
-      files:
-        type: Optional[list[Path]]
-      lang:
-        type: str
       respect_gitignore:
-        type: Optional[bool]
         optional: true
-    returns:
-      type: list[Path]
     """
     from douki._base.language import get_language
 
@@ -80,15 +73,8 @@ def sync_source(
     title: Format Douki YAML docstrings in *source*.
     summary: Dispatches to the appropriate language plugin based on *lang*.
     parameters:
-      source:
-        type: str
-      lang:
-        type: str
       migrate:
-        type: Optional[str]
         optional: true
-    returns:
-      type: str
     """
     from douki._base.language import get_language
 

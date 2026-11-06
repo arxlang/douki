@@ -101,7 +101,7 @@ def test_numpy_to_douki_basic() -> None:
     assert 'parameters:' in result
     assert 'returns:' in result
     # New format: nested params with type
-    assert 'type: int' in result
+    assert 'type:' not in result
 
 
 def test_numpy_preserves_non_numpy() -> None:
@@ -230,7 +230,7 @@ def test_split_sections_no_sections() -> None:
 
 def test_numpy_multiple_returns() -> None:
     """
-    title: Multiple return entries should combine into tuple[...].
+    title: Multiple return descriptions survive without duplicating types.
     """
     ds = (
         'Do something.\n\n'
@@ -239,8 +239,7 @@ def test_numpy_multiple_returns() -> None:
         'y : str\n    The y.\n'
     )
     result = numpydoc_to_douki_yaml(ds)
-    # Names are used as keys in _parse_map_section → tuple[x, y]
-    assert 'tuple[' in result
+    assert 'type:' not in result
     assert 'x' in result
     assert 'y' in result
 

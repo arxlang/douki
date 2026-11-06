@@ -22,8 +22,6 @@ class BaseLanguage(ABC):
     def name(self) -> str:
         """
         title: The name of the language (e.g. 'python').
-        returns:
-          type: str
         """
         ...  # pragma: no cover
 
@@ -32,8 +30,6 @@ class BaseLanguage(ABC):
     def config(self) -> BaseConfig:
         """
         title: Configuration loader for this language.
-        returns:
-          type: BaseConfig
         """
         ...  # pragma: no cover
 
@@ -44,13 +40,8 @@ class BaseLanguage(ABC):
         """
         title: Synchronize docstrings in the given source code.
         parameters:
-          source:
-            type: str
           migrate:
-            type: Optional[str]
             optional: true
-        returns:
-          type: str
         """
         _ = (source, migrate)
         raise NotImplementedError  # pragma: no cover
@@ -66,9 +57,6 @@ _REGISTRY: dict[str, type[BaseLanguage]] = {}
 def register_language(lang_class: type[BaseLanguage]) -> None:
     """
     title: Register a language plugin class.
-    parameters:
-      lang_class:
-        type: type[BaseLanguage]
     """
     # Create a temporary instance just to get its name
     instance = lang_class()
@@ -78,11 +66,6 @@ def register_language(lang_class: type[BaseLanguage]) -> None:
 def get_language(name: str) -> BaseLanguage:
     """
     title: Get an initialized language plugin by name.
-    parameters:
-      name:
-        type: str
-    returns:
-      type: BaseLanguage
     """
     if name not in _REGISTRY:
         raise ValueError(f"Language '{name}' is not registered.")
@@ -92,7 +75,5 @@ def get_language(name: str) -> BaseLanguage:
 def get_registered_language_names() -> list[str]:
     """
     title: Return a list of registered language plugin names.
-    returns:
-      type: list[str]
     """
     return list(_REGISTRY.keys())

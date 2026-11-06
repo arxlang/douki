@@ -11,6 +11,7 @@ summary: >-
 from __future__ import annotations
 
 import ast
+import inspect
 import re
 
 from typing import Optional
@@ -21,7 +22,12 @@ from douki._base.sync import (
     validate_docstring,
 )
 from douki._python.extractor import extract_functions
-from douki.documentation import format_documentation
+from douki.documentation import (
+    Parameter,
+    Signature,
+    format_documentation,
+    validate_annotations,
+)
 
 
 def sync_source(
@@ -33,15 +39,12 @@ def sync_source(
     title: Format all Douki YAML docstrings without materializing annotations.
     parameters:
       source:
-        type: str
         description: Python source code.
       migrate:
-        type: Optional[str]
         optional: true
         description: If ``'numpydoc'``, convert NumPy docstrings to Douki
           YAML before syncing.
     returns:
-      type: str
       description: The (possibly modified) source string.
     """
     # Optional migration pass first
@@ -83,10 +86,25 @@ def sync_source(
         raw = str(ds_node.value)
 
         # Parse and validate once, then pass the mapping to the sync engine.
-        if not raw.strip():
-            continue
         try:
-            parsed = _parse_validated_docstring(raw)
+            parsed = _parse_validated_docstring(inspect.cleandoc(raw))
+            validate_annotations(
+                Signature(
+                    parameters=(
+                        tuple(
+                            Parameter(p.name, p.annotation)
+                            for p in func.params
+                        )
+                        if func.is_callable
+                        else None
+                    ),
+                    returns=func.return_annotation,
+                    attributes=tuple(
+                        Parameter(p.name, p.annotation) for p in func.attrs
+                    ),
+                ),
+                parsed,
+            )
         except ValueError as e:
             prefix = (
                 '<module>' if func.name == '<module>' else f"'{func.name}'"
@@ -181,11 +199,6 @@ def sync_source(
 def _migrate_numpydoc(source: str) -> str:
     """
     title: Replace numpydoc-style docstrings with Douki YAML.
-    parameters:
-      source:
-        type: str
-    returns:
-      type: str
     """
     from douki._python.migrate import numpydoc_to_douki_yaml
 

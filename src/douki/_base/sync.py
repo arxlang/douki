@@ -26,11 +26,6 @@ _SAFE_LOADER = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
 def _safe_load(raw: str) -> Any:
     """
     title: Load docstring YAML with the safe C loader when available.
-    parameters:
-      raw:
-        type: str
-    returns:
-      type: Any
     """
     return yaml.load(textwrap.dedent(raw), Loader=_SAFE_LOADER)
 
@@ -52,13 +47,6 @@ class DocstringValidationError(ValueError):
 class ParamInfo:
     """
     title: A single parameter extracted from a source signature.
-    attributes:
-      name:
-        type: str
-      annotation:
-        type: str
-      kind:
-        type: str
     """
 
     name: str
@@ -73,21 +61,6 @@ class FuncInfo:
     """
     title: Everything we need to know about a single function, class, or
       module docstring site.
-    attributes:
-      name:
-        type: str
-      lineno:
-        type: int
-      params:
-        type: list[ParamInfo]
-      attrs:
-        type: list[ParamInfo]
-      return_annotation:
-        type: str
-      docstring_node:
-        type: Optional[Any]
-      is_method:
-        type: bool
     """
 
     name: str
@@ -99,6 +72,7 @@ class FuncInfo:
     return_annotation: str = ''
     docstring_node: Optional[Any] = None
     is_method: bool = False
+    is_callable: bool = True
 
 
 # ---------------------------------------------------------------------------
@@ -109,11 +83,6 @@ class FuncInfo:
 def _load_docstring_yaml(raw: str) -> dict[str, Any]:
     """
     title: Load YAML safely, converting single-line strings to titles.
-    parameters:
-      raw:
-        type: str
-    returns:
-      type: dict[str, Any]
     """
     try:
         data = _safe_load(raw)
@@ -138,11 +107,6 @@ def _load_docstring_yaml(raw: str) -> dict[str, Any]:
 def _parse_validated_docstring(raw: str) -> dict[str, Any]:
     """
     title: Parse and validate a Douki docstring exactly once.
-    parameters:
-      raw:
-        type: str
-    returns:
-      type: dict[str, Any]
     """
     try:
         data = _safe_load(raw)
@@ -161,13 +125,7 @@ def _parse_validated_docstring(raw: str) -> dict[str, Any]:
 def validate_docstring(raw: str, func_name: str) -> bool:
     """
     title: Check whether *raw* is a valid Douki YAML docstring.
-    parameters:
-      raw:
-        type: str
-      func_name:
-        type: str
     returns:
-      type: bool
       description: True if it's a valid Douki YAML docstring.
     """
     # Keep func_name in the public API for compatibility.
@@ -182,11 +140,6 @@ def validate_docstring(raw: str, func_name: str) -> bool:
 def _param_name_for_yaml(p: ParamInfo) -> str:
     """
     title: Produce the YAML key for a parameter.
-    parameters:
-      p:
-        type: ParamInfo
-    returns:
-      type: str
     """
     return p.name
 
@@ -194,11 +147,6 @@ def _param_name_for_yaml(p: ParamInfo) -> str:
 def _extract_param_desc(entry: Any) -> str:
     """
     title: Read the description from an old flat or new nested param.
-    parameters:
-      entry:
-        type: Any
-    returns:
-      type: str
     """
     if isinstance(entry, dict):
         return str(entry.get('description', ''))
@@ -210,11 +158,6 @@ def _extract_param_desc(entry: Any) -> str:
 def _extract_returns_desc(entry: Any) -> str:
     """
     title: Extract the existing description for returns/yields.
-    parameters:
-      entry:
-        type: Any
-    returns:
-      type: str
     """
     if isinstance(entry, list) and entry:
         first = entry[0]
@@ -243,24 +186,9 @@ def sync_docstring(
     summary: Returns the updated YAML (without surrounding triple-quotes).
       If not valid Douki YAML, raises ValueError.
     parameters:
-      raw_docstring:
-        type: str
-      params:
-        type: Sequence[ParamInfo]
-      return_annotation:
-        type: str
       attrs:
-        type: Sequence[ParamInfo]
         description: 'Class-level annotated variables used to sync
           the attributes: section. Only meaningful for ClassDef docstrings.'
-      func_name:
-        type: str
-      content_indent:
-        type: int
-      language_defaults:
-        type: Optional[LanguageDefaults]
-    returns:
-      type: str
     """
     # Keep func_name in the public API for compatibility.
     _ = func_name
@@ -268,6 +196,20 @@ def sync_docstring(
         return raw_docstring
 
     data = _parse_validated_docstring(raw_docstring)
+    from douki.documentation import Parameter, Signature, validate_annotations
+
+    validate_annotations(
+        Signature(
+            parameters=(
+                tuple(Parameter(p.name, p.annotation) for p in params)
+                if params or return_annotation
+                else None
+            ),
+            returns=return_annotation,
+            attributes=tuple(Parameter(p.name, p.annotation) for p in attrs),
+        ),
+        data,
+    )
     return _sync_docstring_data(
         data,
         params,
@@ -289,21 +231,6 @@ def _sync_docstring_data(
 ) -> str:
     """
     title: Synchronize an already validated YAML mapping without reparsing.
-    parameters:
-      data:
-        type: dict[str, Any]
-      params:
-        type: Sequence[ParamInfo]
-      return_annotation:
-        type: str
-      attrs:
-        type: Sequence[ParamInfo]
-      content_indent:
-        type: int
-      language_defaults:
-        type: Optional[LanguageDefaults]
-    returns:
-      type: str
     """
     # --- parameters ---
     if params:
@@ -435,15 +362,6 @@ def _rebuild_yaml(
     """
     title: Serialize *data* to YAML with canonical key order.
     summary: Omits fields that match language defaults.
-    parameters:
-      data:
-        type: dict[str, Any]
-      content_indent:
-        type: int
-      field_defaults:
-        type: Optional[dict[str, Any]]
-    returns:
-      type: str
     """
     if field_defaults is None:
         field_defaults = _EMPTY_DEFAULTS
@@ -499,17 +417,6 @@ def _emit_key_value(
     """
     title: Safely emit a key-value pair, folding long strings into block
       scalars.
-    parameters:
-      lines:
-        type: list[str]
-      indent_str:
-        type: str
-      key:
-        type: str
-      value:
-        type: Any
-      content_indent:
-        type: int
     """
     # YAML list items use "- value", dict entries use "key: value"
     is_list_item = key == '-'
@@ -569,15 +476,6 @@ def _emit_parameters(
 ) -> None:
     """
     title: Emit ``parameters:`` or ``attributes:`` section.
-    parameters:
-      lines:
-        type: list[str]
-      key:
-        type: str
-      params:
-        type: dict[str, Any]
-      content_indent:
-        type: int
     """
     lines.append(f'{key}:')
     for name, entry in params.items():
@@ -611,15 +509,6 @@ def _emit_typed_list(
 ) -> None:
     """
     title: Emit list-based types (methods, attributes).
-    parameters:
-      lines:
-        type: list[str]
-      key:
-        type: str
-      value:
-        type: Any
-      content_indent:
-        type: int
     """
     if isinstance(value, str):
         lines.append(f'{key}: {_yaml_scalar(value)}')
@@ -652,15 +541,6 @@ def _emit_typed_entry(
 ) -> None:
     """
     title: Emit returns/yields/receives as a single dictionary.
-    parameters:
-      lines:
-        type: list[str]
-      key:
-        type: str
-      value:
-        type: Any
-      content_indent:
-        type: int
     """
     if isinstance(value, str):
         lines.append(f'{key}: {_yaml_scalar(value)}')
@@ -683,15 +563,6 @@ def _emit_raises(
 ) -> None:
     """
     title: Emit raises/warnings (dict or list format).
-    parameters:
-      lines:
-        type: list[str]
-      key:
-        type: str
-      value:
-        type: Any
-      content_indent:
-        type: int
     """
     if isinstance(value, dict):
         lines.append(f'{key}:')
@@ -724,13 +595,6 @@ def _emit_examples(
 ) -> None:
     """
     title: Emit examples as list.
-    parameters:
-      lines:
-        type: list[str]
-      value:
-        type: list[Any]
-      content_indent:
-        type: int
     """
     lines.append('examples:')
     for item in value:
@@ -753,11 +617,6 @@ def _emit_examples(
 def _yaml_scalar(value: Any) -> str:
     """
     title: Format a simple scalar for inline YAML.
-    parameters:
-      value:
-        type: Any
-    returns:
-      type: str
     """
     if isinstance(value, bool):
         return 'true' if value else 'false'

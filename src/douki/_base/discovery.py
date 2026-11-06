@@ -22,13 +22,6 @@ else:
 class DiscoveryConfig:
     """
     title: Shared file discovery settings.
-    attributes:
-      root:
-        type: Path
-      exclude_patterns:
-        type: tuple[str, Ellipsis]
-      respect_gitignore:
-        type: bool
     """
 
     root: Path
@@ -40,19 +33,6 @@ class DiscoveryConfig:
 class _GitIgnoreRule:
     """
     title: Parsed `.gitignore` rule.
-    attributes:
-      scope_dir:
-        type: Path
-      pattern:
-        type: str
-      regex:
-        type: Pattern[str]
-      negated:
-        type: bool
-      basename_only:
-        type: bool
-      directory_only:
-        type: bool
     """
 
     scope_dir: Path
@@ -66,11 +46,6 @@ class _GitIgnoreRule:
 def load_douki_discovery_config(cwd: Path) -> DiscoveryConfig:
     """
     title: Load shared discovery settings from `pyproject.toml`.
-    parameters:
-      cwd:
-        type: Path
-    returns:
-      type: DiscoveryConfig
     """
     curr = cwd.resolve()
     while True:
@@ -92,15 +67,6 @@ def collect_source_files(
 ) -> list[Path]:
     """
     title: Expand paths into source files using shared discovery rules.
-    parameters:
-      paths:
-        type: list[Path]
-      file_extensions:
-        type: tuple[str, Ellipsis]
-      discovery:
-        type: DiscoveryConfig
-    returns:
-      type: list[Path]
     """
     matcher = _GitIgnoreMatcher(discovery.root)
     result: list[Path] = []
@@ -149,15 +115,6 @@ def _can_prune_directory(
 ) -> bool:
     """
     title: Prune subtrees excluded by whole-directory patterns or gitignore.
-    parameters:
-      directory:
-        type: Path
-      discovery:
-        type: DiscoveryConfig
-      matcher:
-        type: _GitIgnoreMatcher
-    returns:
-      type: bool
     """
     for pattern in discovery.exclude_patterns:
         normalized = pattern.replace('\\', '/').lstrip('/')
@@ -185,11 +142,6 @@ def _can_prune_directory(
 def _load_pyproject_discovery_config(pyproject: Path) -> DiscoveryConfig:
     """
     title: Load `[tool.douki]` discovery settings from a pyproject file.
-    parameters:
-      pyproject:
-        type: Path
-    returns:
-      type: DiscoveryConfig
     """
     excludes: tuple[str, ...] = ()
     respect_gitignore = True
@@ -220,13 +172,6 @@ def _load_pyproject_discovery_config(pyproject: Path) -> DiscoveryConfig:
 def _matches_extension(path: Path, file_extensions: tuple[str, ...]) -> bool:
     """
     title: Check whether a path uses one of the configured file extensions.
-    parameters:
-      path:
-        type: Path
-      file_extensions:
-        type: tuple[str, Ellipsis]
-    returns:
-      type: bool
     """
     return any(path.name.endswith(ext) for ext in file_extensions)
 
@@ -239,15 +184,6 @@ def _is_excluded(
 ) -> bool:
     """
     title: Check whether a path is excluded by config or `.gitignore`.
-    parameters:
-      path:
-        type: Path
-      discovery:
-        type: DiscoveryConfig
-      matcher:
-        type: _GitIgnoreMatcher
-    returns:
-      type: bool
     """
     return _matches_exclude_patterns(
         path,
@@ -264,15 +200,6 @@ def _matches_exclude_patterns(
 ) -> bool:
     """
     title: Check whether a path matches any configured exclude pattern.
-    parameters:
-      path:
-        type: Path
-      exclude_patterns:
-        type: tuple[str, Ellipsis]
-      root:
-        type: Path
-    returns:
-      type: bool
     """
     if not exclude_patterns:
         return False
@@ -291,13 +218,6 @@ def _matches_exclude_patterns(
 def _match_exclude_pattern(path_str: str, pattern: str) -> bool:
     """
     title: Match a configured exclude pattern against a relative path.
-    parameters:
-      path_str:
-        type: str
-      pattern:
-        type: str
-    returns:
-      type: bool
     """
     normalized = pattern.replace('\\', '/').lstrip('/')
     directory_only = normalized.endswith('/')
@@ -323,19 +243,11 @@ def _match_exclude_pattern(path_str: str, pattern: str) -> bool:
 class _GitIgnoreMatcher:
     """
     title: Lazy `.gitignore` matcher rooted at a discovery directory.
-    attributes:
-      _root:
-        type: Path
-      _rules_by_dir:
-        type: dict[Path, tuple[_GitIgnoreRule, Ellipsis]]
     """
 
     def __init__(self, root: Path) -> None:
         """
         title: Initialize the matcher with a root directory.
-        parameters:
-          root:
-            type: Path
         """
         self._root: Path = root.resolve()
         self._rules_by_dir: dict[Path, tuple[_GitIgnoreRule, ...]] = {}
@@ -343,13 +255,6 @@ class _GitIgnoreMatcher:
     def is_ignored(self, path: Path, *, is_directory: bool = False) -> bool:
         """
         title: Check whether a path is ignored by any applicable `.gitignore`.
-        parameters:
-          path:
-            type: Path
-          is_directory:
-            type: bool
-        returns:
-          type: bool
         """
         resolved = path.resolve()
         try:
@@ -369,11 +274,6 @@ class _GitIgnoreMatcher:
     def has_negated_rules(self, directory: Path) -> bool:
         """
         title: Detect inherited negations before pruning a directory.
-        parameters:
-          directory:
-            type: Path
-        returns:
-          type: bool
         """
         resolved = directory.resolve()
         try:
@@ -389,11 +289,6 @@ class _GitIgnoreMatcher:
     def _iter_scope_dirs(self, path: Path) -> Iterable[Path]:
         """
         title: Yield directories whose `.gitignore` files apply to `path`.
-        parameters:
-          path:
-            type: Path
-        returns:
-          type: Iterable[Path]
         """
         rel_parent = path.relative_to(self._root).parent
         curr = self._root
@@ -407,11 +302,6 @@ class _GitIgnoreMatcher:
     def _load_rules(self, scope_dir: Path) -> tuple[_GitIgnoreRule, ...]:
         """
         title: Load and cache parsed rules for a scope directory.
-        parameters:
-          scope_dir:
-            type: Path
-        returns:
-          type: tuple[_GitIgnoreRule, Ellipsis]
         """
         if scope_dir in self._rules_by_dir:
             return self._rules_by_dir[scope_dir]
@@ -444,13 +334,6 @@ def _parse_gitignore_rule(
 ) -> _GitIgnoreRule | None:
     """
     title: Parse a single `.gitignore` line into a match rule.
-    parameters:
-      raw_line:
-        type: str
-      scope_dir:
-        type: Path
-    returns:
-      type: _GitIgnoreRule | None
     """
     line = raw_line.rstrip()
     if not line:
@@ -492,15 +375,6 @@ def _rule_matches_path(
 ) -> bool:
     """
     title: Check whether a parsed `.gitignore` rule matches a path.
-    parameters:
-      rule:
-        type: _GitIgnoreRule
-      path:
-        type: Path
-      is_directory:
-        type: bool
-    returns:
-      type: bool
     """
     try:
         rel_path = path.relative_to(rule.scope_dir).as_posix()
@@ -522,11 +396,6 @@ def _rule_matches_path(
 def _relative_prefixes(path_str: str) -> list[str]:
     """
     title: Return cumulative relative path prefixes for a path string.
-    parameters:
-      path_str:
-        type: str
-    returns:
-      type: list[str]
     """
     parts = [part for part in path_str.split('/') if part]
     prefixes: list[str] = []
@@ -538,11 +407,6 @@ def _relative_prefixes(path_str: str) -> list[str]:
 def _compile_gitignore_regex(pattern: str) -> Pattern[str]:
     """
     title: Compile a simplified gitignore-style glob into a regex.
-    parameters:
-      pattern:
-        type: str
-    returns:
-      type: Pattern[str]
     """
     regex: list[str] = ['^']
     idx = 0

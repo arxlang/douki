@@ -38,8 +38,8 @@ class DocumentationError(ValueError):
         """
         title: Record the phase and diagnostic message.
         """
-        self.phase = phase
-        self.message = message
+        self.phase: str = phase
+        self.message: str = message
         super().__init__(f'{phase}: {message}')
 
 
@@ -124,7 +124,7 @@ def merge_fields(
     strict: bool,
 ) -> dict[str, object]:
     """
-    title: Merge annotation types without deleting descriptions or fallbacks.
+    title: Merge annotation types without deleting descriptions.
     """
     names = {parameter.name for parameter in parameters}
     if strict and (unknown := set(existing) - names):
@@ -148,12 +148,49 @@ def merge_fields(
 
 @public
 @typechecked
+def validate_annotations(
+    signature: Signature,
+    documentation: dict[str, object] | None = None,
+) -> None:
+    """
+    title: Require explicit annotations at the shared documentation boundary.
+    summary: Adapters omit implicit method receivers from parameter metadata.
+      Documented attributes must have declarations; values are never used
+      to guess their types.
+    """
+    missing: list[str] = []
+    if signature.parameters is not None:
+        missing.extend(
+            f"parameter '{parameter.name}'"
+            for parameter in signature.parameters
+            if not parameter.annotation.strip().strip('\'"').strip()
+        )
+        if not signature.returns.strip().strip('\'"').strip():
+            missing.append('return value (use -> None for no result)')
+    attributes = {item.name: item.annotation for item in signature.attributes}
+    documented = (documentation or {}).get('attributes', {})
+    if isinstance(documented, dict):
+        for name in documented:
+            attributes.setdefault(name, '')
+    missing.extend(
+        f"attribute '{name}'"
+        for name, annotation in attributes.items()
+        if not annotation.strip().strip('\'"').strip()
+    )
+    if missing:
+        raise DocumentationError(
+            'annotations',
+            'Missing type annotations: ' + ', '.join(missing),
+        )
+
+
+@public
+@typechecked
 def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
     """
     title: Return structured documentation enriched with annotation types.
-    summary: Annotations take precedence over authored types. Without an
-      annotation, an authored type is retained. No objects or source files
-      are modified.
+    summary: Types come exclusively from annotations. No objects or source
+      files are modified. Missing annotations raise DocumentationError.
     """
     try:
         data = cast(
@@ -162,6 +199,7 @@ def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
         )
     except ValueError as error:
         raise DocumentationError('schema', str(error)) from error
+    validate_annotations(signature, data)
     if signature.parameters is not None:
         parameters = merge_fields(
             cast(dict[str, object], data.get('parameters', {})),
@@ -223,12 +261,14 @@ def format_documentation(
     data: dict[str, object],
     *,
     width: int = 79,
+    enriched: bool = False,
 ) -> str:
     """
-    title: Serialize validated documentation without changing its content.
+    title: Serialize validated source or explicitly enriched documentation.
+    summary: Only generated output may contain annotation-derived type fields.
     """
     try:
-        validate_schema(data)
+        validate_schema(data, enriched=enriched)
     except ValueError as error:
         raise DocumentationError('schema', str(error)) from error
     ordered = {key: data[key] for key in _KEY_ORDER if key in data}

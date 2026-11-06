@@ -26,19 +26,12 @@ class BaseConfig(ABC):
     def file_extensions(self) -> tuple[str, ...]:
         """
         title: File extensions handled by the language backend.
-        returns:
-          type: tuple[str, Ellipsis]
         """
         ...  # pragma: no cover
 
     def load_discovery_config(self, cwd: Path) -> DiscoveryConfig:
         """
         title: Load shared discovery settings from project configuration.
-        parameters:
-          cwd:
-            type: Path
-        returns:
-          type: DiscoveryConfig
         """
         return load_douki_discovery_config(cwd)
 
@@ -49,13 +42,6 @@ class BaseConfig(ABC):
     ) -> list[Path]:
         """
         title: Expand paths into source files, filtering excluded ones.
-        parameters:
-          paths:
-            type: list[Path]
-          discovery:
-            type: DiscoveryConfig
-        returns:
-          type: list[Path]
         """
         return collect_source_files(
             paths,

@@ -18,7 +18,5 @@ class PythonConfig(BaseConfig):
     def file_extensions(self) -> tuple[str, ...]:
         """
         title: File extensions handled by the Python backend.
-        returns:
-          type: tuple[str, Ellipsis]
         """
         return PYTHON_DEFAULTS.file_extensions

@@ -47,10 +47,15 @@ douki check src/  # Report formatting differences and schema errors
 douki sync src/   # Apply YAML formatting
 ```
 
-`sync` does not insert annotation types, add or remove parameter entries,
-or overwrite authored types. Existing explicit types remain valid; they
-can be removed when the signature supplies them. Formatting preserves the
-YAML values, including descriptions, examples and explicit null defaults.
+`check` and `sync` require annotations for parameters, return values and
+documented attributes. Use `-> None` for functions without a result;
+implicit method receivers are exempt. Authored `type` fields are rejected
+by the schema. Remove them from existing docstrings and put types in
+annotations instead.
+
+`sync` formats YAML without inserting annotation types or changing parameter
+entries. It preserves descriptions, examples and explicit null defaults.
+Dynamic inspection raises `DocumentationError` for missing annotations.
 
 The CLI can remain a development dependency. Install Douki in the running
 interpreter when using `getdoc`, `help` or `setup`.

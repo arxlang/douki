@@ -18,8 +18,9 @@ def greet(name: str, times: int = 1) -> str:
 ```
 
 A `title` is required. Parameter entries can be description strings or
-mappings with `description`, `type`, `default`, `optional` and `variadic`.
-Types are optional. The shipped `douki/schema.json` defines all supported
+mappings with `description`, `default`, `optional` and `variadic`.
+Authored `type` fields are forbidden. The shipped `douki/schema.json` defines
+all supported
 fields, including `attributes`, `raises`, `yields`, `examples` and `notes`.
 Use plain parameter names for variadics (`args`, not `*args`).
 
@@ -32,11 +33,42 @@ douki check         # Discover Python files in the current directory
 ```
 
 `sync` normalizes YAML formatting without copying types from annotations
-into the file. It preserves authored fields, including explicit types,
+into the file. It preserves authored fields, including descriptions,
 empty entries, null defaults and multiline examples. It does not add or
 remove parameter or attribute entries, even after a signature changes.
 The enrichment API reports unknown documented parameters when those
-objects are inspected.
+objects are inspected. Both source checks and enrichment require annotations
+for every parameter (including undocumented parameters and variadics) and
+every callable's return value. Use `-> None` when a function returns nothing.
+Only the actual method receiver is exempt; a static method's first argument
+still requires an annotation, even when named `self` or `cls`.
+
+Documented attributes require annotation metadata too. Class and module
+annotations and property getter return annotations supply these types.
+Source checks also validate instance fields collected from `__init__`.
+Declare instance attributes at class scope when runtime help must find them:
+
+```python
+class Counter:
+    """
+    title: A counter.
+    attributes:
+      count: Current value.
+    """
+    count: int
+
+    def __init__(self) -> None:
+        """title: Initialize the counter."""
+        self.count = 0
+```
+
+An annotation only inside a method is not retained in the class's runtime
+metadata. Douki does not guess types from attribute values or instantiate
+classes to discover fields. Static adapters must supply inherited attribute
+annotations; the Python CLI resolves inheritance from earlier same-file
+classes, not imported bases. An explicit local annotation avoids ambiguity.
+Validation requires annotation presence, not proof of type correctness;
+use a type checker such as mypy for that.
 
 | Exit code | Meaning |
 | --- | --- |
@@ -44,11 +76,20 @@ objects are inspected.
 | 1 | Formatting differs (`check`) or was updated (`sync`) |
 | 2 | Invalid docstrings or another processing error |
 
-Migrating from earlier Douki releases: existing expanded docstrings remain
-valid. Remove redundant `type` fields when you want annotations to be the
-only authored type information. `sync` will not reinsert them. The explicit
-`douki.sync.sync_docstring` API retains its legacy expansion behavior for
-existing consumers; source formatting no longer calls that API.
+Migrating from earlier Douki releases: remove `type` fields from parameters,
+attributes, returns, yields and receives, and add any missing annotations.
+Expanded docstrings from older releases are no longer valid source input.
+Neither `sync` nor `check` silently discards those fields. Replace typed
+lists in `raises` and `warnings` with mappings, for example
+`raises: {ValueError: Invalid value.}`. Exception and warning names remain
+authored because Python has no corresponding declaration annotations.
+
+The explicit `douki.sync.sync_docstring` API still generates expanded output
+from annotation metadata for legacy consumers. Its input must follow the
+source schema, and supplied parameters and attributes must be annotated.
+An empty parameter list and empty return annotation represent a non-callable
+declaration in that legacy API; use `Signature` for an unambiguous contract.
+Expanded output is a rendered view, not valid source input for a second pass.
 
 ## Dynamic help
 
@@ -88,8 +129,10 @@ Python 3.10–3.13 use unevaluated string annotations when present; Python
 3.14 uses annotationlib's string format. Douki does not call
 `typing.get_type_hints` to resolve missing type-only imports. Runtime
 inspection is for code already imported in the current interpreter.
-Generator return annotations describe the returned iterator; `yields` and
-`receives` descriptions/types are preserved as authored.
+Generator return annotations describe the returned iterator, including its
+yield/send types when supplied through `Generator` or `AsyncGenerator`.
+The `yields` and `receives` sections contain descriptions only; Douki does
+not decompose the generator annotation into separate fields.
 
 ## Static documentation generators
 
@@ -107,15 +150,21 @@ data = enrich(
     "title: Greet someone\nparameters:\n  name: Person to greet.\n",
     signature,
 )
-text = format_documentation(data)
+text = format_documentation(data, enriched=True)
 ```
 
 `data` is a validated documentation mapping that renderers can consume
-directly. Annotations take precedence over explicit types; unannotated
-parameters keep authored types. Descriptions and other metadata survive
-enrichment. Unknown documented parameters and duplicate signature names
+directly. Types come exclusively from annotations. Descriptions and other
+metadata survive enrichment. Missing annotations raise `DocumentationError`
+with phase `annotations`, listing all missing fields for that declaration.
+Unknown documented parameters and duplicate signature names
 raise `DocumentationError` with a processing phase. Invalid metadata types
 raise Typeguard errors, including invalid items later in a collection.
+`format_documentation` validates source YAML by default; `enriched=True`
+explicitly permits generated type fields. The generated view must not be
+written back into source or passed back into `enrich` as authored input.
+`validate_annotations(signature, documentation)` exposes the same presence
+checks for adapters that already hold schema-validated documentation.
 
 Use `parameters=None` for non-callable declarations, `parameters=()` for a
 function with no arguments, and `attributes=(Parameter(...), ...)` for
@@ -132,9 +181,10 @@ not by itself change DoukiMD's collector.
 douki migrate --from numpydoc src/
 ```
 
-Migration converts authored NumPy-style documentation into YAML and keeps
-its documented types. It does not import the project or infer missing
-annotation types. Follow with `douki check src/`.
+Migration converts NumPy-style descriptions into type-free YAML. Add Python
+annotations first: migration never invents them from prose and fails without
+writing the affected file when annotations are missing. It preserves
+exception/warning names as mapping keys. Follow with `douki check src/`.
 
 ## Configuration
 

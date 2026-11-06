@@ -23,16 +23,14 @@ from typeguard import TypeCheckError
 
 def test_enrichment_uses_annotations_and_preserves_authored_fields() -> None:
     """
-    title: Annotations override types while unannotated fields retain fallback.
+    title: Required annotations supply types while descriptions are preserved.
     """
     raw = """title: Send a message
 parameters:
   name:
-    type: bytes
     description: Person to greet.
     default: null
   count:
-    type: int
     description: How many times.
   args:
     description: Other names.
@@ -43,7 +41,7 @@ notes: Keep this note.
     signature = Signature(
         (
             Parameter('name', 'str'),
-            Parameter('count'),
+            Parameter('count', 'int'),
             Parameter('args', 'str', 'var_positional'),
         ),
         'str',
@@ -68,7 +66,11 @@ notes: Keep this note.
         'type': 'str',
     }
     assert result['notes'] == 'Keep this note.'
-    assert enrich(format_documentation(result), signature) == result
+    assert (
+        yaml.safe_load(format_documentation(result, enriched=True)) == result
+    )
+    with pytest.raises(DocumentationError, match='schema'):
+        enrich(format_documentation(result, enriched=True), signature)
     assert signature == before
 
 
@@ -79,7 +81,7 @@ def test_unknown_parameters_fail_at_the_shared_boundary() -> None:
     with pytest.raises(DocumentationError, match=r'signature:.*obsolete'):
         enrich(
             'title: Example\nparameters:\n  obsolete: Details',
-            Signature((Parameter('current', 'int'),)),
+            Signature((Parameter('current', 'int'),), 'None'),
         )
 
 
@@ -137,7 +139,6 @@ def test_formatting_preserves_yaml_values() -> None:
                 'visibility': 'private',
                 'scope': 'class',
                 'mutability': 'mutable',
-                'type': 'str',
             },
         },
         'examples': [{'code': 'if enabled:\n    print("yes")\n'}],
@@ -154,12 +155,12 @@ def test_formatting_preserves_yaml_values() -> None:
 
 def test_format_source_does_not_add_or_remove_signature_fields() -> None:
     """
-    title: Source formatting leaves descriptions and explicit types authored.
+    title: Source formatting leaves descriptions authored.
     """
     source = '''def changed(current: int) -> None:
     """
     returns: {description: Retain even for None.}
-    parameters: {old: {type: str, description: Review this rename.}}
+    parameters: {old: {description: Review this rename.}}
     title: Changed signature
     """
     return None
@@ -222,7 +223,9 @@ def test_source_formatting_preserves_python_string_escaping(
     title: YAML serialization must also remain a valid Python string literal.
     """
     source = (
-        'def f():\n    ' + literal + '  # retain this comment\n    return 1\n'
+        'def f() -> int:\n    '
+        + literal
+        + '  # retain this comment\n    return 1\n'
     )
     formatted = sync_source(source)
     before = ast.get_docstring(ast.parse(source).body[0])
@@ -236,7 +239,7 @@ def test_inline_unicode_docstring_keeps_surrounding_code() -> None:
     """
     title: UTF-8 AST columns retain inline function definitions and returns.
     """
-    source = 'def café(x: int): """title: Café"""; return x\n'
+    source = 'def café(x: int) -> int: """title: Café"""; return x\n'
     result = sync_source(source)
     namespace: dict[str, object] = {}
     exec(result, namespace)

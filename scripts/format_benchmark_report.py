@@ -16,11 +16,6 @@ from typing import Any
 def _measurement(value: Any) -> float | None:
     """
     title: Extract a finite, positive timing result in seconds.
-    parameters:
-      value:
-        type: Any
-    returns:
-      type: float | None
     """
     if isinstance(value, list):
         if len(value) != 1:
@@ -38,13 +33,6 @@ def collect_results(
 ) -> dict[tuple[str, str], float | None]:
     """
     title: Find results for one exact commit and environment.
-    parameters:
-      directory:
-        type: Path
-      sha:
-        type: str
-    returns:
-      type: dict[tuple[str, str], float | None]
     """
     collected: dict[tuple[str, str], float | None] = {}
     for path in sorted(directory.rglob('*.json')):
@@ -80,11 +68,6 @@ def collect_results(
 def _format_seconds(seconds: float) -> str:
     """
     title: Format durations consistently with useful units.
-    parameters:
-      seconds:
-        type: float
-    returns:
-      type: str
     """
     if seconds < 0.001:
         return f'{seconds * 1_000_000:,.1f} μs'
@@ -96,11 +79,6 @@ def _format_seconds(seconds: float) -> str:
 def _escape_cell(value: str) -> str:
     """
     title: Prevent benchmark names breaking Markdown table structure.
-    parameters:
-      value:
-        type: str
-    returns:
-      type: str
     """
     return value.replace('|', '&#124;').replace('\n', ' ')
 
@@ -114,19 +92,6 @@ def build_report(
 ) -> str:
     """
     title: Render measured PR performance against its upstream base.
-    parameters:
-      directory:
-        type: Path
-      base_sha:
-        type: str
-      head_sha:
-        type: str
-      run_url:
-        type: str
-      asv_status:
-        type: int
-    returns:
-      type: str
     """
     base_results = collect_results(directory, base_sha)
     head_results = collect_results(directory, head_sha)

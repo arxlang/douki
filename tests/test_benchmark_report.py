@@ -16,13 +16,6 @@ def _write_result(
 ) -> None:
     """
     title: Write a minimal ASV results fixture.
-    parameters:
-      directory:
-        type: Path
-      sha:
-        type: str
-      results:
-        type: dict[str, float | None]
     """
     destination = directory / 'github-ubuntu-python311'
     destination.mkdir(parents=True, exist_ok=True)
@@ -42,9 +35,6 @@ def test_build_report_includes_changes_and_speedups(
 ) -> None:
     """
     title: PR report compares exact revisions in a Markdown table.
-    parameters:
-      tmp_path:
-        type: Path
     """
     base = 'a' * 40
     head = 'b' * 40
@@ -74,9 +64,6 @@ def test_report_warns_on_failed_or_missing_measurements(
 ) -> None:
     """
     title: Do not invent measurements for a failed benchmark.
-    parameters:
-      tmp_path:
-        type: Path
     """
     base = 'c' * 40
     head = 'd' * 40
@@ -95,9 +82,6 @@ def test_collect_results_filters_other_commits(
 ) -> None:
     """
     title: Never compare timing records from a different revision.
-    parameters:
-      tmp_path:
-        type: Path
     """
     base = 'e' * 40
     other = 'f' * 40
