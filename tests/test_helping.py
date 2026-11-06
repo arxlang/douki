@@ -1,5 +1,5 @@
 """
-title: Dynamic documentation, object help and explicit session setup.
+title: Dynamic documentation, object help and explicit session activation.
 """
 
 from __future__ import annotations
@@ -98,18 +98,18 @@ def test_evaluated_annotations_and_none_return() -> None:
     assert data['returns']['type'] == 'None'
 
 
-def test_setup_is_explicit_idempotent_and_reversible(
+def test_enable_is_explicit_idempotent_and_reversible(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
-    title: Setup intercepts object help and restores the original helper.
+    title: Enable intercepts object help and disable restores the helper.
     """
     original = builtins.help
     output: list[str] = []
     monkeypatch.setattr(pydoc, 'pager', output.append)
     try:
-        douki.setup()
-        douki.setup()
+        douki.enable()
+        douki.enable()
         assert builtins.help is douki.help
         help(greet)
         assert 'type: str' in output[0]
@@ -117,23 +117,23 @@ def test_setup_is_explicit_idempotent_and_reversible(
         assert 'description: The name repeated for each greeting.' in output[0]
         assert 'type:' not in greet.__doc__
     finally:
-        douki.restore_help()
+        douki.disable()
     assert builtins.help is original
-    douki.restore_help()
+    douki.disable()
     assert builtins.help is original
 
 
-def test_restore_does_not_overwrite_another_tools_helper(
+def test_disable_does_not_overwrite_another_tools_helper(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
-    title: Restoration respects a helper installed after Douki.
+    title: Disable respects a helper installed after Douki.
     """
     original = builtins.help
     try:
-        douki.setup()
+        douki.enable()
         monkeypatch.setattr(builtins, 'help', print)
-        douki.restore_help()
+        douki.disable()
         assert builtins.help is print
     finally:
         monkeypatch.setattr(builtins, 'help', original)

@@ -29,13 +29,13 @@ if TYPE_CHECKING:
         validate_annotations as validate_annotations,
     )
     from douki.helping import (
+        disable as disable,
+    )
+    from douki.helping import (
+        enable as enable,
+    )
+    from douki.helping import (
         help as help,
-    )
-    from douki.helping import (
-        restore_help as restore_help,
-    )
-    from douki.helping import (
-        setup as setup,
     )
     from douki.introspection import getdoc as getdoc
 
@@ -66,12 +66,12 @@ __all__ = [
     '__author__',
     '__email__',
     '__version__',
+    'disable',
+    'enable',
     'enrich',
     'format_documentation',
     'getdoc',
     'help',
-    'restore_help',
-    'setup',
     'validate_annotations',
 ]
 
@@ -98,8 +98,8 @@ def __getattr__(name: str) -> object:
         'validate_annotations': 'documentation',
         'getdoc': 'introspection',
         'help': 'helping',
-        'setup': 'helping',
-        'restore_help': 'helping',
+        'enable': 'helping',
+        'disable': 'helping',
     }
     if name not in modules:
         raise AttributeError(f'module {__name__!r} has no attribute {name!r}')

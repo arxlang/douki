@@ -104,9 +104,9 @@ text = douki.getdoc(greet)
 douki.help(greet)
 
 # Optional: use the normal help name for this session.
-douki.setup()
+douki.enable()
 help(greet)
-douki.restore_help()
+douki.disable()
 ```
 
 `getdoc` returns enriched YAML for Douki docstrings, ordinary cleaned text
@@ -114,7 +114,7 @@ for other docstrings, and `None` when documentation is absent. It never
 changes `__doc__`, annotations or function identity. Repeated calls derive
 the result from current metadata, so no cached types become stale.
 
-`setup` is explicit, idempotent and session-wide. `restore_help` reinstates
+`enable` is explicit, idempotent and session-wide. `disable` reinstates
 the previous helper, unless another tool has since replaced it. Importing
 Douki alone does not install anything. `help()` with no argument and string
 requests such as `help("keywords")` retain Python's ordinary interface;

@@ -266,7 +266,7 @@ def help(request: object = no_request) -> None:
 
 @public
 @typechecked
-def setup() -> None:
+def enable() -> None:
     """
     title: Enable enriched built-in help for this interpreter session.
     """
@@ -280,9 +280,9 @@ def setup() -> None:
 
 @public
 @typechecked
-def restore_help() -> None:
+def disable() -> None:
     """
-    title: Restore the helper replaced by setup without undoing other hooks.
+    title: Restore the helper replaced by enable without undoing other hooks.
     """
     global previous_help
     if previous_help is not None and builtins.help is help:

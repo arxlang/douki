@@ -28,10 +28,10 @@ print(douki.getdoc(add))  # YAML with inferred parameter and return types
 
 douki.help(add)          # Display enriched help
 
-douki.setup()            # Opt in for this interpreter session
+douki.enable()           # Opt in for this interpreter session
 help(add)                # Now uses Douki for Douki-documented objects
 
-douki.restore_help()     # Restore the previous helper
+douki.disable()          # Restore the previous helper
 ```
 
 No per-function decorator is required. Importing Douki does not change
@@ -59,7 +59,7 @@ entries. It preserves descriptions, examples and explicit null defaults.
 Dynamic inspection raises `DocumentationError` for missing annotations.
 
 The CLI can remain a development dependency. Install Douki in the running
-interpreter when using `getdoc`, `help` or `setup`.
+interpreter when using `getdoc`, `help` or `enable`.
 
 Documentation generators can use the public `enrich`, `Signature` and
 `Parameter` API with statically collected types, without importing the
