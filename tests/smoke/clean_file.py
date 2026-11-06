@@ -13,6 +13,13 @@ def greet(name: str) -> str:
 def add(x: int, y: int) -> int:
     """
     title: Add two integers
+    parameters:
+      x:
+        description: First value to add.
+      y:
+        description: Second value to add.
+    returns:
+      description: Sum of the two supplied values.
     """
     return x + y
 
@@ -33,6 +40,9 @@ class Calculator:
     def __init__(self, initial: int = 0) -> None:
         """
         title: Initialize Calculator
+        parameters:
+          initial:
+            description: Starting value of the calculator total.
         """
         self.result = initial
 

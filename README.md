@@ -50,8 +50,9 @@ douki sync src/   # Apply YAML formatting
 `check` and `sync` require annotations for parameters, return values and
 documented attributes. Use `-> None` for functions without a result;
 implicit method receivers are exempt. Authored `type` fields are rejected
-by the schema. Remove them from existing docstrings and put types in
-annotations instead.
+by the schema. Remove only those fields from existing docstrings and put
+types in annotations instead. Keep `parameters`, `returns` and `attributes`
+with their descriptions: annotations supply types, not explanations.
 
 `sync` formats YAML without inserting annotation types or changing parameter
 entries. It preserves descriptions, examples and explicit null defaults.

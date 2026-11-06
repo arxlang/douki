@@ -58,6 +58,17 @@ def _resolve_files(
 ) -> list[Path]:
     """
     title: Turn the optional argument into a list of paths for the language.
+    parameters:
+      files:
+        description: Files or directories to process; an empty value uses
+          the current directory.
+      lang:
+        description: Registered language backend used to process the source.
+      respect_gitignore:
+        description: Override gitignore filtering; None uses the project
+          setting.
+    returns:
+      description: Source paths to process, after applying discovery rules.
     """
     target_files = resolve_files(
         files,
@@ -77,6 +88,13 @@ def _print_diff(
 ) -> bool:
     """
     title: Print a coloured unified diff.
+    parameters:
+      path:
+        description: Source path used to label both sides of the diff.
+      original:
+        description: File contents before formatting.
+      updated:
+        description: File contents after formatting.
     returns:
       description: True if there is a diff.
     """
@@ -128,8 +146,15 @@ def sync(
     """
     title: Format YAML docstrings in-place without inserting annotation types.
     parameters:
+      files:
+        description: Files or directories to process; an empty value uses
+          the current directory.
+      lang:
+        description: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
+        description: Override gitignore filtering; None uses the project
+          setting.
     """
     target_files = _resolve_files(
         files,
@@ -208,8 +233,15 @@ def check(
     """
     title: Print a diff of proposed changes. Exit 1 if any.
     parameters:
+      files:
+        description: Files or directories to process; an empty value uses
+          the current directory.
+      lang:
+        description: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
+        description: Override gitignore filtering; None uses the project
+          setting.
     """
     target_files = _resolve_files(
         files,
@@ -279,8 +311,17 @@ def migrate(
     """
     title: Migrate docstrings from another format to Douki YAML.
     parameters:
+      files:
+        description: Files or directories to process; an empty value uses
+          the current directory.
+      from_format:
+        description: Original docstring format to convert to Douki YAML.
+      lang:
+        description: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
+        description: Override gitignore filtering; None uses the project
+          setting.
     """
     migrate_val = from_format.value
     target_files = _resolve_files(

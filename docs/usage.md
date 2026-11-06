@@ -19,9 +19,11 @@ def greet(name: str, times: int = 1) -> str:
 
 A `title` is required. Parameter entries can be description strings or
 mappings with `description`, `default`, `optional` and `variadic`.
+Write parameter and return descriptions in the docstring, as above.
+Annotations supply the types; Douki does not infer these descriptions.
 Authored `type` fields are forbidden. The shipped `douki/schema.json` defines
-all supported
-fields, including `attributes`, `raises`, `yields`, `examples` and `notes`.
+all supported fields, including `attributes`, `raises`, `yields`, `examples`
+and `notes`.
 Use plain parameter names for variadics (`args`, not `*args`).
 
 ## Formatting and validation
@@ -78,6 +80,8 @@ use a type checker such as mypy for that.
 
 Migrating from earlier Douki releases: remove `type` fields from parameters,
 attributes, returns, yields and receives, and add any missing annotations.
+Keep the sections and their descriptions. If an entry previously contained
+only a type, replace that field with a description of the value's purpose.
 Expanded docstrings from older releases are no longer valid source input.
 Neither `sync` nor `check` silently discards those fields. Replace typed
 lists in `raises` and `warnings` with mappings, for example
@@ -147,7 +151,12 @@ signature = Signature(
     returns="str",
 )
 data = enrich(
-    "title: Greet someone\nparameters:\n  name: Person to greet.\n",
+    "title: Greet someone\n"
+    "parameters:\n"
+    "  name: Person to greet.\n"
+    "  times: Number of greetings.\n"
+    "returns:\n"
+    "  description: The greeting text.\n",
     signature,
 )
 text = format_documentation(data, enriched=True)

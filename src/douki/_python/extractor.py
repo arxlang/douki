@@ -26,6 +26,13 @@ from douki.typechecking import typechecked
 def _annotation_to_str(node: Optional[ast.expr]) -> str:
     """
     title: Convert an AST annotation node to a readable type string.
+    parameters:
+      node:
+        description: Annotation expression, or None when no annotation
+          was supplied.
+    returns:
+      description: Readable annotation text, or an empty string when
+        unavailable.
     """
     if node is None:
         return ''
@@ -80,6 +87,13 @@ def _param_kind(
 ) -> str:
     """
     title: Determine the parameter kind.
+    parameters:
+      arg_name:
+        description: Name of the parameter whose calling convention is needed.
+      func_node:
+        description: Function declaration containing the parameter.
+    returns:
+      description: Calling convention for the named parameter.
     """
     for arg in func_node.args.posonlyargs:
         if arg.arg == arg_name:
@@ -100,6 +114,15 @@ def _extract_func(
 ) -> FuncInfo:
     """
     title: Extract a FuncInfo from a FunctionDef/AsyncFunctionDef.
+    parameters:
+      node:
+        description: Python syntax node to inspect for documentation metadata.
+      is_method:
+        description: Whether the function is declared directly in a class
+          body.
+    returns:
+      description: Function metadata with the implicit receiver omitted for
+        methods.
     """
     params: list[ParamInfo] = []
     all_args: list[ast.arg] = (
@@ -160,6 +183,12 @@ def _extract_func(
 def body_nodes(statements: list[ast.stmt]) -> Iterator[ast.AST]:
     """
     title: Walk a declaration's body without entering nested scopes.
+    parameters:
+      statements:
+        description: Statements in the declaration body to traverse.
+    returns:
+      description: Iterator over body nodes, leaving nested declaration
+        bodies unvisited.
     """
     pending: list[ast.AST] = list(reversed(statements))
     while pending:
@@ -175,21 +204,39 @@ def body_nodes(statements: list[ast.stmt]) -> Iterator[ast.AST]:
 class _FuncExtractor(ast.NodeVisitor):
     """
     title: AST visitor that collects FuncInfo for each docstring site.
+    attributes:
+      results:
+        description: Collected module, class, and function docstring sites
+          in visit order.
+      in_class:
+        description: Whether the current declaration is directly inside
+          a class.
+      _class_attrs_map:
+        description: Previously visited class attributes used for same-file
+          inheritance.
     """
+
+    results: list[FuncInfo]
+    in_class: bool
+    _class_attrs_map: dict[str, list[ParamInfo]]
 
     def __init__(self) -> None:
         """
         title: Initialize the extractor with empty state.
         """
-        self.results: list[FuncInfo] = []
-        self.in_class: bool = False
+        self.results = []
+        self.in_class = False
         # Maps class name → full list of attrs (own + inherited)
         # built up as we visit classes top-to-bottom.
-        self._class_attrs_map: dict[str, list[ParamInfo]] = {}
+        self._class_attrs_map = {}
 
     def visit_Module(self, node: ast.Module) -> None:
         """
         title: Extract module-level docstring.
+        parameters:
+          node:
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         if (
             node.body
@@ -220,6 +267,10 @@ class _FuncExtractor(ast.NodeVisitor):
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
         """
         title: Extract class docstring and class-level attributes.
+        parameters:
+          node:
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         ds_node = None
         if (
@@ -354,6 +405,10 @@ class _FuncExtractor(ast.NodeVisitor):
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         """
         title: Extract function docstring and parameters.
+        parameters:
+          node:
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         self.results.append(_extract_func(node, is_method=self.in_class))
         old_in_class = self.in_class
@@ -364,6 +419,10 @@ class _FuncExtractor(ast.NodeVisitor):
     def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
         """
         title: Extract async function docstring and parameters.
+        parameters:
+          node:
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         self.results.append(_extract_func(node, is_method=self.in_class))
         old_in_class = self.in_class
@@ -375,6 +434,9 @@ class _FuncExtractor(ast.NodeVisitor):
 def extract_functions(source: str) -> list[FuncInfo]:
     """
     title: Parse the Python source and return extracted functions/classes.
+    parameters:
+      source:
+        description: Source code whose docstrings are being processed.
     returns:
       description: List of FuncInfo objects in the order they appear.
     """

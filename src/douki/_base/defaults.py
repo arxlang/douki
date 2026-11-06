@@ -26,6 +26,10 @@ class LanguageDefaults:
       field_defaults:
         description: Mapping of top-level YAML key to the default value that
           should be omitted when emitting.
+      visibility:
+        description: Default visibility to omit from emitted documentation.
+      mutability:
+        description: Default mutability to omit from emitted documentation.
     """
 
     visibility: str = 'public'
@@ -40,6 +44,9 @@ class LanguageDefaults:
         """
         title: Return the mapping of top-level YAML key to the default value
           that should be omitted.
+        returns:
+          description: Built-in defaults combined with language-specific
+            overrides.
         """
         defaults = {
             'visibility': self.visibility,

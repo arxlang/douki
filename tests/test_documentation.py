@@ -189,6 +189,8 @@ def greet(name: str, *, count: int = 1) -> str:
     parameters:
       name: Person to greet.
       count: Number of greetings.
+    returns:
+      description: The name repeated for each greeting.
     """
     return name * count
 '''
@@ -204,8 +206,14 @@ def greet(name: str, *, count: int = 1) -> str:
     raw = ast.get_docstring(node)
     assert raw is not None
     data = enrich(raw, signature)
-    assert data['parameters']['name']['type'] == 'str'
-    assert data['returns']['type'] == 'str'
+    assert data['parameters']['name'] == {
+        'description': 'Person to greet.',
+        'type': 'str',
+    }
+    assert data['returns'] == {
+        'description': 'The name repeated for each greeting.',
+        'type': 'str',
+    }
     assert 'type:' not in raw
 
 

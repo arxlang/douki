@@ -199,6 +199,12 @@ def sync_source(
 def _migrate_numpydoc(source: str) -> str:
     """
     title: Replace numpydoc-style docstrings with Douki YAML.
+    parameters:
+      source:
+        description: Source code whose docstrings are being processed.
+    returns:
+      description: Source with recognized NumPy docstrings converted to Douki
+        YAML.
     """
     from douki._python.migrate import numpydoc_to_douki_yaml
 

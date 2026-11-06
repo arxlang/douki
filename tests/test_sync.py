@@ -168,6 +168,15 @@ def _p(
 ) -> ParamInfo:
     """
     title: Shorthand ParamInfo constructor for tests.
+    parameters:
+      name:
+        description: Parameter name to use in the test signature.
+      ann:
+        description: Annotation text to use in the test signature.
+      kind:
+        description: Calling convention to use in the test signature.
+    returns:
+      description: Parameter metadata for a synchronization test.
     """
     return ParamInfo(name=name, annotation=ann, kind=kind)
 
@@ -1185,6 +1194,9 @@ def test_sync_with_old_flat_params_preserved() -> None:
 def _long_title_src() -> str:
     """
     title: Build test source with a long | title.
+    returns:
+      description: Python source with a docstring title exceeding
+        the line-width limit.
     """
     long_title = (
         'Everything we need to know about'

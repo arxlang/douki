@@ -43,6 +43,9 @@ if TYPE_CHECKING:
 def get_version() -> str:
     """
     title: Return the program version.
+    returns:
+      description: Installed package version, or the source version when
+        not installed.
     """
     try:
         return importlib_metadata.version(__name__)
@@ -77,6 +80,12 @@ __all__ = [
 def __getattr__(name: str) -> object:
     """
     title: Load optional runtime helpers only when explicitly requested.
+    parameters:
+      name:
+        description: Public runtime helper to import on first access.
+    returns:
+      description: Requested helper, cached on the package for subsequent
+        access.
     """
     from importlib import import_module
 

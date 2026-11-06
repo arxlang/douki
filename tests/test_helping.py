@@ -4,6 +4,7 @@ title: Dynamic documentation, object help and explicit session setup.
 
 from __future__ import annotations
 
+import ast
 import builtins
 import inspect
 import pydoc
@@ -17,6 +18,7 @@ import yaml
 
 from douki import helping
 from douki.introspection import callable_signature, metadata
+from douki.sync import sync_source
 from douki.typechecking import typechecked
 from plum import dispatch
 
@@ -29,6 +31,8 @@ def greet(name: str, /, *others: str, count: int = 1, **options: bool) -> str:
       others: More people.
       count: Number of greetings.
       options: Greeting options.
+    returns:
+      description: The name repeated for each greeting.
     """
     return name * count
 
@@ -38,12 +42,23 @@ def test_getdoc_enriches_without_mutation_or_calling() -> None:
     title: Lazy enrichment preserves identity, behavior and stored metadata.
     """
     doc = greet.__doc__
+    authored = yaml.safe_load(inspect.getdoc(greet))
+    formatted = sync_source(inspect.getsource(greet))
+    formatted_doc = ast.get_docstring(ast.parse(formatted).body[0])
+    assert yaml.safe_load(formatted_doc) == authored
+    assert sync_source(formatted) == formatted
     annotations = dict(greet.__annotations__)
     data = yaml.safe_load(douki.getdoc(greet))
-    assert data['parameters']['name']['type'] == 'str'
+    assert data['parameters']['name'] == {
+        'description': authored['parameters']['name'],
+        'type': 'str',
+    }
     assert data['parameters']['others']['variadic'] == 'positional'
     assert data['parameters']['options']['variadic'] == 'keyword'
-    assert data['returns']['type'] == 'str'
+    assert data['returns'] == {
+        **authored['returns'],
+        'type': 'str',
+    }
     assert greet.__doc__ == doc
     assert greet.__annotations__ == annotations
     assert greet('Ada', count=2) == 'AdaAda'
@@ -98,6 +113,8 @@ def test_setup_is_explicit_idempotent_and_reversible(
         assert builtins.help is douki.help
         help(greet)
         assert 'type: str' in output[0]
+        assert "description: The person's name." in output[0]
+        assert 'description: The name repeated for each greeting.' in output[0]
         assert 'type:' not in greet.__doc__
     finally:
         douki.restore_help()

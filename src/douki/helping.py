@@ -33,6 +33,12 @@ no_request = object()
 def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
     """
     title: Read container members without evaluating property descriptors.
+    parameters:
+      obj:
+        description: Object whose documentation or members are being inspected.
+    returns:
+      description: Member names, objects, and flags indicating implicit
+        method receivers.
     """
     values: dict[str, object] = {}
     if isinstance(obj, type):
@@ -70,6 +76,16 @@ def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
 def contains_douki(obj: object, seen: set[int]) -> bool:
     """
     title: Leave ordinary Python help unchanged outside documented objects.
+    parameters:
+      obj:
+        description: Object whose documentation or members are being
+          inspected.
+      seen:
+        description: Visited object identities, updated to prevent recursive
+          traversal.
+    returns:
+      description: Whether the object or any inspected member contains
+        Douki documentation.
     """
     if id(obj) in seen:
         return False
@@ -110,6 +126,18 @@ class Renderer:
     ) -> str:
         """
         title: Use standard Python documentation for other member types.
+        parameters:
+          obj:
+            description: Object whose documentation or members are being
+              inspected.
+          name:
+            description: Display name for the object in the rendered help.
+          skip_receiver:
+            description: Whether to omit the first parameter of an unbound
+              method.
+        returns:
+          description: Help text for the object and any supported documented
+            members.
         """
         return str(pydoc.plaintext.document(obj, name))
 
@@ -123,6 +151,18 @@ class Renderer:
     ) -> str:
         """
         title: Render each callable variant with its own annotation types.
+        parameters:
+          obj:
+            description: Object whose documentation or members are being
+              inspected.
+          name:
+            description: Display name for the object in the rendered help.
+          skip_receiver:
+            description: Whether to omit the first parameter of an unbound
+              method.
+        returns:
+          description: Help text for the object and any supported documented
+            members.
         """
         sections: list[str] = []
         for variant in variants(obj):
@@ -145,6 +185,18 @@ class Renderer:
     ) -> str:
         """
         title: Show property documentation without invoking its getter.
+        parameters:
+          obj:
+            description: Object whose documentation or members are being
+              inspected.
+          name:
+            description: Display name for the object in the rendered help.
+          skip_receiver:
+            description: Whether to omit the first parameter of an unbound
+              method.
+        returns:
+          description: Help text for the object and any supported documented
+            members.
         """
         return f'{name} (property)\n{getdoc(obj) or ""}'
 
@@ -158,6 +210,18 @@ class Renderer:
     ) -> str:
         """
         title: Include documented members and guard against recursive aliases.
+        parameters:
+          obj:
+            description: Object whose documentation or members are being
+              inspected.
+          name:
+            description: Display name for the object in the rendered help.
+          skip_receiver:
+            description: Whether to omit the first parameter of an unbound
+              method.
+        returns:
+          description: Help text for the object and any supported documented
+            members.
         """
         if id(obj) in self.seen:
             return f'{name} (already documented)'
@@ -184,6 +248,10 @@ def help(request: object = no_request) -> None:
     """
     title: Display enriched object help and retain Python's topic interface.
     summary: No-argument interactive help and string topics use Python help.
+    parameters:
+      request:
+        description: Object or topic to document; omitting it opens interactive
+          Python help.
     """
     if request is no_request:
         fallback_help()

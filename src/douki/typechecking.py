@@ -16,6 +16,12 @@ R = TypeVar('R')
 def typechecked(function: Callable[P, R]) -> Callable[P, R]:
     """
     title: Check every argument and collection item without wrapping calls.
+    parameters:
+      function:
+        description: Annotated function to instrument for runtime type checks.
+    returns:
+      description: Instrumented function checking all arguments and collection
+        items.
     """
     return instrument(
         collection_check_strategy=CollectionCheckStrategy.ALL_ITEMS,

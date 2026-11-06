@@ -22,6 +22,8 @@ class BaseLanguage(ABC):
     def name(self) -> str:
         """
         title: The name of the language (e.g. 'python').
+        returns:
+          description: Name used to select the backend in the registry and CLI.
         """
         ...  # pragma: no cover
 
@@ -30,6 +32,9 @@ class BaseLanguage(ABC):
     def config(self) -> BaseConfig:
         """
         title: Configuration loader for this language.
+        returns:
+          description: Configuration loader and file discovery settings for
+            this backend.
         """
         ...  # pragma: no cover
 
@@ -40,8 +45,14 @@ class BaseLanguage(ABC):
         """
         title: Synchronize docstrings in the given source code.
         parameters:
+          source:
+            description: Source code whose docstrings are being processed.
           migrate:
             optional: true
+            description: Docstring format to convert before formatting; None
+              disables migration.
+        returns:
+          description: Source code with formatted Douki YAML docstrings.
         """
         _ = (source, migrate)
         raise NotImplementedError  # pragma: no cover
@@ -57,6 +68,10 @@ _REGISTRY: dict[str, type[BaseLanguage]] = {}
 def register_language(lang_class: type[BaseLanguage]) -> None:
     """
     title: Register a language plugin class.
+    parameters:
+      lang_class:
+        description: Backend class to register under its declared language
+          name.
     """
     # Create a temporary instance just to get its name
     instance = lang_class()
@@ -66,6 +81,11 @@ def register_language(lang_class: type[BaseLanguage]) -> None:
 def get_language(name: str) -> BaseLanguage:
     """
     title: Get an initialized language plugin by name.
+    parameters:
+      name:
+        description: Name of a registered language backend.
+    returns:
+      description: New instance of the requested language backend.
     """
     if name not in _REGISTRY:
         raise ValueError(f"Language '{name}' is not registered.")
@@ -75,5 +95,7 @@ def get_language(name: str) -> BaseLanguage:
 def get_registered_language_names() -> list[str]:
     """
     title: Return a list of registered language plugin names.
+    returns:
+      description: Language names in registration order.
     """
     return list(_REGISTRY.keys())
