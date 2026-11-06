@@ -20,22 +20,32 @@ def add(a: int, b: int = 0) -> int:
 
 ## Inspect documentation
 
+Register the library once in its `__init__.py`:
+
 ```python
+# mylib/__init__.py
 import douki
 
-print(douki.getdoc(add))  # YAML with inferred parameter and return types
-
-douki.help(add)          # Display enriched help
-
-douki.enable()           # Opt in for this interpreter session
-help(add)                # Now uses Douki for Douki-documented objects
-
-douki.disable()          # Restore the previous helper
+douki.register(__name__)
 ```
 
-No per-function decorator is required. Importing Douki does not change
-Python's help system. The original `add.__doc__` remains authored text.
-Ordinary Python objects and help topics retain the standard help interface.
+Users then call ordinary Python help:
+
+```python
+import mylib
+
+help(mylib.add)  # Douki descriptions enriched with annotation types
+help(len)        # Regular Python help
+```
+
+Registration covers the package and its submodules, including future imports.
+Objects defined in other libraries retain regular help, even when re-exported
+by your package. No per-function decorators or user activation calls are needed.
+The shared help wrapper routes by defining package; importing Douki alone does
+not install it. Original `__doc__` strings remain authored text.
+
+Tools can call `douki.getdoc(add)` directly without registration to obtain
+enriched YAML. Documentation generators can also use the static enrichment API.
 
 ## Format and validate source
 
@@ -58,7 +68,7 @@ entries. It preserves descriptions, examples and explicit null defaults.
 Dynamic inspection raises `DocumentationError` for missing annotations.
 
 The CLI can remain a development dependency. Install Douki in the running
-interpreter when using `getdoc`, `help` or `enable`.
+interpreter when using `getdoc`, `help` or library registration.
 
 Documentation generators can use the public `enrich`, `Signature` and
 `Parameter` API with statically collected types, without importing the

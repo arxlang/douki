@@ -98,8 +98,9 @@ def test_source_and_runtime_require_all_annotations(
     source = definition + '\n    """title: Example"""\n    pass\n'
     with pytest.raises(DocstringValidationError, match=missing):
         sync_source(source)
-    namespace: dict[str, object] = {}
+    namespace: dict[str, object] = {'__name__': 'douki_annotation_examples'}
     exec(source, namespace)
+    douki.register('douki_annotation_examples')
     for inspect_doc in (douki.getdoc, douki.help):
         with pytest.raises(douki.DocumentationError, match=missing) as caught:
             inspect_doc(namespace['example'])

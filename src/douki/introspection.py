@@ -8,7 +8,7 @@ import inspect
 import sys
 import typing
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from types import FunctionType, MethodType, ModuleType
 
 import yaml
@@ -113,13 +113,20 @@ def callable_metadata(obj: object, skip_receiver: bool) -> Signature:
 
 @private
 @typechecked
-def attributes(obj: type | ModuleType) -> tuple[Parameter, ...]:
+def attributes(
+    obj: type | ModuleType,
+    *,
+    include: Callable[[object], bool] | None = None,
+) -> tuple[Parameter, ...]:
     """
     title: Read declared attributes without evaluating forward references.
     parameters:
       obj:
         description: Declaration whose documentation or annotation metadata
           is needed.
+      include:
+        description: Optional filter for declaring classes, modules, and
+          property getters; None includes every owner.
     returns: Declared attribute annotations, including inherited fields and
       properties.
     """
@@ -135,10 +142,19 @@ def attributes(obj: type | ModuleType) -> tuple[Parameter, ...]:
             )
         else:
             annotations = inspect.get_annotations(owner, eval_str=False)
+        if include is not None and not include(owner):
+            # Foreign overrides hide included declarations without
+            # validating their annotations or inspecting property getters.
+            for name in set(vars(owner)) | set(annotations):
+                result.pop(name, None)
+            continue
         for name, value in annotations.items():
             result[name] = Parameter(name, display_annotation(value))
         for name, value in vars(owner).items():
             if isinstance(value, property):
+                if include is not None and not include(value):
+                    result.pop(name, None)
+                    continue
                 annotation = (
                     display_annotation(
                         callable_signature(value.fget).return_annotation

@@ -1,5 +1,5 @@
 """
-title: Display annotation-enriched help with explicit session activation.
+title: Display annotation-enriched help for registered packages.
 """
 
 from __future__ import annotations
@@ -14,18 +14,172 @@ from typing import Callable
 from plum import Function, dispatch
 from public import private, public
 
+from douki.documentation import (
+    DocumentationError,
+    Signature,
+    enrich,
+    format_documentation,
+)
 from douki.introspection import (
+    attributes,
     callable_signature,
-    getdoc,
     is_douki,
-    variant_doc,
+    metadata,
     variants,
 )
 from douki.typechecking import typechecked
 
 fallback_help: Callable[..., object] = builtins.help
-previous_help: Callable[..., object] | None = None
+registered_packages: set[str] = set()
 no_request = object()
+
+
+@private
+@dispatch
+@typechecked
+def owner(obj: object) -> str | None:
+    """
+    title: Leave unsupported objects outside package-specific help.
+    parameters:
+      obj: Object whose defining module is being checked.
+    returns: None when the object has no supported declaration identity.
+    """
+    return None
+
+
+@dispatch
+@typechecked
+def owner(obj: ModuleType) -> str | None:
+    """
+    title: Identify a module by its full import name.
+    parameters:
+      obj: Module whose registration scope is being checked.
+    returns: The module's full import name.
+    """
+    return obj.__name__
+
+
+@dispatch
+@typechecked
+def owner(obj: FunctionType | MethodType | Function | type) -> str | None:
+    """
+    title: Use the defining module rather than a re-export location.
+    parameters:
+      obj: Function, method, dispatch function, or class to locate.
+    returns: Defining module name, or None when unavailable.
+    """
+    name = obj.__module__
+    return name if isinstance(name, str) else None
+
+
+@dispatch
+@typechecked
+def owner(obj: property) -> str | None:
+    """
+    title: Locate a property through its getter without calling it.
+    parameters:
+      obj: Property whose registration scope is being checked.
+    returns: The getter's defining module, or None without a getter.
+    """
+    return owner(obj.fget)
+
+
+@private
+@typechecked
+def is_registered(obj: object) -> bool:
+    """
+    title: Match exact registered modules and their dotted descendants.
+    parameters:
+      obj: Declaration to check before inspecting its documentation.
+    returns: Whether the declaration belongs to a registered package.
+    """
+    name = owner(obj)
+    return name is not None and any(
+        name == package or name.startswith(package + '.')
+        for package in registered_packages
+    )
+
+
+@private
+@typechecked
+def own_doc(obj: object) -> str | None:
+    """
+    title: Read authored prose without inheriting another declaration's docs.
+    parameters:
+      obj: Declaration whose own docstring is needed.
+    returns: Cleaned authored text, or None when absent.
+    """
+    raw = getattr(obj, '__doc__', None)
+    return inspect.cleandoc(raw) if isinstance(raw, str) else None
+
+
+@private
+@typechecked
+def variant_text(obj: object, implementation: object) -> str | None:
+    """
+    title: Use implementation prose for typing overloads without mixing owners.
+    parameters:
+      obj: Overload declaration whose own prose takes precedence.
+      implementation: Registered implementation providing fallback prose.
+    returns: Authored overload or implementation text, or None when absent.
+    """
+    raw = own_doc(obj)
+    target = (
+        implementation.__func__
+        if isinstance(implementation, MethodType)
+        else implementation
+    )
+    # Plum's combined docstring can include implementations from other
+    # packages. Each implementation must supply its own prose instead.
+    if raw is None and not isinstance(target, Function):
+        raw = own_doc(implementation)
+    return raw
+
+
+@private
+@dispatch
+@typechecked
+def help_metadata(obj: object, skip_receiver: bool = False) -> Signature:
+    """
+    title: Collect callable metadata through the shared fail-closed adapter.
+    parameters:
+      obj: Registered declaration whose annotations are needed.
+      skip_receiver: Whether to omit an unbound method's first parameter.
+    returns: Annotation metadata for the supported declaration.
+    """
+    return metadata(obj, skip_receiver)
+
+
+@dispatch
+@typechecked
+def help_metadata(
+    obj: type | ModuleType,
+    skip_receiver: bool = False,
+) -> Signature:
+    """
+    title: Limit container metadata to registered attribute owners.
+    parameters:
+      obj: Registered class or module whose fields are being documented.
+      skip_receiver: Unused for declarations without a callable signature.
+    returns: Attributes declared by registered modules and classes.
+    """
+    return Signature(attributes=attributes(obj, include=is_registered))
+
+
+@private
+@typechecked
+def render_doc(obj: object, raw: str, skip_receiver: bool = False) -> str:
+    """
+    title: Enrich owned documentation with package-scoped metadata.
+    parameters:
+      obj: Registered declaration being rendered.
+      raw: Authored Douki YAML belonging to the declaration.
+      skip_receiver: Whether to omit an unbound method's first parameter.
+    returns: Generated YAML containing authored prose and annotation types.
+    """
+    return format_documentation(
+        enrich(raw, help_metadata(obj, skip_receiver)), enriched=True
+    )
 
 
 @private
@@ -86,16 +240,16 @@ def contains_douki(obj: object, seen: set[int]) -> bool:
     returns: Whether the object or any inspected member contains
       Douki documentation.
     """
-    if id(obj) in seen:
+    if not is_registered(obj) or id(obj) in seen:
         return False
     seen.add(id(obj))
     alternatives = variants(obj)
     if len(alternatives) > 1 or alternatives[0] is not obj:
         return any(
-            is_douki(inspect.getdoc(item) or inspect.getdoc(obj))
+            is_registered(item) and is_douki(variant_text(item, obj))
             for item in alternatives
         )
-    if is_douki(inspect.getdoc(obj)):
+    if is_douki(own_doc(obj)):
         return True
     if isinstance(obj, (type, ModuleType)):
         return any(contains_douki(item, seen) for _, item, _ in members(obj))
@@ -161,13 +315,20 @@ class Renderer:
         """
         sections: list[str] = []
         for variant in variants(obj):
+            if not is_registered(variant):
+                sections.append(str(pydoc.plaintext.document(variant, name)))
+                continue
+            raw = variant_text(variant, obj)
+            if raw is None or not is_douki(raw):
+                sections.append(str(pydoc.plaintext.document(variant, name)))
+                continue
             signature = callable_signature(variant)
             if skip_receiver:
                 signature = signature.replace(
                     parameters=list(signature.parameters.values())[1:],
                 )
-            raw = variant_doc(variant, obj, skip_receiver) or ''
-            sections.append(f'{name}{signature}\n{raw}')
+            rendered = render_doc(variant, raw, skip_receiver)
+            sections.append(f'{name}{signature}\n{rendered}')
         return '\n\n'.join(sections)
 
     @dispatch
@@ -191,7 +352,7 @@ class Renderer:
               method.
         returns: Help text for the object and any supported documented members.
         """
-        return f'{name} (property)\n{getdoc(obj) or ""}'
+        return f'{name} (property)\n{render_doc(obj, own_doc(obj) or "")}'
 
     @dispatch
     @typechecked
@@ -217,7 +378,13 @@ class Renderer:
         if id(obj) in self.seen:
             return f'{name} (already documented)'
         self.seen.add(id(obj))
-        sections = [name, getdoc(obj) or '']
+        raw = own_doc(obj)
+        documentation = (
+            render_doc(obj, raw)
+            if raw is not None and is_douki(raw)
+            else inspect.getdoc(obj) or ''
+        )
+        sections = [name, documentation]
         for member_name, member, skip in members(obj):
             if contains_douki(member, set()):
                 sections.append(self.visit(member, member_name, skip))
@@ -237,7 +404,8 @@ class Renderer:
 @typechecked
 def help(request: object = no_request) -> None:
     """
-    title: Display enriched object help and retain Python's topic interface.
+    title: Route registered objects to Douki and other requests to Python
+      help.
     summary: No-argument interactive help and string topics use Python help.
     parameters:
       request:
@@ -257,25 +425,24 @@ def help(request: object = no_request) -> None:
 
 @public
 @typechecked
-def enable() -> None:
+def register(package: str) -> None:
     """
-    title: Enable enriched built-in help for this interpreter session.
+    title: Register a library for annotation-enriched help.
+    summary: Call once from the library's __init__.py using __name__.
+      Registration includes future submodules without importing them.
+      Other packages continue to use the previously installed help
+      helper.
+    parameters:
+      package: Full module or package import name to register.
+    raises:
+      DocumentationError: The name is empty or is not a dotted identifier.
     """
-    global previous_help, fallback_help
-    if builtins.help is help:
-        return
-    previous_help = builtins.help
-    fallback_help = builtins.help
-    setattr(builtins, 'help', help)
-
-
-@public
-@typechecked
-def disable() -> None:
-    """
-    title: Restore the helper replaced by enable without undoing other hooks.
-    """
-    global previous_help
-    if previous_help is not None and builtins.help is help:
-        setattr(builtins, 'help', previous_help)
-    previous_help = None
+    global fallback_help
+    if not all(part.isidentifier() for part in package.split('.')):
+        raise DocumentationError('registration', 'Expected a dotted name')
+    # Install once. A later helper may delegate back to ours, so capturing
+    # it again would create a recursion cycle or overwrite another hook.
+    if not registered_packages and builtins.help is not help:
+        fallback_help = builtins.help
+        setattr(builtins, 'help', help)
+    registered_packages.add(package)

@@ -108,29 +108,58 @@ Expanded output is a rendered view, not valid source input for a second pass.
 
 ## Dynamic help
 
+Register each participating library once from its `__init__.py`:
+
 ```python
+# mylib/__init__.py
 import douki
 
-text = douki.getdoc(greet)
-douki.help(greet)
+douki.register(__name__)
+```
 
-# Optional: use the normal help name for this session.
-douki.enable()
-help(greet)
-douki.disable()
+Consumers only need to import the library:
+
+```python
+import json
+import mylib
+
+help(mylib.greet)  # Descriptions and types from mylib's annotations
+help(json.dumps)  # Regular Python help
+```
+
+`register` accepts a full module or package name. Registration is idempotent
+and covers that exact name and its dotted descendants, including submodules
+imported later. Registering `mylib` does not include `mylib_extra` or unrelated
+packages sharing a namespace. Each library can register independently.
+Names are validated before registration; no modules are imported by this call.
+
+The first registration installs a shared `builtins.help` wrapper. It checks
+the object's defining module before inspecting Douki documentation. Functions
+re-exported from unregistered dependencies, inherited foreign methods, and
+foreign dispatch implementations retain standard Python documentation.
+Class attribute enrichment also respects declaring owners. Objects without
+Douki docstrings use the original helper, even inside a registered package.
+
+Importing Douki alone does not install the wrapper. There are no `enable` or
+`disable` calls for consumers. Subsequent registrations preserve any help
+wrapper installed by another tool after Douki. `help()` with no argument and
+string requests such as `help("keywords")` use the original helper; that
+interactive topic session does not automatically enrich its requests.
+Call `help(object)` for package-scoped object documentation. `douki.help`
+uses the same routing rules.
+
+Explicit inspection does not require registration:
+
+```python
+text = douki.getdoc(greet)
 ```
 
 `getdoc` returns enriched YAML for Douki docstrings, ordinary cleaned text
 for other docstrings, and `None` when documentation is absent. It never
 changes `__doc__`, annotations or function identity. Repeated calls derive
 the result from current metadata, so no cached types become stale.
-
-`enable` is explicit, idempotent and session-wide. `disable` reinstates
-the previous helper, unless another tool has since replaced it. Importing
-Douki alone does not install anything. `help()` with no argument and string
-requests such as `help("keywords")` retain Python's ordinary interface;
-that interactive topic session does not automatically enrich its requests.
-Call `help(object)` for enriched object documentation.
+This explicit API works on objects from any package and does not install
+or consult the help registry.
 
 Class and module help includes members; property getters are never called.
 Module `__all__` exports are respected. Plum dispatch implementations retain
@@ -152,7 +181,8 @@ not decompose the generator annotation into separate fields.
 ## Static documentation generators
 
 The shared API accepts strings and typed metadata. An adapter such as
-DoukiMD's Griffe collector can supply this without importing project code:
+DoukiMD's Griffe collector can supply this without importing project code,
+registering a package, or changing Python help:
 
 ```python
 from douki import Parameter, Signature, enrich, format_documentation

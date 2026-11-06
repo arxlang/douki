@@ -1,5 +1,5 @@
 """
-title: Dynamic documentation, object help and explicit session activation.
+title: Dynamic documentation, object help and package registration.
 """
 
 from __future__ import annotations
@@ -97,46 +97,56 @@ def test_evaluated_annotations_and_none_return() -> None:
     assert data['returns']['type'] == 'None'
 
 
-def test_enable_is_explicit_idempotent_and_reversible(
+def test_registration_is_explicit_and_idempotent(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
-    title: Enable intercepts object help and disable restores the helper.
+    title: Registration routes owned help and installs the wrapper once.
+    parameters:
+      monkeypatch: Fixture replacing the help pager for inspection.
     """
     original = builtins.help
     output: list[str] = []
     monkeypatch.setattr(pydoc, 'pager', output.append)
-    try:
-        douki.enable()
-        douki.enable()
-        assert builtins.help is douki.help
-        help(greet)
-        assert 'type: str' in output[0]
-        assert "description: The person's name." in output[0]
-        assert 'description: The name repeated for each greeting.' in output[0]
-        assert 'type:' not in greet.__doc__
-    finally:
-        douki.disable()
-    assert builtins.help is original
-    douki.disable()
-    assert builtins.help is original
+    assert original is not douki.help
+    douki.register(__name__)
+    douki.register(__name__)
+    assert builtins.help is douki.help
+    assert helping.fallback_help is original
+    help(greet)
+    assert 'type: str' in output[0]
+    assert "description: The person's name." in output[0]
+    assert 'description: The name repeated for each greeting.' in output[0]
+    assert 'type:' not in greet.__doc__
 
 
-def test_disable_does_not_overwrite_another_tools_helper(
+def test_registration_preserves_a_later_help_wrapper(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
-    title: Disable respects a helper installed after Douki.
+    title: Repeated registration does not overwrite or capture a later hook.
+    parameters:
+      monkeypatch: Fixture replacing the original and subsequent help hooks.
     """
-    original = builtins.help
-    try:
-        douki.enable()
-        monkeypatch.setattr(builtins, 'help', print)
-        douki.disable()
-        assert builtins.help is print
-    finally:
-        monkeypatch.setattr(builtins, 'help', original)
-        monkeypatch.setattr(helping, 'fallback_help', original)
+    calls: list[object] = []
+    monkeypatch.setattr(builtins, 'help', calls.append)
+    douki.register(__name__)
+    routed_help = builtins.help
+
+    def later_help(obj: object) -> None:
+        """
+        title: Delegate through the previously installed help wrapper.
+        parameters:
+          obj: Object whose help was requested.
+        """
+        routed_help(obj)
+
+    monkeypatch.setattr(builtins, 'help', later_help)
+    douki.register(__name__)
+    douki.register('another_package')
+    assert builtins.help is later_help
+    help(len)
+    assert calls == [len]
 
 
 def test_topics_interactive_help_and_other_objects_delegate(
@@ -153,10 +163,11 @@ def test_topics_interactive_help_and_other_objects_delegate(
         """
         calls.append(args)
 
-    monkeypatch.setattr(helping, 'fallback_help', record)
-    douki.help()
-    douki.help('keywords')
-    douki.help(42)
+    monkeypatch.setattr(builtins, 'help', record)
+    douki.register(__name__)
+    help()
+    help('keywords')
+    help(42)
     assert calls == [(), ('keywords',), (42,)]
 
 
@@ -210,6 +221,7 @@ def test_classes_properties_receivers_and_module_members(
 
     output: list[str] = []
     monkeypatch.setattr(pydoc, 'pager', output.append)
+    douki.register(__name__)
     douki.help(Example)
     assert 'type: float' in output[0]
     assert 'size (property)' in output[0]
@@ -220,6 +232,7 @@ def test_classes_properties_receivers_and_module_members(
     module.__doc__ = 'title: Test module'
     module.Example = Example
     Example.__module__ = module.__name__
+    douki.register(module.__name__)
     douki.help(module)
     assert 'size (property)' in output[1]
     assert 'type: float' in output[1]
@@ -251,6 +264,7 @@ def test_plum_variants_keep_their_own_types(
 
     output: list[str] = []
     monkeypatch.setattr(pydoc, 'pager', output.append)
+    douki.register(__name__)
     douki.help(choose)
     assert 'type: int' in output[0]
     assert 'type: str' in output[0]
@@ -262,9 +276,13 @@ def test_plum_variants_keep_their_own_types(
     sys.version_info < (3, 11),
     reason='typing.get_overloads was added in Python 3.11',
 )
-def test_typing_overloads_inherit_prose_but_not_types() -> None:
+def test_typing_overloads_inherit_prose_but_not_types(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """
     title: Overload types come from each declaration, not implementation.
+    parameters:
+      monkeypatch: Fixture capturing help for registered overloads.
     """
 
     namespace = {'__name__': __name__}
@@ -283,6 +301,12 @@ def test_typing_overloads_inherit_prose_but_not_types() -> None:
     documents = list(yaml.safe_load_all(douki.getdoc(convert)))
     assert {doc['returns']['type'] for doc in documents} == {'int', 'str'}
     assert all(doc['title'] == 'Convert a value' for doc in documents)
+    output: list[str] = []
+    monkeypatch.setattr(pydoc, 'pager', output.append)
+    douki.register(__name__)
+    help(convert)
+    assert 'type: int' in output[0]
+    assert 'type: str' in output[0]
 
 
 def test_plain_docstrings_missing_docs_and_unsupported_metadata() -> None:
@@ -305,7 +329,8 @@ def test_normal_functions_and_modules_use_original_help(
     title: Installing Douki does not replace standard documentation elsewhere.
     """
     calls: list[object] = []
-    monkeypatch.setattr(helping, 'fallback_help', calls.append)
+    monkeypatch.setattr(builtins, 'help', calls.append)
+    douki.register(__name__)
     douki.help(len)
     douki.help(sys)
     assert calls == [len, sys]
@@ -315,7 +340,7 @@ def test_module_exports_and_recursive_class_aliases(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """
-    title: Explicit re-exports are enriched and alias cycles terminate.
+    title: Registered re-exports are enriched and alias cycles terminate.
     """
 
     class Container:
@@ -332,6 +357,8 @@ def test_module_exports_and_recursive_class_aliases(
     module.hidden = greet
     output: list[str] = []
     monkeypatch.setattr(pydoc, 'pager', output.append)
+    douki.register(__name__)
+    douki.register(module.__name__)
     douki.help(module)
     assert 'already documented' in output[0]
     assert 'type: str' in output[0]
@@ -390,6 +417,7 @@ def test_bound_plum_methods_keep_variants_and_remove_receivers(
     assert all('self' not in doc['parameters'] for doc in documents)
     output: list[str] = []
     monkeypatch.setattr(pydoc, 'pager', output.append)
+    douki.register(__name__)
     douki.help(method)
     assert 'type: int' in output[0]
     assert 'type: str' in output[0]
