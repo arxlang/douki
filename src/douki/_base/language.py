@@ -13,9 +13,8 @@ from douki._base.config import BaseConfig
 class BaseLanguage(ABC):
     """
     title: Abstract base class for a language plugin.
-    summary: >-
-      Plugins subclass this to bind their language-specific extractor, sync
-      logic, and configuration.
+    summary: Plugins subclass this to bind their language-specific extractor,
+      sync logic, and configuration.
     """
 
     @property

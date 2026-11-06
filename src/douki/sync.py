@@ -1,9 +1,8 @@
 """
 title: Public API for syncing Douki YAML docstrings.
-summary: >-
-  Provides the ``sync_source`` and ``resolve_files`` dispatch functions that
-  route to the appropriate language plugin. Also re-exports language-agnostic
-  base types.
+summary: Provides the ``sync_source`` and ``resolve_files`` dispatch
+  functions that route to the appropriate language plugin. Also re-exports
+  language-agnostic base types.
 """
 
 from __future__ import annotations
@@ -78,7 +77,7 @@ def sync_source(
     migrate: Optional[str] = None,
 ) -> str:
     """
-    title: Synchronize Douki YAML docstrings in *source*.
+    title: Format Douki YAML docstrings in *source*.
     summary: Dispatches to the appropriate language plugin based on *lang*.
     parameters:
       source:

@@ -1,72 +1,69 @@
 # Douki
 
-**Language-agnostic YAML docstrings for Python.**
+**YAML docstrings with types supplied by annotations.**
 
-Douki is a developer tool that uses a structured YAML format inside Python
-docstrings. It keeps your docstrings in sync with your function signatures and
-validates them against a schema — all without adding a runtime dependency to
-your package.
-
-## Why Douki?
-
-- **Structured** — docstrings are YAML, not free-form text. Parameters have
-  `type`, `description`, `optional`, and `default` fields.
-- **Auto-synced** — `douki sync` adds new parameters, removes stale ones, and
-  updates return types automatically.
-- **Validated** — every docstring is checked against a JSON Schema so typos and
-  invalid fields are caught early.
-- **Dev-only** — Douki is a development tool. It does **not** need to be a
-  runtime dependency of your package.
-- **Migratable** — convert existing NumPy-style docstrings with
-  `douki migrate numpydoc`.
-
-## Quick Start
-
-Install Douki as a dev dependency:
-
-```bash
-pip install douki
-```
-
-Write a docstring in Douki YAML format:
+Write descriptions in your docstrings and types in Python annotations.
+Douki enriches documentation when you inspect it, while its CLI validates
+and formats the YAML in your source files.
 
 ```python
 def add(a: int, b: int = 0) -> int:
     """
-    title: Add two integers
+    title: Add two integers.
     parameters:
-      a:
-        type: int
-        description: First value.
-      b:
-        type: int
-        description: Second value.
-        default: 0
+      a: First value.
+      b: Second value.
     returns:
-      type: int
       description: Sum of a and b.
     """
     return a + b
 ```
 
-Sync your docstrings with the actual signatures:
+## Inspect documentation
 
-```bash
-# Preview changes
-douki check src/
+```python
+import douki
 
-# Apply changes in-place
-douki sync src/
+print(douki.getdoc(add))  # YAML with inferred parameter and return types
+
+douki.help(add)          # Display enriched help
+
+douki.setup()            # Opt in for this interpreter session
+help(add)                # Now uses Douki for Douki-documented objects
+
+douki.restore_help()     # Restore the previous helper
 ```
 
-By default, Douki respects `.gitignore` during file discovery. You can
-disable that per run with `--no-respect-gitignore`, or set
-`[tool.douki] respect-gitignore = false` in `pyproject.toml`.
+No per-function decorator is required. Importing Douki does not change
+Python's help system. The original `add.__doc__` remains authored text.
+Ordinary Python objects and help topics retain the standard help interface.
 
-## What's Next?
+## Format and validate source
 
-- [Installation](installation.md) — install via pip, conda, or from source
-- [Usage Guide](usage.md) — CLI commands, YAML schema, and migration
-- [Performance benchmarks](performance.md) — ASV history and PR comparisons
-- [Changelog](changelog.md) — release history
-- [Contributing](contributing.md) — how to contribute
+```bash
+pip install douki
+
+douki check src/  # Report formatting differences and schema errors
+douki sync src/   # Apply YAML formatting
+```
+
+`sync` does not insert annotation types, add or remove parameter entries,
+or overwrite authored types. Existing explicit types remain valid; they
+can be removed when the signature supplies them. Formatting preserves the
+YAML values, including descriptions, examples and explicit null defaults.
+
+The CLI can remain a development dependency. Install Douki in the running
+interpreter when using `getdoc`, `help` or `setup`.
+
+Documentation generators can use the public `enrich`, `Signature` and
+`Parameter` API with statically collected types, without importing the
+project being documented. See the [usage guide](usage.md).
+
+Douki respects `.gitignore` by default. Override it with
+`--no-respect-gitignore` or `[tool.douki] respect-gitignore = false`.
+
+- [Installation](installation.md)
+- [Usage guide](usage.md)
+- [Performance benchmarks](performance.md)
+- [Changelog](changelog.md)
+- [Contributing](contributing.md)

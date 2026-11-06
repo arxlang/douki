@@ -1,8 +1,7 @@
 """
 title: Public API for migrating docstrings to Douki YAML.
-summary: >-
-  Provides the ``migrate_source`` dispatch function that routes to the
-  appropriate language plugin.
+summary: Provides the ``migrate_source`` dispatch function that routes
+  to the appropriate language plugin.
 """
 
 from __future__ import annotations

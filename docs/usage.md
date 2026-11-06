@@ -1,358 +1,140 @@
-# Usage Guide
+# Usage
 
-## CLI Commands
+## Authoring
 
-Douki provides two commands: `sync` and `check`.
-
-### `douki sync`
-
-Applies changes to your Python files in-place. Adds missing parameters,
-removes stale ones, and updates return types.
-
-```bash
-# Sync all .py files in src/
-douki sync src/
-
-# Sync specific files
-douki sync src/mymodule.py
-
-# Sync current directory (default)
-douki sync
-```
-
-**Exit codes:**
-
-| Code | Meaning            |
-| ---- | ------------------ |
-| `0`  | No changes needed  |
-| `1`  | Files were updated |
-| `2`  | Errors occurred    |
-
-### `douki check`
-
-Prints a unified diff of proposed changes **without** modifying files.
-Ideal for CI pipelines and pre-commit hooks.
-
-```bash
-# Check all .py files in src/
-douki check src/
-
-# Check current directory (default)
-douki check
-```
-
-**Exit codes:**
-
-| Code | Meaning                              |
-| ---- | ------------------------------------ |
-| `0`  | No changes needed                    |
-| `1`  | Diffs exist (files would be changed) |
-| `2`  | Errors occurred                      |
-
----
-
-## Douki YAML Schema
-
-Douki docstrings are YAML blocks inside triple-quoted strings. Every
-docstring **must** have a `title` field.
-
-### Minimal Example
+Put types in annotations and descriptions in Douki YAML:
 
 ```python
-def greet(name: str) -> str:
+def greet(name: str, times: int = 1) -> str:
     """
-    title: Greet someone by name
-    """
-    return f"Hello {name}"
-```
-
-Running `douki sync` will automatically fill in the `parameters` and
-`returns` sections based on the function signature.
-
-### Full Example
-
-```python
-def add(a: int, b: int = 0) -> int:
-    """
-    title: Add two integers
-    summary: |
-      Returns the arithmetic sum of two values.
+    title: Greet someone.
     parameters:
-      a:
-        type: int
-        description: First value.
-      b:
-        type: int
-        description: Second value.
-        optional: true
-        default: 0
+      name: Person to greet.
+      times: Number of greetings.
     returns:
-      type: int
-      description: Sum of a and b.
-    raises:
-      - type: ValueError
-        description: If either value is negative.
-    examples:
-      - code: |
-          add(1, 2)  # -> 3
-    notes: This is a trivial example.
+      description: The greeting text.
     """
-    if a < 0 or b < 0:
-        raise ValueError
-    return a + b
+    return "\n".join([f"Hello, {name}!"] * times)
 ```
 
-### Classes and Methods
+A `title` is required. Parameter entries can be description strings or
+mappings with `description`, `type`, `default`, `optional` and `variadic`.
+Types are optional. The shipped `douki/schema.json` defines all supported
+fields, including `attributes`, `raises`, `yields`, `examples` and `notes`.
+Use plain parameter names for variadics (`args`, not `*args`).
 
-Douki follows the same philosophy as **numpydoc**: the class-level docstring
-describes the class itself (purpose, attributes, notes), while the `__init__`
-docstring describes how to instantiate the class (parameters).
+## Formatting and validation
+
+```bash
+douki check src/     # Preview formatting differences
+douki sync src/      # Apply formatting
+douki check         # Discover Python files in the current directory
+```
+
+`sync` normalizes YAML formatting without copying types from annotations
+into the file. It preserves authored fields, including explicit types,
+empty entries, null defaults and multiline examples. It does not add or
+remove parameter or attribute entries, even after a signature changes.
+The enrichment API reports unknown documented parameters when those
+objects are inspected.
+
+| Exit code | Meaning |
+| --- | --- |
+| 0 | No changes needed |
+| 1 | Formatting differs (`check`) or was updated (`sync`) |
+| 2 | Invalid docstrings or another processing error |
+
+Migrating from earlier Douki releases: existing expanded docstrings remain
+valid. Remove redundant `type` fields when you want annotations to be the
+only authored type information. `sync` will not reinsert them. The explicit
+`douki.sync.sync_docstring` API retains its legacy expansion behavior for
+existing consumers; source formatting no longer calls that API.
+
+## Dynamic help
 
 ```python
-class MyCounter:
-    """
-    title: A simple counter
-    summary: Counts how many times an event has occurred.
-    attributes:
-      value:
-        type: int
-        description: The current count.
-    """
+import douki
 
-    def __init__(self, start: int = 0) -> None:
-        """
-        title: Initialize the counter
-        """
-        self.value = start
+text = douki.getdoc(greet)
+douki.help(greet)
 
-    def increment(self, step: int = 1) -> None:
-        """
-        title: Increment the counter
-        """
-        self.value += step
+# Optional: use the normal help name for this session.
+douki.setup()
+help(greet)
+douki.restore_help()
 ```
 
-Running `douki sync` will:
+`getdoc` returns enriched YAML for Douki docstrings, ordinary cleaned text
+for other docstrings, and `None` when documentation is absent. It never
+changes `__doc__`, annotations or function identity. Repeated calls derive
+the result from current metadata, so no cached types become stale.
 
-- **Auto-populate `attributes:`** from class-level annotated variables
-  (`x: int`, `name: str = "default"`, `total: ClassVar[int]`, etc.).
-  Existing descriptions are preserved; only missing vars are added.
-- Leave the class docstring's `parameters:` section **completely alone** —
-  Douki never injects constructor arguments into the class docstring.
-- **Sync `__init__`** docstring with its constructor's `parameters:` and
-  `returns:` based on the actual signature.
-- **Sync every method** docstring independently.
+`setup` is explicit, idempotent and session-wide. `restore_help` reinstates
+the previous helper, unless another tool has since replaced it. Importing
+Douki alone does not install anything. `help()` with no argument and string
+requests such as `help("keywords")` retain Python's ordinary interface;
+that interactive topic session does not automatically enrich its requests.
+Call `help(object)` for enriched object documentation.
 
-> **Tip:** Use `attributes:` (populated automatically from type-annotated
-> class vars) for instance/class variables. Use `parameters:` in `__init__`
-> for constructor arguments.
+Class and module help includes members; property getters are never called.
+Module `__all__` exports are respected. Plum dispatch implementations retain
+separate types. On Python 3.11+, registered `typing.overload` declarations
+also retain separate types, inheriting implementation prose when needed.
+On Python 3.10 only the runtime implementation signature is available for
+`typing.overload`. `getdoc` separates multiple variants with YAML `---`
+document separators.
 
-#### Auto-attribute extraction
+Python 3.10–3.13 use unevaluated string annotations when present; Python
+3.14 uses annotationlib's string format. Douki does not call
+`typing.get_type_hints` to resolve missing type-only imports. Runtime
+inspection is for code already imported in the current interpreter.
+Generator return annotations describe the returned iterator; `yields` and
+`receives` descriptions/types are preserved as authored.
 
-Douki picks up attributes from **two sources**:
+## Static documentation generators
 
-1. **Class-level annotations** (`x: int`, `MAX: ClassVar[int] = 100`).
-2. **`self.*` assignments in `__init__`** — both `self._x = val` (plain) and
-   `self._x: int = val` (annotated). This catches private attributes that
-   are never declared at class level.
-
-Class-level annotations always take precedence if the same name appears in
-both places.
+The shared API accepts strings and typed metadata. An adapter such as
+DoukiMD's Griffe collector can supply this without importing project code:
 
 ```python
-from typing import ClassVar
+from douki import Parameter, Signature, enrich, format_documentation
 
-class Buffer:
-    """
-    title: A byte buffer
-    """
-    MAX_SIZE: ClassVar[int] = 4096  # ClassVar flows through as-is
-    data: bytes
-    position: int
+signature = Signature(
+    parameters=(Parameter("name", "str"), Parameter("times", "int")),
+    returns="str",
+)
+data = enrich(
+    "title: Greet someone\nparameters:\n  name: Person to greet.\n",
+    signature,
+)
+text = format_documentation(data)
 ```
 
-After `douki sync`:
+`data` is a validated documentation mapping that renderers can consume
+directly. Annotations take precedence over explicit types; unannotated
+parameters keep authored types. Descriptions and other metadata survive
+enrichment. Unknown documented parameters and duplicate signature names
+raise `DocumentationError` with a processing phase. Invalid metadata types
+raise Typeguard errors, including invalid items later in a collection.
 
-```python
-class Buffer:
-    """
-    title: A byte buffer
-    attributes:
-      MAX_SIZE:
-        type: ClassVar[int]
-      data:
-        type: bytes
-      position:
-        type: int
-    """
-    MAX_SIZE: ClassVar[int] = 4096
-    data: bytes
-    position: int
-```
+Use `parameters=None` for non-callable declarations, `parameters=()` for a
+function with no arguments, and `attributes=(Parameter(...), ...)` for
+class/module attributes. Adapters supply each overload separately and omit
+implicit receivers. `kind` accepts `regular`, `positional_only`,
+`keyword_only`, `var_positional` and `var_keyword`.
 
-#### Inheritance
-
-Douki resolves base class annotated variables for classes defined in the
-**same file**. Base classes from external modules are silently skipped.
-
-- Inherited attrs appear **before** the derived class's own attrs.
-- If a derived class re-declares an attr with a different annotation, the
-  **derived type takes precedence** (base entry is dropped).
-
-```python
-class Shape:
-    """
-    title: A shape
-    """
-    color: str
-
-class Circle(Shape):
-    """
-    title: A circle
-    """
-    radius: float
-```
-
-After `douki sync`, `Circle` gets:
-
-```yaml
-attributes:
-  color: # ← inherited from Shape
-    type: str
-  radius: # ← Circle's own
-    type: float
-```
-
-| Field        | Type                 | Description                                          |
-| ------------ | -------------------- | ---------------------------------------------------- |
-| `title`      | `string`             | **Required.** Short title for the function.          |
-| `summary`    | `string`             | Extended description. Supports multi-line with `\|`. |
-| `deprecated` | `string`             | Deprecation notice.                                  |
-| `visibility` | `enum`               | `public` · `private` · `protected` · `internal`      |
-| `mutability` | `enum`               | `mutable` · `immutable` · `constant`                 |
-| `scope`      | `enum`               | `instance` · `static` · `class`                      |
-| `parameters` | `object`             | Map of parameter name → entry (see below).           |
-| `returns`    | `object` or `string` | Single `{type, description}` or plain text.          |
-| `yields`     | `object` or `string` | Like `returns`, for generators.                      |
-| `receives`   | `object` or `string` | Like `returns`, for generators.                      |
-| `raises`     | `list` or `object`   | List of `{type, description}` or dict map.           |
-| `warnings`   | `list` or `object`   | List of `{type, description}` or dict map.           |
-| `see_also`   | `string` or `list`   | Related functions or references.                     |
-| `notes`      | `string`             | Additional notes.                                    |
-| `references` | `string`             | External references or citations.                    |
-| `examples`   | `string` or `list`   | Usage examples.                                      |
-| `attributes` | `object`             | For classes: map of attribute name → entry.          |
-| `methods`    | `string` or `list`   | For classes: method names.                           |
-
-### Parameter Entry
-
-Each parameter can be a simple string (description only) or a structured
-object:
-
-```yaml
-parameters:
-  name:
-    type: str
-    description: The person's name.
-    optional: true
-    default: "World"
-```
-
-| Sub-field     | Type      | Description                                                                          |
-| ------------- | --------- | ------------------------------------------------------------------------------------ |
-| `type`        | `string`  | Type annotation (informational).                                                     |
-| `description` | `string`  | Description of the parameter.                                                        |
-| `optional`    | `boolean` | Whether the parameter is optional.                                                   |
-| `default`     | `any`     | Default value.                                                                       |
-| `variadic`    | `enum`    | `positional` (for `*args`) · `keyword` (for `**kwargs`). Omitted for regular params. |
-
-#### Variadic Parameters
-
-For `*args` and `**kwargs`, use the plain parameter name as the key
-and set the `variadic` attribute:
-
-```yaml
-parameters:
-  args:
-    type: int
-    variadic: positional
-  kwargs:
-    type: str
-    variadic: keyword
-```
-
-### Python Defaults
-
-For Python projects, fields are **omitted** when they match their defaults
-to keep output minimal:
-
-| Field        | Default                                     | When omitted             |
-| ------------ | ------------------------------------------- | ------------------------ |
-| `visibility` | `public`                                    | Almost always for Python |
-| `mutability` | `mutable`                                   | Almost always for Python |
-| `scope`      | `static` (functions) / `instance` (methods) | Almost always            |
-| `optional`   | `null`                                      | When not explicitly set  |
-| `default`    | `null`                                      | When not explicitly set  |
-| `variadic`   | `null`                                      | When not explicitly set  |
-
----
+This API enables a DoukiMD integration; installing this Douki version does
+not by itself change DoukiMD's collector.
 
 ## Migration
 
-### From NumPy-style Docstrings
-
-Douki can convert NumPy-style docstrings to Douki YAML format:
-
 ```bash
-# Preview what the migration would look like
-douki check src/
-
-# Apply the migration using the new dedicated command
-douki migrate numpydoc src/
+douki migrate --from numpydoc src/
 ```
 
-**Before:**
-
-```python
-def add(x, y):
-    """Add two numbers.
-
-    Parameters
-    ----------
-    x : int
-        First operand.
-    y : int
-        Second operand.
-
-    Returns
-    -------
-    int
-        The sum.
-    """
-    return x + y
-```
-
-**After:**
-
-```python
-def add(x, y):
-    """
-    title: Add two numbers
-    parameters:
-      x:
-        type: int
-        description: First operand.
-      y:
-        type: int
-        description: Second operand.
-    returns:
-      type: int
-      description: The sum.
-    """
-    return x + y
-```
-
----
+Migration converts authored NumPy-style documentation into YAML and keeps
+its documented types. It does not import the project or infer missing
+annotation types. Follow with `douki check src/`.
 
 ## Configuration
 
@@ -379,36 +161,20 @@ setting for a single run with `--respect-gitignore` or
 
 ---
 
-## Pre-commit Integration
+## Pre-commit integration
 
-Add Douki as a pre-commit hook to catch docstring issues automatically:
-
-### Check mode (recommended for CI)
+With Douki installed in your development environment:
 
 ```yaml
-# .pre-commit-config.yaml
 repos:
-  - repo: https://github.com/osl-incubator/douki
-    rev: v0.7.0
+  - repo: local
     hooks:
-      - id: douki-check
-        name: douki check
-        entry: douki check
-        language: python
-        types: [python]
-```
-
-### Sync mode (auto-fix)
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: https://github.com/osl-incubator/douki
-    rev: v0.7.0
-    hooks:
-      - id: douki-sync
-        name: douki sync
+      - id: douki
+        name: Format Douki docstrings
         entry: douki sync
-        language: python
+        language: system
         types: [python]
 ```
+
+Use `douki check` instead when the hook should report differences without
+writing files.

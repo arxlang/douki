@@ -1,9 +1,10 @@
 """
-title: "Douki CLI \u2014 ``douki sync`` and ``douki check`` commands."
+title: Douki CLI — ``douki sync`` and ``douki check`` commands.
 examples:
-  - code: |
-      douki sync  [FILES...]   # apply changes in-place
-      douki check [FILES...]   # print diff, exit 1 if changes needed
+- code: >
+    douki sync  [FILES...]   # apply changes in-place
+
+    douki check [FILES...]   # print diff, exit 1 if changes needed
 """
 
 from __future__ import annotations
@@ -142,7 +143,7 @@ def sync(
     ),
 ) -> None:
     """
-    title: Apply docstring sync changes to files in-place.
+    title: Format YAML docstrings in-place without inserting annotation types.
     parameters:
       files:
         type: Optional[list[Path]]

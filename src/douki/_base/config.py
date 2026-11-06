@@ -17,9 +17,8 @@ from douki._base.discovery import (
 class BaseConfig(ABC):
     """
     title: Abstract configuration loader for a language backend.
-    summary: >-
-      Each language plugin subclasses this to define how exclude patterns and
-      source files are discovered.
+    summary: Each language plugin subclasses this to define how exclude
+      patterns and source files are discovered.
     """
 
     @property

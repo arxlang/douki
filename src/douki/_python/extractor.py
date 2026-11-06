@@ -1,7 +1,8 @@
 """
 title: Python AST-based function/class extractor.
-summary: |-
+summary: >-
   Extracts function signatures, class attributes, and docstring
+
   nodes from Python source code using the ``ast`` module.
 """
 

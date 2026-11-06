@@ -188,9 +188,8 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
         type: str
     returns:
       type: str
-      description: >-
-        The YAML string (without triple-quotes). If *raw* is not a valid NumPy
-        docstring, returns it unchanged.
+      description: The YAML string (without triple-quotes). If *raw* is not
+        a valid NumPy docstring, returns it unchanged.
     """
     if not _is_numpydoc_docstring(raw):
         return raw

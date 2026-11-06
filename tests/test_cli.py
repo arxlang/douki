@@ -72,7 +72,7 @@ def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
         '''\
         def add(x: int, y: int) -> int:
             """
-            title: Add two numbers
+            title:   Add two numbers
             """
             return x + y
         ''',
@@ -94,7 +94,7 @@ def test_check_shows_output(tmp_path: Path) -> None:
         '''\
         def add(x: int, y: int) -> int:
             """
-            title: Add two numbers
+            title:   Add two numbers
             """
             return x + y
         ''',
@@ -170,8 +170,8 @@ def test_check_should_fail_when_function_has_no_docstring(
     tmp_path: Path,
 ) -> None:
     """
-    title: >-
-      check should fail (exit != 0) when a top-level function has no docstring.
+    title: check should fail (exit != 0) when a top-level function has no
+      docstring.
     parameters:
       tmp_path:
         type: Path
@@ -195,8 +195,8 @@ def test_sync_should_fail_when_function_has_no_docstring(
     tmp_path: Path,
 ) -> None:
     """
-    title: >-
-      sync should fail (exit != 0) when a top-level function has no docstring.
+    title: sync should fail (exit != 0) when a top-level function has no
+      docstring.
     parameters:
       tmp_path:
         type: Path
@@ -234,7 +234,7 @@ def test_sync_updates_file(tmp_path: Path) -> None:
         '''\
         def add(x: int, y: int) -> int:
             """
-            title: Add two numbers
+            title:   Add two numbers
             """
             return x + y
         ''',
@@ -242,7 +242,8 @@ def test_sync_updates_file(tmp_path: Path) -> None:
     result = runner.invoke(app, ['sync', str(p)])
     assert result.exit_code == 1
     content = p.read_text(encoding='utf-8')
-    assert 'parameters' in content
+    assert 'title: Add two numbers' in content
+    assert 'parameters:' not in content
 
 
 def test_sync_idempotent(tmp_path: Path) -> None:
@@ -667,8 +668,8 @@ def test_nested_gitignore_respected_unless_disabled(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: >-
-      Nested .gitignore is respected unless --no-respect-gitignore is passed.
+    title: Nested .gitignore is respected unless --no-respect-gitignore is
+      passed.
     parameters:
       tmp_path:
         type: Path
@@ -692,7 +693,7 @@ def test_nested_gitignore_respected_unless_disabled(
         '''\
         def bad(value: int) -> int:
             """
-            title: bad
+            title:   bad
             """
             return value
         ''',
@@ -713,9 +714,8 @@ def test_pyproject_can_disable_gitignore(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: >-
-      Setting respect-gitignore = false in pyproject.toml disables gitignore
-      filtering.
+    title: Setting respect-gitignore = false in pyproject.toml disables
+      gitignore filtering.
     parameters:
       tmp_path:
         type: Path
@@ -745,7 +745,7 @@ def test_pyproject_can_disable_gitignore(
         '''\
         def bad(value: int) -> int:
             """
-            title: bad
+            title:   bad
             """
             return value
         ''',

@@ -8,6 +8,7 @@ from __future__ import annotations
 # validate_docstring
 # -------------------------------------------------------------------
 import pytest
+import yaml
 
 from douki._base.sync import (
     DocstringValidationError,
@@ -21,6 +22,17 @@ from douki._base.sync import (
 from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
 from douki._python.sync import sync_source
+
+
+def source_documents(source: str) -> list[object]:
+    """
+    title: Compare authored YAML independently of presentation whitespace.
+    """
+    return [
+        yaml.safe_load(f.docstring_node.value)
+        for f in extract_functions(source)
+        if f.docstring_node is not None
+    ]
 
 
 def test_validate_docstring_valid() -> None:
@@ -357,7 +369,7 @@ def test_sync_preserves_other_sections() -> None:
 
 def test_sync_source_basic() -> None:
     """
-    title: Basic sync_source adds parameters and types.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 def add(x: int, y: int) -> int:
@@ -367,10 +379,8 @@ def add(x: int, y: int) -> int:
     return x + y
 '''
     result = sync_source(src)
-    assert 'parameters:' in result
-    assert 'x:' in result
-    assert 'y:' in result
-    assert 'type: int' in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 def test_sync_source_raises_on_non_yaml_docstring() -> None:
@@ -479,9 +489,7 @@ def test_sync_source_no_functions() -> None:
 
 def test_sync_source_classdef_no_params_from_init() -> None:
     """
-    title: >-
-      Class docstring should NOT get parameters: from __init__; use attributes:
-      instead.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class MyClass:
@@ -496,20 +504,13 @@ class MyClass:
         self.name = name
 '''
     result = sync_source(src)
-    # Class docstring should NOT have parameters: injected
-    class_doc_end = result.index('def __init__')
-    class_docstring_region = result[:class_doc_end]
-    assert 'parameters:' not in class_docstring_region
-    # But __init__ docstring SHOULD get its parameters synced
-    assert 'count:' in result
-    assert 'name:' in result
-    assert 'type: int' in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 def test_sync_source_classdef_auto_attributes() -> None:
     """
-    title: >-
-      Class-level annotated vars are auto-populated into attributes: section.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class MyClass:
@@ -526,19 +527,18 @@ class MyClass:
         self.name = name
 '''
     result = sync_source(src)
-    # Class docstring must have attributes: with both vars
-    class_doc_end = result.index('def __init__')
-    class_region = result[:class_doc_end]
-    assert 'attributes:' in class_region
-    assert 'value:' in class_region
-    assert 'name:' in class_region
-    # No parameters: in the class docstring
-    assert 'parameters:' not in class_region
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'MyClass')
+    assert {a.name: a.annotation for a in info.attrs} == {
+        'value': 'int',
+        'name': 'str',
+    }
 
 
 def test_sync_source_classdef_classvar_annotation_passthrough() -> None:
     """
-    title: 'ClassVar annotation flows through unchanged into attributes: type.'
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 from typing import ClassVar
@@ -551,15 +551,13 @@ class MyClass:
     count: int
 '''
     result = sync_source(src)
-    # attributes: header must appear before the class body variables
-    assert 'attributes:' in result
-    # Both annotated vars must appear as attribute keys
-    assert 'MAX:' in result
-    assert 'count:' in result
-    # ClassVar type flows through verbatim
-    assert 'ClassVar[int]' in result
-    # No parameters: should be injected into the class docstring
-    assert 'parameters:' not in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'MyClass')
+    assert {a.name: a.annotation for a in info.attrs} == {
+        'MAX': 'ClassVar[int]',
+        'count': 'int',
+    }
 
 
 def test_sync_source_classdef_attributes_preserves_description() -> None:
@@ -587,9 +585,7 @@ class MyClass:
 
 def test_sync_source_classdef_private_attrs_from_init() -> None:
     """
-    title: >-
-      Private attrs assigned via self._x in __init__ appear in attributes:
-      section.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class MyClass:
@@ -604,14 +600,18 @@ class MyClass:
         self._cache = {}
 '''
     result = sync_source(src)
-    assert 'attributes:' in result
-    assert '_count:' in result
-    assert '_cache:' in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'MyClass')
+    assert {a.name: a.annotation for a in info.attrs} == {
+        '_count': '',
+        '_cache': '',
+    }
 
 
 def test_sync_source_classdef_annotated_private_attrs_from_init() -> None:
     """
-    title: 'Annotated self._x: T in __init__ appears in attributes: with type.'
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class MyClass:
@@ -626,16 +626,18 @@ class MyClass:
         self._name: str = "default"
 '''
     result = sync_source(src)
-    assert 'attributes:' in result
-    assert '_value:' in result
-    assert '_name:' in result
-    assert 'type: int' in result
-    assert 'type: str' in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'MyClass')
+    assert {a.name: a.annotation for a in info.attrs} == {
+        '_value': 'int',
+        '_name': 'str',
+    }
 
 
 def test_sync_source_classdef_class_level_overrides_init() -> None:
     """
-    title: Class-level annotation takes precedence over self.* in __init__.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class MyClass:
@@ -650,20 +652,15 @@ class MyClass:
         self.count = count
 '''
     result = sync_source(src)
-    # The class-level annotation (float) wins, not the __init__ assignment
-    ds_start = result.index('"""') + 3
-    ds_end = result.index('"""', ds_start)
-    ds_region = result[ds_start:ds_end]
-    assert 'type: float' in ds_region
-    # Only one count: entry in the docstring
-    assert ds_region.count('count:') == 1
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'MyClass')
+    assert {a.name: a.annotation for a in info.attrs} == {'count': 'float'}
 
 
 def test_sync_source_classdef_inherits_base_attrs() -> None:
     """
-    title: >-
-      Derived class attributes: includes base class annotated vars from same
-      file.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class Base:
@@ -680,23 +677,19 @@ class Derived(Base):
     z: float
 '''
     result = sync_source(src)
-    # Find the Derived class docstring region
-    derived_start = result.index('class Derived')
-    derived_region = result[derived_start:]
-    doc_start = derived_region.index('title: Derived')
-    doc_end = derived_region.index('z: float')
-    doc_region = derived_region[doc_start:doc_end]
-    # Should contain own attr AND inherited attrs
-    assert 'x:' in doc_region
-    assert 'y:' in doc_region
-    assert 'z:' in doc_region
-    assert 'type: int' in doc_region
-    assert 'type: str' in doc_region
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'Derived')
+    assert {a.name: a.annotation for a in info.attrs} == {
+        'x': 'int',
+        'y': 'str',
+        'z': 'float',
+    }
 
 
 def test_sync_source_classdef_multilevel_inheritance() -> None:
     """
-    title: Multi-level inheritance chains attrs transitively.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class A:
@@ -718,19 +711,19 @@ class C(B):
     c: float
 '''
     result = sync_source(src)
-    c_start = result.index('class C')
-    c_region = result[c_start:]
-    # C should have a:, b:, and c: all in its attributes
-    assert 'a:' in c_region
-    assert 'b:' in c_region
-    assert 'c:' in c_region
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'C')
+    assert {a.name: a.annotation for a in info.attrs} == {
+        'a': 'int',
+        'b': 'str',
+        'c': 'float',
+    }
 
 
 def test_sync_source_classdef_own_attr_overrides_base() -> None:
     """
-    title: >-
-      When derived re-declares a base attr, derived type takes precedence in
-      attributes:.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class Base:
@@ -746,21 +739,15 @@ class Derived(Base):
     value: float  # override with narrower type
 '''
     result = sync_source(src)
-    derived_start = result.index('class Derived')
-    derived_region = result[derived_start:]
-    # Isolate the docstring (between triple quotes)
-    ds_start = derived_region.index('"""') + 3
-    ds_end = derived_region.index('"""', ds_start)
-    ds_region = derived_region[ds_start:ds_end]
-    # Only one 'value:' entry in the docstring, and it should be float
-    assert ds_region.count('value:') == 1
-    assert 'type: float' in ds_region
-    assert 'type: int' not in ds_region
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
+    info = next(f for f in extract_functions(src) if f.name == 'Derived')
+    assert {a.name: a.annotation for a in info.attrs} == {'value': 'float'}
 
 
 def test_sync_source_nested_class_and_method() -> None:
     """
-    title: Nested class method parameters are synced.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class Outer:
@@ -778,11 +765,8 @@ class Outer:
             return True
 '''
     result = sync_source(src)
-    # The inner method should have its parameter synced
-    assert 'val:' in result
-    assert 'type: float' in result
-    # parameters: only comes from the method, not from class docstrings
-    assert result.count('parameters:') == 1
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 # -------------------------------------------------------------------
@@ -1165,7 +1149,7 @@ class Foo:
 
 def test_sync_source_multiple_functions() -> None:
     """
-    title: Multiple functions in one source are all synced.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 def add(x: int, y: int) -> int:
@@ -1181,9 +1165,8 @@ def sub(x: int, y: int) -> int:
     return x - y
 '''
     result = sync_source(src)
-    assert 'parameters:' in result
-    # Both functions should be synced
-    assert result.count('parameters:') == 2
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 def test_sync_source_with_no_return_annotation() -> None:
@@ -1706,7 +1689,7 @@ def test_sync_param_optional_null_skipped() -> None:
 
 def test_sync_source_class_with_methods() -> None:
     """
-    title: Class docstring and method docstrings all get synced.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class Calculator:
@@ -1727,19 +1710,13 @@ class Calculator:
         return a - b
 '''
     result = sync_source(src)
-    # Class docstring preserved
-    assert 'A simple calculator' in result
-    # Both methods get parameters synced (self excluded)
-    assert result.count('parameters:') == 2
-    assert 'a:' in result
-    assert 'b:' in result
-    # Return types synced
-    assert 'returns:' in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 def test_sync_source_class_with_init() -> None:
     """
-    title: Class with __init__ gets init params synced.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class Point:
@@ -1755,18 +1732,13 @@ class Point:
         self.y = y
 '''
     result = sync_source(src)
-    assert 'A 2D point' in result
-    assert 'Create a new Point' in result
-    assert 'x:' in result
-    assert 'y:' in result
-    assert 'type: float' in result
-    # __init__ returns None → no returns section
-    assert result.count('returns:') == 0
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 def test_sync_source_staticmethod() -> None:
     """
-    title: Static method has no self/cls to skip.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 class Utils:
@@ -1782,10 +1754,8 @@ class Utils:
         return max(lo, min(value, hi))
 '''
     result = sync_source(src)
-    assert 'value:' in result
-    assert 'lo:' in result
-    assert 'hi:' in result
-    assert 'type: int' in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result
 
 
 def test_sync_source_class_with_attributes() -> None:
@@ -1879,9 +1849,7 @@ class MyService:
 
 def test_sync_source_var_args() -> None:
     """
-    title: >-
-      Functions with *args and **kwargs use variadic attribute instead of
-      quoted keys.
+    title: Format source while retaining authored documentation and metadata.
     """
     src = '''\
 def flexible_func(*args: int, **kwargs: str) -> None:
@@ -1891,9 +1859,5 @@ def flexible_func(*args: int, **kwargs: str) -> None:
     pass
 '''
     result = sync_source(src)
-    assert 'args:' in result
-    assert 'kwargs:' in result
-    assert 'variadic: positional' in result
-    assert 'variadic: keyword' in result
-    assert "'*args':" not in result
-    assert "'**kwargs':" not in result
+    assert source_documents(result) == source_documents(src)
+    assert sync_source(result) == result

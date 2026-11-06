@@ -1,8 +1,10 @@
 """
 title: Language-agnostic YAML docstring sync engine.
-summary: |-
+summary: >-
   This module provides the core logic for merging signature information
+
   into Douki YAML docstrings and rebuilding the YAML output. It is
+
   intentionally pure — no file I/O, no AST parsing.
 """
 
@@ -69,9 +71,8 @@ class ParamInfo:
 @dataclass
 class FuncInfo:
     """
-    title: >-
-      Everything we need to know about a single function, class, or module
-      docstring site.
+    title: Everything we need to know about a single function, class, or
+      module docstring site.
     attributes:
       name:
         type: str
@@ -239,9 +240,8 @@ def sync_docstring(
 ) -> str:
     """
     title: Merge signature info into a Douki YAML docstring.
-    summary: >-
-      Returns the updated YAML (without surrounding triple-quotes). If not
-      valid Douki YAML, raises ValueError.
+    summary: Returns the updated YAML (without surrounding triple-quotes).
+      If not valid Douki YAML, raises ValueError.
     parameters:
       raw_docstring:
         type: str
@@ -251,9 +251,8 @@ def sync_docstring(
         type: str
       attrs:
         type: Sequence[ParamInfo]
-        description: >-
-          Class-level annotated variables used to sync the attributes: section.
-          Only meaningful for ClassDef docstrings.
+        description: 'Class-level annotated variables used to sync
+          the attributes: section. Only meaningful for ClassDef docstrings.'
       func_name:
         type: str
       content_indent:
@@ -498,8 +497,8 @@ def _emit_key_value(
     content_indent: int = 4,
 ) -> None:
     """
-    title: >-
-      Safely emit a key-value pair, folding long strings into block scalars.
+    title: Safely emit a key-value pair, folding long strings into block
+      scalars.
     parameters:
       lines:
         type: list[str]

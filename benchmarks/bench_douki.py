@@ -8,6 +8,7 @@ import tempfile
 
 from pathlib import Path
 
+from douki import Parameter, Signature, enrich
 from douki._base.discovery import DiscoveryConfig, collect_source_files
 from douki._base.sync import ParamInfo, sync_docstring, validate_docstring
 from douki._python.sync import sync_source
@@ -46,6 +47,12 @@ class DocstringBenchmarks:
         title: Time synchronization of one existing docstring.
         """
         sync_docstring(self.raw, self.params, 'str')
+
+    def time_enrich(self) -> None:
+        """
+        title: Time structured annotation enrichment without source writes.
+        """
+        enrich(self.raw, Signature((Parameter('value', 'int'),), 'str'))
 
 
 class SourceBenchmarks:
