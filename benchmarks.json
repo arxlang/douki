@@ -15,7 +15,7 @@
         "warmup_time": -1
     },
     "bench_douki.DocstringBenchmarks.time_sync": {
-        "code": "class DocstringBenchmarks:\n    def time_sync(self) -> None:\n        \"\"\"\n        title: Time synchronization of one existing docstring.\n        \"\"\"\n        sync_docstring(self.raw, self.params, 'str')\n\n    def setup(self) -> None:\n        \"\"\"\n        title: Prepare a representative YAML docstring and signature.\n        \"\"\"\n        self.raw = (\n            'title: Convert a value\\n'\n            'summary: Convert the given value to a text representation.\\n'\n            'parameters:\\n'\n            '  value:\\n'\n            '    type: int\\n'\n            '    description: The integer to convert.\\n'\n            'returns:\\n'\n            '  type: str\\n'\n            '  description: The formatted result.\\n'\n        )\n        self.params = [ParamInfo('value', 'int', 'regular')]",
+        "code": "class DocstringBenchmarks:\n    def time_sync(self) -> None:\n        \"\"\"\n        title: Time synchronization of one existing docstring.\n        \"\"\"\n        sync_docstring(self.raw, self.params, 'str')\n\n    def setup(self) -> None:\n        \"\"\"\n        title: Prepare a representative YAML docstring and signature.\n        \"\"\"\n        self.raw = (\n            'title: Convert a value\\n'\n            'summary: Convert the given value to a text representation.\\n'\n            'parameters:\\n'\n            '  value:\\n'\n            '    description: The integer to convert.\\n'\n            'returns: The formatted result.\\n'\n        )\n        self.params = [ParamInfo('value', 'int', 'regular')]",
         "min_run_count": 2,
         "name": "bench_douki.DocstringBenchmarks.time_sync",
         "number": 0,
@@ -26,11 +26,11 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "b158e2c1be6cd1402ee34d0339b6e5b41349c8fe4da7a5eae26055e2f424faa9",
+        "version": "0245350f1e8d9b5be35e5efa0edf7275cfb6b0f666b55cc2c29c53796ef639ab",
         "warmup_time": -1
     },
     "bench_douki.DocstringBenchmarks.time_validate": {
-        "code": "class DocstringBenchmarks:\n    def time_validate(self) -> None:\n        \"\"\"\n        title: Time schema validation for one existing docstring.\n        \"\"\"\n        validate_docstring(self.raw, 'convert')\n\n    def setup(self) -> None:\n        \"\"\"\n        title: Prepare a representative YAML docstring and signature.\n        \"\"\"\n        self.raw = (\n            'title: Convert a value\\n'\n            'summary: Convert the given value to a text representation.\\n'\n            'parameters:\\n'\n            '  value:\\n'\n            '    type: int\\n'\n            '    description: The integer to convert.\\n'\n            'returns:\\n'\n            '  type: str\\n'\n            '  description: The formatted result.\\n'\n        )\n        self.params = [ParamInfo('value', 'int', 'regular')]",
+        "code": "class DocstringBenchmarks:\n    def time_validate(self) -> None:\n        \"\"\"\n        title: Time schema validation for one existing docstring.\n        \"\"\"\n        validate_docstring(self.raw, 'convert')\n\n    def setup(self) -> None:\n        \"\"\"\n        title: Prepare a representative YAML docstring and signature.\n        \"\"\"\n        self.raw = (\n            'title: Convert a value\\n'\n            'summary: Convert the given value to a text representation.\\n'\n            'parameters:\\n'\n            '  value:\\n'\n            '    description: The integer to convert.\\n'\n            'returns: The formatted result.\\n'\n        )\n        self.params = [ParamInfo('value', 'int', 'regular')]",
         "min_run_count": 2,
         "name": "bench_douki.DocstringBenchmarks.time_validate",
         "number": 0,
@@ -41,7 +41,22 @@
         "sample_time": 0.01,
         "type": "time",
         "unit": "seconds",
-        "version": "b82db4b5f4be9dc389236746a06cb0e2f917a361d1d142aa3ab37a71ad877a0b",
+        "version": "b2a886c210094d8ec0370dee50e730b9e5bb91b68836909bab3b087632a3e51c",
+        "warmup_time": -1
+    },
+    "bench_douki.EnrichmentBenchmarks.time_enrich": {
+        "code": "class EnrichmentBenchmarks:\n    def time_enrich(self) -> None:\n        \"\"\"\n        title: Time structured annotation enrichment without source writes.\n        \"\"\"\n        douki.enrich(self.raw, self.signature)\n\n    def setup(self) -> None:\n        \"\"\"\n        title: Skip older revisions without affecting shared benchmarks.\n        \"\"\"\n        if not hasattr(douki, 'enrich'):\n            raise NotImplementedError('Annotation enrichment is unavailable')\n        fixture = DocstringBenchmarks()\n        fixture.setup()\n        self.raw = fixture.raw\n        self.signature = douki.Signature(\n            (douki.Parameter('value', 'int'),), 'str'\n        )",
+        "min_run_count": 2,
+        "name": "bench_douki.EnrichmentBenchmarks.time_enrich",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "repeat": 0,
+        "rounds": 2,
+        "sample_time": 0.01,
+        "type": "time",
+        "unit": "seconds",
+        "version": "d400a8db6a78fed135518796dc8578e88979b3150518cb425cc892f8c0ecd1f2",
         "warmup_time": -1
     },
     "bench_douki.SourceBenchmarks.time_sync_source_25": {
