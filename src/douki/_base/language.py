@@ -13,9 +13,8 @@ from douki._base.config import BaseConfig
 class BaseLanguage(ABC):
     """
     title: Abstract base class for a language plugin.
-    summary: >-
-      Plugins subclass this to bind their language-specific extractor, sync
-      logic, and configuration.
+    summary: Plugins subclass this to bind their language-specific extractor,
+      sync logic, and configuration.
     """
 
     @property
@@ -23,8 +22,7 @@ class BaseLanguage(ABC):
     def name(self) -> str:
         """
         title: The name of the language (e.g. 'python').
-        returns:
-          type: str
+        returns: Name used to select the backend in the registry and CLI.
         """
         ...  # pragma: no cover
 
@@ -33,8 +31,8 @@ class BaseLanguage(ABC):
     def config(self) -> BaseConfig:
         """
         title: Configuration loader for this language.
-        returns:
-          type: BaseConfig
+        returns: Configuration loader and file discovery settings for this
+          backend.
         """
         ...  # pragma: no cover
 
@@ -46,12 +44,12 @@ class BaseLanguage(ABC):
         title: Synchronize docstrings in the given source code.
         parameters:
           source:
-            type: str
+            description: Source code whose docstrings are being processed.
           migrate:
-            type: Optional[str]
             optional: true
-        returns:
-          type: str
+            description: Docstring format to convert before formatting; None
+              disables migration.
+        returns: Source code with formatted Douki YAML docstrings.
         """
         _ = (source, migrate)
         raise NotImplementedError  # pragma: no cover
@@ -69,7 +67,8 @@ def register_language(lang_class: type[BaseLanguage]) -> None:
     title: Register a language plugin class.
     parameters:
       lang_class:
-        type: type[BaseLanguage]
+        description: Backend class to register under its declared language
+          name.
     """
     # Create a temporary instance just to get its name
     instance = lang_class()
@@ -81,9 +80,8 @@ def get_language(name: str) -> BaseLanguage:
     title: Get an initialized language plugin by name.
     parameters:
       name:
-        type: str
-    returns:
-      type: BaseLanguage
+        description: Name of a registered language backend.
+    returns: New instance of the requested language backend.
     """
     if name not in _REGISTRY:
         raise ValueError(f"Language '{name}' is not registered.")
@@ -93,7 +91,6 @@ def get_language(name: str) -> BaseLanguage:
 def get_registered_language_names() -> list[str]:
     """
     title: Return a list of registered language plugin names.
-    returns:
-      type: list[str]
+    returns: Language names in registration order.
     """
     return list(_REGISTRY.keys())

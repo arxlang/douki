@@ -21,13 +21,12 @@ def _write(tmp_path: Path, name: str, content: str) -> Path:
     title: Write *content* to *tmp_path/name* and return the path.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       name:
-        type: str
+        description: Filename to create beneath the temporary directory.
       content:
-        type: str
-    returns:
-      type: Path
+        description: Source text to write to the test file.
+    returns: Path to the newly written test file.
     """
     p = tmp_path / name
     p.write_text(textwrap.dedent(content), encoding='utf-8')
@@ -44,7 +43,7 @@ def test_check_exit_2_when_invalid(tmp_path: Path) -> None:
     title: Invalid docstring should produce exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -64,7 +63,7 @@ def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
     title: Unsynced file should produce exit 1 with diff.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -72,7 +71,7 @@ def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
         '''\
         def add(x: int, y: int) -> int:
             """
-            title: Add two numbers
+            title:   Add two numbers
             """
             return x + y
         ''',
@@ -86,7 +85,7 @@ def test_check_shows_output(tmp_path: Path) -> None:
     title: Diff output should contain file path.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -94,7 +93,7 @@ def test_check_shows_output(tmp_path: Path) -> None:
         '''\
         def add(x: int, y: int) -> int:
             """
-            title: Add two numbers
+            title:   Add two numbers
             """
             return x + y
         ''',
@@ -115,7 +114,7 @@ def test_check_should_fail_when_method_has_no_docstring(
     title: check should fail (exit != 0) when a class method has no docstring.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -144,7 +143,7 @@ def test_sync_should_fail_when_method_has_no_docstring(
     title: sync should fail (exit != 0) when a class method has no docstring.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -170,11 +169,11 @@ def test_check_should_fail_when_function_has_no_docstring(
     tmp_path: Path,
 ) -> None:
     """
-    title: >-
-      check should fail (exit != 0) when a top-level function has no docstring.
+    title: check should fail (exit != 0) when a top-level function has no
+      docstring.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -195,11 +194,11 @@ def test_sync_should_fail_when_function_has_no_docstring(
     tmp_path: Path,
 ) -> None:
     """
-    title: >-
-      sync should fail (exit != 0) when a top-level function has no docstring.
+    title: sync should fail (exit != 0) when a top-level function has no
+      docstring.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -226,7 +225,7 @@ def test_sync_updates_file(tmp_path: Path) -> None:
     title: sync should update file and exit 1.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -234,7 +233,7 @@ def test_sync_updates_file(tmp_path: Path) -> None:
         '''\
         def add(x: int, y: int) -> int:
             """
-            title: Add two numbers
+            title:   Add two numbers
             """
             return x + y
         ''',
@@ -242,7 +241,8 @@ def test_sync_updates_file(tmp_path: Path) -> None:
     result = runner.invoke(app, ['sync', str(p)])
     assert result.exit_code == 1
     content = p.read_text(encoding='utf-8')
-    assert 'parameters' in content
+    assert 'title: Add two numbers' in content
+    assert 'parameters:' not in content
 
 
 def test_sync_idempotent(tmp_path: Path) -> None:
@@ -250,7 +250,7 @@ def test_sync_idempotent(tmp_path: Path) -> None:
     title: Running sync twice produces no further changes.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -280,7 +280,7 @@ def test_multiple_files(tmp_path: Path) -> None:
     title: Multiple files are all processed by check.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p1 = _write(
         tmp_path,
@@ -318,7 +318,7 @@ def test_skips_non_py_files(tmp_path: Path) -> None:
     title: Non-Python files are silently skipped.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = tmp_path / 'data.txt'
     p.write_text('hello', encoding='utf-8')
@@ -331,7 +331,7 @@ def test_directory_discovers_py_files(tmp_path: Path) -> None:
     title: Passing a directory discovers .py files inside it.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     _write(
         tmp_path,
@@ -362,13 +362,13 @@ def test_migrate_numpydoc(tmp_path: Path) -> None:
     title: migrate converts NumPy docstrings to Douki YAML.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
         'numpy.py',
         '''\
-        def add(x, y):
+        def add(x: int, y: int) -> int:
             """Add two numbers.
 
             Parameters
@@ -406,7 +406,7 @@ def test_sync_exit_2_when_invalid(tmp_path: Path) -> None:
     title: Invalid docstring should produce exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -426,7 +426,7 @@ def test_sync_unreadable_file(tmp_path: Path) -> None:
     title: sync on a missing file should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     missing = tmp_path / 'does_not_exist.py'
     result = runner.invoke(
@@ -442,7 +442,7 @@ def test_check_unreadable_file(tmp_path: Path) -> None:
     title: check on a missing file should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     missing = tmp_path / 'does_not_exist.py'
     result = runner.invoke(
@@ -458,7 +458,7 @@ def test_sync_empty_directory(tmp_path: Path) -> None:
     title: sync on empty dir should exit 0.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     result = runner.invoke(
         app,
@@ -472,7 +472,7 @@ def test_check_empty_directory(tmp_path: Path) -> None:
     title: check on empty dir should exit 0
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     result = runner.invoke(
         app,
@@ -517,12 +517,14 @@ def test_exclude_files_via_pyproject(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: Files matching exclude patterns in pyproject.toml are skipped.
+    title: Files matching exclude patterns in pyproject.toml are
+      skipped.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -587,9 +589,10 @@ def test_exclude_files_via_pyproject_windows_separator(
     title: Backslash separators in exclude patterns work on all platforms.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -628,9 +631,10 @@ def test_gitignore_files_are_ignored_by_default(
     title: Files listed in .gitignore are skipped by default.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -667,13 +671,14 @@ def test_nested_gitignore_respected_unless_disabled(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: >-
-      Nested .gitignore is respected unless --no-respect-gitignore is passed.
+    title: Nested .gitignore is respected unless --no-respect-gitignore
+      is passed.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -692,7 +697,7 @@ def test_nested_gitignore_respected_unless_disabled(
         '''\
         def bad(value: int) -> int:
             """
-            title: bad
+            title:   bad
             """
             return value
         ''',
@@ -713,14 +718,14 @@ def test_pyproject_can_disable_gitignore(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: >-
-      Setting respect-gitignore = false in pyproject.toml disables gitignore
-      filtering.
+    title: Setting respect-gitignore = false in pyproject.toml disables
+      gitignore filtering.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -745,7 +750,7 @@ def test_pyproject_can_disable_gitignore(
         '''\
         def bad(value: int) -> int:
             """
-            title: bad
+            title:   bad
             """
             return value
         ''',
@@ -762,9 +767,10 @@ def test_cli_flag_overrides_pyproject_gitignore_setting(
     title: CLI --respect-gitignore flag overrides pyproject.toml.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -810,7 +816,7 @@ def test_migrate_unchanged_file(tmp_path: Path) -> None:
     title: Migrate on already-douki file should exit 0.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -821,9 +827,9 @@ def test_migrate_unchanged_file(tmp_path: Path) -> None:
             title: Greet someone
             parameters:
               name:
-                type: str
+                description: Details.
             returns:
-              type: str
+              description: Details.
             """
             return name
         ''',
@@ -840,7 +846,7 @@ def test_migrate_invalid_docstring(tmp_path: Path) -> None:
     title: Migrate on invalid docstring should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     p = _write(
         tmp_path,
@@ -863,7 +869,7 @@ def test_migrate_unreadable_file(tmp_path: Path) -> None:
     title: Migrate on a missing file should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
     """
     missing = tmp_path / 'does_not_exist.py'
     result = runner.invoke(
@@ -881,9 +887,10 @@ def test_sync_generic_exception(
     title: Generic exception during sync should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     p = _write(
         tmp_path,
@@ -903,13 +910,15 @@ def test_sync_generic_exception(
         title: Stub that always raises RuntimeError.
         parameters:
           a:
-            type: object
             variadic: positional
+            description: Positional arguments accepted by the failing
+              backend stub.
           kw:
-            type: object
             variadic: keyword
-        returns:
-          type: str
+            description: Keyword arguments accepted by the failing
+              backend stub.
+        returns: Never returns; raises an error to exercise CLI failure
+          handling.
         """
         raise RuntimeError('boom')
 
@@ -928,9 +937,10 @@ def test_check_generic_exception(
     title: Generic exception during check should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     p = _write(
         tmp_path,
@@ -950,13 +960,15 @@ def test_check_generic_exception(
         title: Stub that always raises RuntimeError.
         parameters:
           a:
-            type: object
             variadic: positional
+            description: Positional arguments accepted by the failing
+              backend stub.
           kw:
-            type: object
             variadic: keyword
-        returns:
-          type: str
+            description: Keyword arguments accepted by the failing
+              backend stub.
+        returns: Never returns; raises an error to exercise CLI failure
+          handling.
         """
         raise RuntimeError('boom')
 
@@ -975,9 +987,10 @@ def test_migrate_generic_exception(
     title: Generic exception during migrate should exit 2.
     parameters:
       tmp_path:
-        type: Path
+        description: Temporary directory for this test's files.
       monkeypatch:
-        type: pytest.MonkeyPatch
+        description: Fixture for temporarily replacing functions
+          and configuration.
     """
     p = _write(
         tmp_path,
@@ -997,13 +1010,15 @@ def test_migrate_generic_exception(
         title: Stub that always raises RuntimeError.
         parameters:
           a:
-            type: object
             variadic: positional
+            description: Positional arguments accepted by the failing
+              backend stub.
           kw:
-            type: object
             variadic: keyword
-        returns:
-          type: str
+            description: Keyword arguments accepted by the failing
+              backend stub.
+        returns: Never returns; raises an error to exercise CLI failure
+          handling.
         """
         raise RuntimeError('boom')
 

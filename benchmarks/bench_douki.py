@@ -8,6 +8,8 @@ import tempfile
 
 from pathlib import Path
 
+import douki
+
 from douki._base.discovery import DiscoveryConfig, collect_source_files
 from douki._base.sync import ParamInfo, sync_docstring, validate_docstring
 from douki._python.sync import sync_source
@@ -27,11 +29,8 @@ class DocstringBenchmarks:
             'summary: Convert the given value to a text representation.\n'
             'parameters:\n'
             '  value:\n'
-            '    type: int\n'
             '    description: The integer to convert.\n'
-            'returns:\n'
-            '  type: str\n'
-            '  description: The formatted result.\n'
+            'returns: The formatted result.\n'
         )
         self.params = [ParamInfo('value', 'int', 'regular')]
 
@@ -46,6 +45,31 @@ class DocstringBenchmarks:
         title: Time synchronization of one existing docstring.
         """
         sync_docstring(self.raw, self.params, 'str')
+
+
+class EnrichmentBenchmarks:
+    """
+    title: Benchmark annotation enrichment where the API is available.
+    """
+
+    def setup(self) -> None:
+        """
+        title: Skip older revisions without affecting shared benchmarks.
+        """
+        if not hasattr(douki, 'enrich'):
+            raise NotImplementedError('Annotation enrichment is unavailable')
+        fixture = DocstringBenchmarks()
+        fixture.setup()
+        self.raw = fixture.raw
+        self.signature = douki.Signature(
+            (douki.Parameter('value', 'int'),), 'str'
+        )
+
+    def time_enrich(self) -> None:
+        """
+        title: Time structured annotation enrichment without source writes.
+        """
+        douki.enrich(self.raw, self.signature)
 
 
 class SourceBenchmarks:
@@ -65,9 +89,9 @@ class SourceBenchmarks:
         title: Produce source with documented function signatures.
         parameters:
           count:
-            type: int
-        returns:
-          type: str
+            description: Number of documented functions to include in the
+              synthetic module.
+        returns: Synthetic Python source for the source-formatting benchmark.
         """
         functions = ['"""title: Benchmark module"""\n']
         for idx in range(count):
@@ -77,9 +101,8 @@ class SourceBenchmarks:
                 f'    title: Function {idx}\n'
                 '    parameters:\n'
                 '      value:\n'
-                '        type: int\n'
-                '    returns:\n'
-                '      type: int\n'
+                '        description: Details.\n'
+                '    returns: Details.\n'
                 '    """\n'
                 '    return value\n'
             )

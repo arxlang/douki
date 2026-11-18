@@ -1,8 +1,10 @@
 """
 title: Language-agnostic YAML docstring sync engine.
-summary: |-
+summary: >-
   This module provides the core logic for merging signature information
+
   into Douki YAML docstrings and rebuilding the YAML output. It is
+
   intentionally pure — no file I/O, no AST parsing.
 """
 
@@ -26,9 +28,8 @@ def _safe_load(raw: str) -> Any:
     title: Load docstring YAML with the safe C loader when available.
     parameters:
       raw:
-        type: str
-    returns:
-      type: Any
+        description: Docstring text to parse as YAML.
+    returns: Parsed YAML value without schema validation.
     """
     return yaml.load(textwrap.dedent(raw), Loader=_SAFE_LOADER)
 
@@ -52,11 +53,13 @@ class ParamInfo:
     title: A single parameter extracted from a source signature.
     attributes:
       name:
-        type: str
+        description: Parameter or attribute name without variadic prefixes.
       annotation:
-        type: str
+        description: Display annotation extracted from source; empty when
+          absent.
       kind:
-        type: str
+        description: Calling convention, including positional, keyword, and
+          variadic forms.
     """
 
     name: str
@@ -69,24 +72,31 @@ class ParamInfo:
 @dataclass
 class FuncInfo:
     """
-    title: >-
-      Everything we need to know about a single function, class, or module
-      docstring site.
+    title: Everything we need to know about a single function,
+      class, or module docstring site.
     attributes:
       name:
-        type: str
+        description: Declaration name, or <module> for a module
+          docstring.
       lineno:
-        type: int
+        description: One-based declaration line used in diagnostics.
       params:
-        type: list[ParamInfo]
+        description: Explicit parameters, excluding an implicit
+          method receiver.
       attrs:
-        type: list[ParamInfo]
+        description: Declared attributes, including resolved inherited
+          attributes.
       return_annotation:
-        type: str
+        description: Return annotation extracted from source; empty
+          when absent.
       docstring_node:
-        type: Optional[Any]
+        description: Source node for replacing the docstring, or
+          None when absent.
       is_method:
-        type: bool
+        description: Whether the function belongs to a class.
+      is_callable:
+        description: Whether parameter and return annotations must
+          be validated.
     """
 
     name: str
@@ -98,6 +108,7 @@ class FuncInfo:
     return_annotation: str = ''
     docstring_node: Optional[Any] = None
     is_method: bool = False
+    is_callable: bool = True
 
 
 # ---------------------------------------------------------------------------
@@ -110,9 +121,9 @@ def _load_docstring_yaml(raw: str) -> dict[str, Any]:
     title: Load YAML safely, converting single-line strings to titles.
     parameters:
       raw:
-        type: str
-    returns:
-      type: dict[str, Any]
+        description: Docstring text to parse as YAML.
+    returns: Documentation mapping, with plain one-line prose treated as
+      a title.
     """
     try:
         data = _safe_load(raw)
@@ -139,9 +150,8 @@ def _parse_validated_docstring(raw: str) -> dict[str, Any]:
     title: Parse and validate a Douki docstring exactly once.
     parameters:
       raw:
-        type: str
-    returns:
-      type: dict[str, Any]
+        description: Docstring text to parse as YAML.
+    returns: Parsed documentation mapping that satisfies the source schema.
     """
     try:
         data = _safe_load(raw)
@@ -162,12 +172,11 @@ def validate_docstring(raw: str, func_name: str) -> bool:
     title: Check whether *raw* is a valid Douki YAML docstring.
     parameters:
       raw:
-        type: str
+        description: Docstring text to parse as YAML.
       func_name:
-        type: str
-    returns:
-      type: bool
-      description: True if it's a valid Douki YAML docstring.
+        description: Declaration name retained for compatibility with existing
+          callers.
+    returns: True if it's a valid Douki YAML docstring.
     """
     # Keep func_name in the public API for compatibility.
     _ = func_name
@@ -183,9 +192,8 @@ def _param_name_for_yaml(p: ParamInfo) -> str:
     title: Produce the YAML key for a parameter.
     parameters:
       p:
-        type: ParamInfo
-    returns:
-      type: str
+        description: Extracted parameter whose name becomes the YAML key.
+    returns: Plain parameter name without variadic prefixes.
     """
     return p.name
 
@@ -195,9 +203,9 @@ def _extract_param_desc(entry: Any) -> str:
     title: Read the description from an old flat or new nested param.
     parameters:
       entry:
-        type: Any
-    returns:
-      type: str
+        description: Existing documentation entry whose description should
+          be retained.
+    returns: Existing parameter description, or an empty string if absent.
     """
     if isinstance(entry, dict):
         return str(entry.get('description', ''))
@@ -211,9 +219,9 @@ def _extract_returns_desc(entry: Any) -> str:
     title: Extract the existing description for returns/yields.
     parameters:
       entry:
-        type: Any
-    returns:
-      type: str
+        description: Existing documentation entry whose description should
+          be retained.
+    returns: Existing result description, or an empty string if absent.
     """
     if isinstance(entry, list) and entry:
         first = entry[0]
@@ -239,29 +247,29 @@ def sync_docstring(
 ) -> str:
     """
     title: Merge signature info into a Douki YAML docstring.
-    summary: >-
-      Returns the updated YAML (without surrounding triple-quotes). If not
-      valid Douki YAML, raises ValueError.
+    summary: Returns the updated YAML (without surrounding triple-quotes).
+      If not valid Douki YAML, raises ValueError.
     parameters:
       raw_docstring:
-        type: str
+        description: Authored Douki YAML without surrounding string delimiters.
       params:
-        type: Sequence[ParamInfo]
+        description: Parameter metadata extracted from the declaration
+          signature.
       return_annotation:
-        type: str
+        description: Return annotation supplied by the language adapter.
       attrs:
-        type: Sequence[ParamInfo]
-        description: >-
-          Class-level annotated variables used to sync the attributes: section.
-          Only meaningful for ClassDef docstrings.
+        description: 'Class-level annotated variables used to sync the
+          attributes: section. Only meaningful for ClassDef docstrings.'
       func_name:
-        type: str
+        description: Declaration name retained for compatibility with existing
+          callers.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping
+          YAML.
       language_defaults:
-        type: Optional[LanguageDefaults]
-    returns:
-      type: str
+        description: Language-specific values to omit from generated YAML.
+    returns: Annotation-enriched YAML for display, without surrounding
+      string delimiters.
     """
     # Keep func_name in the public API for compatibility.
     _ = func_name
@@ -269,6 +277,20 @@ def sync_docstring(
         return raw_docstring
 
     data = _parse_validated_docstring(raw_docstring)
+    from douki.documentation import Parameter, Signature, validate_annotations
+
+    validate_annotations(
+        Signature(
+            parameters=(
+                tuple(Parameter(p.name, p.annotation) for p in params)
+                if params or return_annotation
+                else None
+            ),
+            returns=return_annotation,
+            attributes=tuple(Parameter(p.name, p.annotation) for p in attrs),
+        ),
+        data,
+    )
     return _sync_docstring_data(
         data,
         params,
@@ -289,22 +311,27 @@ def _sync_docstring_data(
     language_defaults: Optional[LanguageDefaults] = None,
 ) -> str:
     """
-    title: Synchronize an already validated YAML mapping without reparsing.
+    title: Synchronize an already validated YAML mapping without
+      reparsing.
     parameters:
       data:
-        type: dict[str, Any]
+        description: Documentation fields to serialize.
       params:
-        type: Sequence[ParamInfo]
+        description: Parameter metadata extracted from the declaration
+          signature.
       return_annotation:
-        type: str
+        description: Return annotation supplied by the language adapter.
       attrs:
-        type: Sequence[ParamInfo]
+        description: Attribute metadata extracted from annotated
+          declarations.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping
+          YAML.
       language_defaults:
-        type: Optional[LanguageDefaults]
-    returns:
-      type: str
+        description: Language-specific values to omit from generated
+          YAML.
+    returns: YAML containing signature types and retained authored
+      descriptions.
     """
     # --- parameters ---
     if params:
@@ -438,13 +465,14 @@ def _rebuild_yaml(
     summary: Omits fields that match language defaults.
     parameters:
       data:
-        type: dict[str, Any]
+        description: Documentation fields to serialize.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping
+          YAML.
       field_defaults:
-        type: Optional[dict[str, Any]]
-    returns:
-      type: str
+        description: Top-level field values to omit when they match these
+          defaults.
+    returns: Serialized YAML with canonical field order and a trailing newline.
     """
     if field_defaults is None:
         field_defaults = _EMPTY_DEFAULTS
@@ -498,19 +526,20 @@ def _emit_key_value(
     content_indent: int = 4,
 ) -> None:
     """
-    title: >-
-      Safely emit a key-value pair, folding long strings into block scalars.
+    title: Safely emit a key-value pair, folding long strings into block
+      scalars.
     parameters:
       lines:
-        type: list[str]
+        description: Output buffer to which YAML lines are appended.
       indent_str:
-        type: str
+        description: Indentation prefix for this YAML entry.
       key:
-        type: str
+        description: YAML field name, or a dash to emit a list item.
       value:
-        type: Any
+        description: Field value to serialize into YAML.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping
+          YAML.
     """
     # YAML list items use "- value", dict entries use "key: value"
     is_list_item = key == '-'
@@ -572,13 +601,13 @@ def _emit_parameters(
     title: Emit ``parameters:`` or ``attributes:`` section.
     parameters:
       lines:
-        type: list[str]
+        description: Output buffer to which YAML lines are appended.
       key:
-        type: str
+        description: YAML field name to emit.
       params:
-        type: dict[str, Any]
+        description: Named parameter or attribute documentation entries.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping YAML.
     """
     lines.append(f'{key}:')
     for name, entry in params.items():
@@ -614,13 +643,13 @@ def _emit_typed_list(
     title: Emit list-based types (methods, attributes).
     parameters:
       lines:
-        type: list[str]
+        description: Output buffer to which YAML lines are appended.
       key:
-        type: str
+        description: YAML field name to emit.
       value:
-        type: Any
+        description: Field value to serialize into YAML.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping YAML.
     """
     if isinstance(value, str):
         lines.append(f'{key}: {_yaml_scalar(value)}')
@@ -655,13 +684,13 @@ def _emit_typed_entry(
     title: Emit returns/yields/receives as a single dictionary.
     parameters:
       lines:
-        type: list[str]
+        description: Output buffer to which YAML lines are appended.
       key:
-        type: str
+        description: YAML field name to emit.
       value:
-        type: Any
+        description: Field value to serialize into YAML.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping YAML.
     """
     if isinstance(value, str):
         lines.append(f'{key}: {_yaml_scalar(value)}')
@@ -686,13 +715,13 @@ def _emit_raises(
     title: Emit raises/warnings (dict or list format).
     parameters:
       lines:
-        type: list[str]
+        description: Output buffer to which YAML lines are appended.
       key:
-        type: str
+        description: YAML field name to emit.
       value:
-        type: Any
+        description: Field value to serialize into YAML.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping YAML.
     """
     if isinstance(value, dict):
         lines.append(f'{key}:')
@@ -727,11 +756,11 @@ def _emit_examples(
     title: Emit examples as list.
     parameters:
       lines:
-        type: list[str]
+        description: Output buffer to which YAML lines are appended.
       value:
-        type: list[Any]
+        description: Field value to serialize into YAML.
       content_indent:
-        type: int
+        description: Source indentation width to allow for when wrapping YAML.
     """
     lines.append('examples:')
     for item in value:
@@ -756,9 +785,8 @@ def _yaml_scalar(value: Any) -> str:
     title: Format a simple scalar for inline YAML.
     parameters:
       value:
-        type: Any
-    returns:
-      type: str
+        description: Field value to serialize into YAML.
+    returns: Inline YAML representation, quoted when necessary.
     """
     if isinstance(value, bool):
         return 'true' if value else 'false'

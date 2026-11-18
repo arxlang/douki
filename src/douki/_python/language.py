@@ -17,21 +17,22 @@ class PythonLanguage(BaseLanguage):
     title: The Douki Python language backend.
     attributes:
       _config:
-        type: PythonConfig
+        description: Configuration loader used for Python source discovery.
     """
+
+    _config: PythonConfig
 
     def __init__(self) -> None:
         """
         title: Initialize the Python language backend.
         """
-        self._config: PythonConfig = PythonConfig()
+        self._config = PythonConfig()
 
     @property
     def name(self) -> str:
         """
         title: Language name (python).
-        returns:
-          type: str
+        returns: Registry name identifying the Python backend.
         """
         return 'python'
 
@@ -39,8 +40,7 @@ class PythonLanguage(BaseLanguage):
     def config(self) -> BaseConfig:
         """
         title: Returns the PythonConfig instance.
-        returns:
-          type: BaseConfig
+        returns: Configuration loader used by this backend instance.
         """
         return self._config
 
@@ -51,11 +51,11 @@ class PythonLanguage(BaseLanguage):
         title: Synchronize Python source code using the AST extractor.
         parameters:
           source:
-            type: str
+            description: Source code whose docstrings are being processed.
           migrate:
-            type: Optional[str]
             optional: true
-        returns:
-          type: str
+            description: Docstring format to convert before formatting; None
+              disables migration.
+        returns: Python source with validated, formatted Douki YAML docstrings.
         """
         return py_sync_source(source, migrate=migrate)

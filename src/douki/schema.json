@@ -13,7 +13,6 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "type": { "type": "string" },
             "optional": { "type": ["boolean", "null"] },
             "description": { "type": "string" },
             "default": {},
@@ -25,11 +24,10 @@
         }
       ]
     },
-    "typed_entry": {
+    "description_entry": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "type": "string" },
         "description": { "type": "string" }
       }
     },
@@ -40,7 +38,6 @@
           "type": "object",
           "additionalProperties": false,
           "properties": {
-            "type": { "type": "string" },
             "optional": { "type": ["boolean", "null"] },
             "description": { "type": "string" },
             "default": {},
@@ -100,42 +97,25 @@
 
     "returns": {
       "anyOf": [
-        { "type": "string" },
         { "type": ["string", "null"] },
-        { "$ref": "#/definitions/typed_entry" }
+        { "$ref": "#/definitions/description_entry" }
       ]
     },
     "yields": {
-      "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/typed_entry" }]
+      "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/description_entry" }]
     },
     "receives": {
-      "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/typed_entry" }]
+      "anyOf": [{ "type": "string" }, { "$ref": "#/definitions/description_entry" }]
     },
 
     "raises": {
-      "anyOf": [
-        {
-          "type": "object",
-          "additionalProperties": { "type": "string" }
-        },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
-      ]
+      "type": "object",
+      "additionalProperties": { "type": "string" }
     },
 
     "warnings": {
-      "anyOf": [
-        {
-          "type": "object",
-          "additionalProperties": { "type": "string" }
-        },
-        {
-          "type": "array",
-          "items": { "$ref": "#/definitions/typed_entry" }
-        }
-      ]
+      "type": "object",
+      "additionalProperties": { "type": "string" }
     },
 
     "see_also": {

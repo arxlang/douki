@@ -1,7 +1,8 @@
 """
 title: Python AST-based function/class extractor.
-summary: |-
+summary: >-
   Extracts function signatures, class attributes, and docstring
+
   nodes from Python source code using the ``ast`` module.
 """
 
@@ -9,9 +10,13 @@ from __future__ import annotations
 
 import ast
 
+from collections.abc import Iterator
 from typing import Optional
 
+from public import private
+
 from douki._base.sync import FuncInfo, ParamInfo
+from douki.typechecking import typechecked
 
 # ---------------------------------------------------------------------------
 # AST → type-string helpers
@@ -23,9 +28,9 @@ def _annotation_to_str(node: Optional[ast.expr]) -> str:
     title: Convert an AST annotation node to a readable type string.
     parameters:
       node:
-        type: Optional[ast.expr]
-    returns:
-      type: str
+        description: Annotation expression, or None when no annotation was
+          supplied.
+    returns: Readable annotation text, or an empty string when unavailable.
     """
     if node is None:
         return ''
@@ -74,8 +79,6 @@ def _annotation_to_str(node: Optional[ast.expr]) -> str:
 # Extraction
 # ---------------------------------------------------------------------------
 
-_SELF_CLS = frozenset({'self', 'cls'})
-
 
 def _param_kind(
     arg_name: str, func_node: ast.FunctionDef | ast.AsyncFunctionDef
@@ -84,11 +87,10 @@ def _param_kind(
     title: Determine the parameter kind.
     parameters:
       arg_name:
-        type: str
+        description: Name of the parameter whose calling convention is needed.
       func_node:
-        type: ast.FunctionDef | ast.AsyncFunctionDef
-    returns:
-      type: str
+        description: Function declaration containing the parameter.
+    returns: Calling convention for the named parameter.
     """
     for arg in func_node.args.posonlyargs:
         if arg.arg == arg_name:
@@ -111,11 +113,10 @@ def _extract_func(
     title: Extract a FuncInfo from a FunctionDef/AsyncFunctionDef.
     parameters:
       node:
-        type: ast.FunctionDef | ast.AsyncFunctionDef
+        description: Python syntax node to inspect for documentation metadata.
       is_method:
-        type: bool
-    returns:
-      type: FuncInfo
+        description: Whether the function is declared directly in a class body.
+    returns: Function metadata with the implicit receiver omitted for methods.
     """
     params: list[ParamInfo] = []
     all_args: list[ast.arg] = (
@@ -126,8 +127,20 @@ def _extract_func(
     if node.args.kwarg:
         all_args.append(node.args.kwarg)
 
+    positional = node.args.posonlyargs + node.args.args
+    static = any(
+        (isinstance(decorator, ast.Name) and decorator.id == 'staticmethod')
+        or (
+            isinstance(decorator, ast.Attribute)
+            and decorator.attr == 'staticmethod'
+        )
+        for decorator in node.decorator_list
+    )
+    receiver = (
+        positional[0] if is_method and not static and positional else None
+    )
     for arg in all_args:
-        if arg.arg in _SELF_CLS and is_method:
+        if arg is receiver:
             continue
         params.append(
             ParamInfo(
@@ -159,34 +172,64 @@ def _extract_func(
     )
 
 
+@private
+@typechecked
+def body_nodes(statements: list[ast.stmt]) -> Iterator[ast.AST]:
+    """
+    title: Walk a declaration's body without entering nested scopes.
+    parameters:
+      statements:
+        description: Statements in the declaration body to traverse.
+    returns: Iterator over body nodes, leaving nested declaration bodies
+      unvisited.
+    """
+    pending: list[ast.AST] = list(reversed(statements))
+    while pending:
+        node = pending.pop()
+        yield node
+        if not isinstance(
+            node,
+            (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda),
+        ):
+            pending.extend(reversed(list(ast.iter_child_nodes(node))))
+
+
 class _FuncExtractor(ast.NodeVisitor):
     """
     title: AST visitor that collects FuncInfo for each docstring site.
     attributes:
       results:
-        type: list[FuncInfo]
+        description: Collected module, class, and function docstring sites
+          in visit order.
       in_class:
-        type: bool
+        description: Whether the current declaration is directly inside
+          a class.
       _class_attrs_map:
-        type: dict[str, list[ParamInfo]]
+        description: Previously visited class attributes used for same-file
+          inheritance.
     """
+
+    results: list[FuncInfo]
+    in_class: bool
+    _class_attrs_map: dict[str, list[ParamInfo]]
 
     def __init__(self) -> None:
         """
         title: Initialize the extractor with empty state.
         """
-        self.results: list[FuncInfo] = []
-        self.in_class: bool = False
+        self.results = []
+        self.in_class = False
         # Maps class name → full list of attrs (own + inherited)
         # built up as we visit classes top-to-bottom.
-        self._class_attrs_map: dict[str, list[ParamInfo]] = {}
+        self._class_attrs_map = {}
 
     def visit_Module(self, node: ast.Module) -> None:
         """
         title: Extract module-level docstring.
         parameters:
           node:
-            type: ast.Module
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         if (
             node.body
@@ -199,6 +242,17 @@ class _FuncExtractor(ast.NodeVisitor):
                     name='<module>',
                     lineno=1,
                     docstring_node=node.body[0].value,
+                    is_callable=False,
+                    attrs=[
+                        ParamInfo(
+                            child.target.id,
+                            _annotation_to_str(child.annotation),
+                            'regular',
+                        )
+                        for child in node.body
+                        if isinstance(child, ast.AnnAssign)
+                        and isinstance(child.target, ast.Name)
+                    ],
                 )
             )
         self.generic_visit(node)
@@ -208,7 +262,8 @@ class _FuncExtractor(ast.NodeVisitor):
         title: Extract class docstring and class-level attributes.
         parameters:
           node:
-            type: ast.ClassDef
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         ds_node = None
         if (
@@ -221,7 +276,7 @@ class _FuncExtractor(ast.NodeVisitor):
 
         # Extract class-level annotated variables for attributes: sync
         own_attrs: list[ParamInfo] = []
-        for child in node.body:
+        for child in body_nodes(node.body):
             if isinstance(child, ast.AnnAssign) and isinstance(
                 child.target, ast.Name
             ):
@@ -237,43 +292,64 @@ class _FuncExtractor(ast.NodeVisitor):
         # not already declared at class level.
         own_names = {p.name for p in own_attrs}
         for child in node.body:
+            if (
+                isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and any(
+                    isinstance(decorator, ast.Name)
+                    and decorator.id == 'property'
+                    for decorator in child.decorator_list
+                )
+                and child.name not in own_names
+            ):
+                own_attrs.append(
+                    ParamInfo(
+                        child.name,
+                        _annotation_to_str(child.returns),
+                        'regular',
+                    )
+                )
+                own_names.add(child.name)
+        declarations = own_names.copy()
+        assigned: dict[str, ParamInfo] = {}
+        for child in node.body:
             if not isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 continue
             if child.name != '__init__':
                 continue
-            for stmt in ast.walk(child):
+            positional = child.args.posonlyargs + child.args.args
+            if not positional:
+                continue
+            receiver = positional[0].arg
+            for stmt in body_nodes(child.body):
                 # self.x: T = ... (annotated assignment)
                 if (
                     isinstance(stmt, ast.AnnAssign)
                     and isinstance(stmt.target, ast.Attribute)
                     and isinstance(stmt.target.value, ast.Name)
-                    and stmt.target.value.id == 'self'
-                    and stmt.target.attr not in own_names
+                    and stmt.target.value.id == receiver
+                    and stmt.target.attr not in declarations
                 ):
-                    own_attrs.append(
-                        ParamInfo(
-                            name=stmt.target.attr,
-                            annotation=_annotation_to_str(stmt.annotation),
-                            kind='regular',
+                    annotation = _annotation_to_str(stmt.annotation)
+                    if stmt.target.attr in assigned:
+                        assigned.pop(stmt.target.attr).annotation = annotation
+                    else:
+                        own_attrs.append(
+                            ParamInfo(stmt.target.attr, annotation, 'regular')
                         )
-                    )
                     own_names.add(stmt.target.attr)
+                    declarations.add(stmt.target.attr)
                 # self.x = ... (plain assignment)
                 elif isinstance(stmt, ast.Assign):
                     for target in stmt.targets:
                         if (
                             isinstance(target, ast.Attribute)
                             and isinstance(target.value, ast.Name)
-                            and target.value.id == 'self'
+                            and target.value.id == receiver
                             and target.attr not in own_names
                         ):
-                            own_attrs.append(
-                                ParamInfo(
-                                    name=target.attr,
-                                    annotation='',
-                                    kind='regular',
-                                )
-                            )
+                            attribute = ParamInfo(target.attr, '', 'regular')
+                            own_attrs.append(attribute)
+                            assigned[target.attr] = attribute
                             own_names.add(target.attr)
             break  # only process the first __init__
 
@@ -289,6 +365,8 @@ class _FuncExtractor(ast.NodeVisitor):
                 base_name = base.attr  # best-effort for dotted names
             if base_name and base_name in self._class_attrs_map:
                 for a in self._class_attrs_map[base_name]:
+                    if a.name in assigned:
+                        assigned.pop(a.name).annotation = a.annotation
                     if a.name not in seen_names:
                         inherited.append(a)
                         seen_names.add(a.name)
@@ -308,6 +386,7 @@ class _FuncExtractor(ast.NodeVisitor):
                     params=[],
                     attrs=all_attrs,
                     docstring_node=ds_node,
+                    is_callable=False,
                 )
             )
 
@@ -321,7 +400,8 @@ class _FuncExtractor(ast.NodeVisitor):
         title: Extract function docstring and parameters.
         parameters:
           node:
-            type: ast.FunctionDef
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         self.results.append(_extract_func(node, is_method=self.in_class))
         old_in_class = self.in_class
@@ -334,7 +414,8 @@ class _FuncExtractor(ast.NodeVisitor):
         title: Extract async function docstring and parameters.
         parameters:
           node:
-            type: ast.AsyncFunctionDef
+            description: Python syntax node to inspect for documentation
+              metadata.
         """
         self.results.append(_extract_func(node, is_method=self.in_class))
         old_in_class = self.in_class
@@ -348,10 +429,8 @@ def extract_functions(source: str) -> list[FuncInfo]:
     title: Parse the Python source and return extracted functions/classes.
     parameters:
       source:
-        type: str
-    returns:
-      type: list[FuncInfo]
-      description: List of FuncInfo objects in the order they appear.
+        description: Source code whose docstrings are being processed.
+    returns: List of FuncInfo objects in the order they appear.
     """
     try:
         tree = ast.parse(source)

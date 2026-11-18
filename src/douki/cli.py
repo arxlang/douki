@@ -1,9 +1,10 @@
 """
-title: "Douki CLI \u2014 ``douki sync`` and ``douki check`` commands."
+title: Douki CLI — ``douki sync`` and ``douki check`` commands.
 examples:
-  - code: |
-      douki sync  [FILES...]   # apply changes in-place
-      douki check [FILES...]   # print diff, exit 1 if changes needed
+- code: >-
+    douki sync  [FILES...]   # apply changes in-place
+
+    douki check [FILES...]   # print diff, exit 1 if changes needed
 """
 
 from __future__ import annotations
@@ -59,13 +60,14 @@ def _resolve_files(
     title: Turn the optional argument into a list of paths for the language.
     parameters:
       files:
-        type: Optional[list[Path]]
+        description: Files or directories to process; an empty value uses
+          the current directory.
       lang:
-        type: str
+        description: Registered language backend used to process the source.
       respect_gitignore:
-        type: Optional[bool]
-    returns:
-      type: list[Path]
+        description: Override gitignore filtering; None uses the project
+          setting.
+    returns: Source paths to process, after applying discovery rules.
     """
     target_files = resolve_files(
         files,
@@ -87,14 +89,12 @@ def _print_diff(
     title: Print a coloured unified diff.
     parameters:
       path:
-        type: Path
+        description: Source path used to label both sides of the diff.
       original:
-        type: str
+        description: File contents before formatting.
       updated:
-        type: str
-    returns:
-      type: bool
-      description: True if there is a diff.
+        description: File contents after formatting.
+    returns: True if there is a diff.
     """
     if original == updated:
         return False
@@ -142,15 +142,17 @@ def sync(
     ),
 ) -> None:
     """
-    title: Apply docstring sync changes to files in-place.
+    title: Format YAML docstrings in-place without inserting annotation types.
     parameters:
       files:
-        type: Optional[list[Path]]
+        description: Files or directories to process; an empty value uses
+          the current directory.
       lang:
-        type: str
+        description: Registered language backend used to process the source.
       respect_gitignore:
-        type: Optional[bool]
         optional: true
+        description: Override gitignore filtering; None uses the project
+          setting.
     """
     target_files = _resolve_files(
         files,
@@ -230,12 +232,14 @@ def check(
     title: Print a diff of proposed changes. Exit 1 if any.
     parameters:
       files:
-        type: Optional[list[Path]]
+        description: Files or directories to process; an empty value uses
+          the current directory.
       lang:
-        type: str
+        description: Registered language backend used to process the source.
       respect_gitignore:
-        type: Optional[bool]
         optional: true
+        description: Override gitignore filtering; None uses the project
+          setting.
     """
     target_files = _resolve_files(
         files,
@@ -306,14 +310,16 @@ def migrate(
     title: Migrate docstrings from another format to Douki YAML.
     parameters:
       files:
-        type: Optional[list[Path]]
+        description: Files or directories to process; an empty value uses
+          the current directory.
       from_format:
-        type: MigrateFormat
+        description: Original docstring format to convert to Douki YAML.
       lang:
-        type: str
+        description: Registered language backend used to process the source.
       respect_gitignore:
-        type: Optional[bool]
         optional: true
+        description: Override gitignore filtering; None uses the project
+          setting.
     """
     migrate_val = from_format.value
     target_files = _resolve_files(

@@ -12,31 +12,24 @@ from typing import Any
 class LanguageDefaults:
     """
     title: Per-language defaults for docstring field values.
-    summary: >-
-      Each language plugin provides an instance of this class. Fields whose
-      values match these defaults are omitted from the emitted YAML.
+    summary: Each language plugin provides an instance of this class. Fields
+      whose values match these defaults are omitted from the emitted YAML.
     attributes:
-      visibility:
-        type: str
-      mutability:
-        type: str
       scope_function:
-        type: str
         description: Default scope for stand-alone functions.
       scope_method:
-        type: str
         description: Default scope for class methods.
       file_extensions:
-        type: tuple[str, Ellipsis]
         description: File extensions to collect (e.g. ('.py',)).
       config_files:
-        type: tuple[str, Ellipsis]
         description: Config files to search for exclude patterns.
       field_defaults:
-        type: dict[str, Any]
-        description: >-
-          Mapping of top-level YAML key to the default value that should be
-          omitted when emitting.
+        description: Mapping of top-level YAML key to the default value that
+          should be omitted when emitting.
+      visibility:
+        description: Default visibility to omit from emitted documentation.
+      mutability:
+        description: Default mutability to omit from emitted documentation.
     """
 
     visibility: str = 'public'
@@ -49,11 +42,9 @@ class LanguageDefaults:
 
     def get_field_defaults(self) -> dict[str, Any]:
         """
-        title: >-
-          Return the mapping of top-level YAML key to the default value that
-          should be omitted.
-        returns:
-          type: dict[str, Any]
+        title: Return the mapping of top-level YAML key to the default value
+          that should be omitted.
+        returns: Built-in defaults combined with language-specific overrides.
         """
         defaults = {
             'visibility': self.visibility,
