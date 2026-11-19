@@ -31,8 +31,8 @@ class BaseLanguage(ABC):
     def config(self) -> BaseConfig:
         """
         title: Configuration loader for this language.
-        returns: Configuration loader and file discovery settings for this
-          backend.
+        returns: >-
+          Configuration loader and file discovery settings for this backend.
         """
         ...  # pragma: no cover
 
@@ -63,8 +63,9 @@ class BaseLanguage(ABC):
           source: Source code whose docstrings are being processed.
           migrate:
             optional: true
-            description: Docstring format to convert before formatting; None
-              disables migration.
+            description: >-
+              Docstring format to convert before formatting; None disables
+              migration.
         returns: Source with formatted and scaffolded Douki YAML docstrings.
         """
         _ = (source, migrate)

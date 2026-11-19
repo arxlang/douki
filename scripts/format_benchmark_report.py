@@ -17,10 +17,9 @@ def _measurement(value: Any) -> float | None:
     """
     title: Extract a finite, positive timing result in seconds.
     parameters:
-      value: Raw ASV timing value, optionally enclosed in a one-item
-        list.
-    returns: Positive finite duration in seconds, or None for invalid
-      measurements.
+      value: Raw ASV timing value, optionally enclosed in a one-item list.
+    returns: >-
+      Positive finite duration in seconds, or None for invalid measurements.
     """
     if isinstance(value, list):
         if len(value) != 1:
@@ -41,7 +40,8 @@ def collect_results(
     parameters:
       directory: Directory tree containing ASV result JSON files.
       sha: Exact commit hash whose timing results should be collected.
-    returns: Timings keyed by benchmark and environment, with None for missing
+    returns: >-
+      Timings keyed by benchmark and environment, with None for missing
       results.
     """
     collected: dict[tuple[str, str], float | None] = {}

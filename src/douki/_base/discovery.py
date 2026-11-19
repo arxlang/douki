@@ -80,16 +80,13 @@ def collect_source_files(
     discovery: DiscoveryConfig,
 ) -> list[Path]:
     """
-    title: Expand paths into source files using shared discovery
-      rules.
+    title: Expand paths into source files using shared discovery rules.
     parameters:
       paths: Files or directories to expand into source files.
-      file_extensions: Filename suffixes accepted by the language
-        backend.
-      discovery: Project root and exclusion settings used during
-        file discovery.
-    returns: Sorted, unique source paths after applying exclusion
-      rules.
+      file_extensions: Filename suffixes accepted by the language backend.
+      discovery: >-
+        Project root and exclusion settings used during file discovery.
+    returns: Sorted, unique source paths after applying exclusion rules.
     """
     matcher = _GitIgnoreMatcher(discovery.root)
     result: list[Path] = []
@@ -137,12 +134,11 @@ def _can_prune_directory(
     matcher: '_GitIgnoreMatcher',
 ) -> bool:
     """
-    title: Prune subtrees excluded by whole-directory patterns or
-      gitignore.
+    title: Prune subtrees excluded by whole-directory patterns or gitignore.
     parameters:
       directory: Directory being considered for exclusion from traversal.
-      discovery: Project root and exclusion settings used during
-        file discovery.
+      discovery: >-
+        Project root and exclusion settings used during file discovery.
       matcher: Cached gitignore matcher for the project root.
     returns: Whether traversal can skip the entire directory subtree.
     """
@@ -223,11 +219,10 @@ def _is_excluded(
     title: Check whether a path is excluded by config or `.gitignore`.
     parameters:
       path: Candidate path to check against discovery rules.
-      discovery: Project root and exclusion settings used during
-        file discovery.
+      discovery: >-
+        Project root and exclusion settings used during file discovery.
       matcher: Cached gitignore matcher for the project root.
-    returns: Whether configuration or gitignore rules exclude the
-      path.
+    returns: Whether configuration or gitignore rules exclude the path.
     """
     return _matches_exclude_patterns(
         path,
@@ -268,8 +263,8 @@ def _match_exclude_pattern(path_str: str, pattern: str) -> bool:
     """
     title: Match a configured exclude pattern against a relative path.
     parameters:
-      path_str: Path expressed with forward slashes relative to its discovery
-        root.
+      path_str: >-
+        Path expressed with forward slashes relative to its discovery root.
       pattern: Gitignore-style glob pattern to match.
     returns: Whether the pattern matches the path or an applicable ancestor.
     """
@@ -309,8 +304,8 @@ class _GitIgnoreMatcher:
         """
         title: Initialize the matcher with a root directory.
         parameters:
-          root: Project root used to resolve relative paths and discovery
-            rules.
+          root: >-
+            Project root used to resolve relative paths and discovery rules.
         """
         self._root = root.resolve()
         self._rules_by_dir = {}
@@ -358,12 +353,12 @@ class _GitIgnoreMatcher:
 
     def _iter_scope_dirs(self, path: Path) -> Iterable[Path]:
         """
-        title: Yield directories whose `.gitignore` files apply to
-          `path`.
+        title: Yield directories whose `.gitignore` files apply to `path`.
         parameters:
           path: Resolved candidate path beneath the matcher root.
-        returns: Iterator over applicable directories, from root
-          to the candidate parent.
+        returns: >-
+          Iterator over applicable directories, from root to the candidate
+          parent.
         """
         rel_parent = path.relative_to(self._root).parent
         curr = self._root
@@ -379,8 +374,8 @@ class _GitIgnoreMatcher:
         title: Load and cache parsed rules for a scope directory.
         parameters:
           scope_dir: Directory containing the gitignore file for these rules.
-        returns: Rules in file order, or an empty tuple if the file cannot
-          be read.
+        returns: >-
+          Rules in file order, or an empty tuple if the file cannot be read.
         """
         if scope_dir in self._rules_by_dir:
             return self._rules_by_dir[scope_dir]
@@ -485,8 +480,8 @@ def _relative_prefixes(path_str: str) -> list[str]:
     """
     title: Return cumulative relative path prefixes for a path string.
     parameters:
-      path_str: Path expressed with forward slashes relative to its discovery
-        root.
+      path_str: >-
+        Path expressed with forward slashes relative to its discovery root.
     returns: Path prefixes from the first component through the full path.
     """
     parts = [part for part in path_str.split('/') if part]

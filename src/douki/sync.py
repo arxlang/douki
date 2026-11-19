@@ -48,14 +48,16 @@ def resolve_files(
     """
     title: Resolve paths into source files for the given language.
     parameters:
-      files: Files or directories to process; an empty value uses the current
+      files: >-
+        Files or directories to process; an empty value uses the current
         directory.
       lang: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
-    returns: Sorted, unique source paths after applying discovery and exclusion
+        description: >-
+          Override gitignore filtering; None uses the project setting.
+    returns: >-
+      Sorted, unique source paths after applying discovery and exclusion
       rules.
     """
     from douki._base.language import get_language
@@ -80,15 +82,18 @@ def sync_source(
 ) -> str:
     """
     title: Synchronize documentation structure with source declarations.
-    summary: Dispatches to the appropriate language plugin based on *lang*.
+    summary: Dispatches to the appropriate language plugin based
+      on *lang*.
     parameters:
       source: Source code whose docstrings are being processed.
       lang: Registered language backend used to process the source.
       migrate:
         optional: true
-        description: Docstring format to convert before formatting; None
-          disables migration.
-    returns: Source with scaffolded documentation and no authored types.
+        description: >-
+          Docstring format to convert before formatting; None disables
+          migration.
+    returns: Source with scaffolded documentation and no authored
+      types.
     """
     from douki._base.language import get_language
 

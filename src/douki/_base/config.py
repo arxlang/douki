@@ -48,8 +48,8 @@ class BaseConfig(ABC):
         title: Expand paths into source files, filtering excluded ones.
         parameters:
           paths: Files or directories to expand into source files.
-          discovery: Project root and exclusion settings used during file
-            discovery.
+          discovery: >-
+            Project root and exclusion settings used during file discovery.
         returns: Sorted, unique source paths after applying exclusion rules.
         """
         return collect_source_files(

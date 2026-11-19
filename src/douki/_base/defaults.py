@@ -19,8 +19,9 @@ class LanguageDefaults:
       scope_method: Default scope for class methods.
       file_extensions: File extensions to collect (e.g. ('.py',)).
       config_files: Config files to search for exclude patterns.
-      field_defaults: Mapping of top-level YAML key to the default value
-        that should be omitted when emitting.
+      field_defaults: >-
+        Mapping of top-level YAML key to the default value that should be
+        omitted when emitting.
       visibility: Default visibility to omit from emitted documentation.
       mutability: Default mutability to omit from emitted documentation.
     """

@@ -60,11 +60,12 @@ def _resolve_files(
     """
     title: Turn the optional argument into a list of paths for the language.
     parameters:
-      files: Files or directories to process; an empty value uses the current
+      files: >-
+        Files or directories to process; an empty value uses the current
         directory.
       lang: Registered language backend used to process the source.
-      respect_gitignore: Override gitignore filtering; None uses the project
-        setting.
+      respect_gitignore: >-
+        Override gitignore filtering; None uses the project setting.
     returns: Source paths to process, after applying discovery rules.
     """
     target_files = resolve_files(
@@ -139,13 +140,14 @@ def sync(
     """
     title: Scaffold undocumented parameters, attributes and return values.
     parameters:
-      files: Files or directories to process; an empty value uses the current
+      files: >-
+        Files or directories to process; an empty value uses the current
         directory.
       lang: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
+        description: >-
+          Override gitignore filtering; None uses the project setting.
     """
     target_files = _resolve_files(
         files,
@@ -320,14 +322,15 @@ def migrate(
     """
     title: Migrate docstrings from another format to Douki YAML.
     parameters:
-      files: Files or directories to process; an empty value uses the current
+      files: >-
+        Files or directories to process; an empty value uses the current
         directory.
       from_format: Original docstring format to convert to Douki YAML.
       lang: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
+        description: >-
+          Override gitignore filtering; None uses the project setting.
     """
     migrate_val = from_format.value
     target_files = _resolve_files(

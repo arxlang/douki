@@ -173,8 +173,8 @@ def body_nodes(statements: list[ast.stmt]) -> Iterator[ast.AST]:
     title: Walk a declaration's body without entering nested scopes.
     parameters:
       statements: Statements in the declaration body to traverse.
-    returns: Iterator over body nodes, leaving nested declaration bodies
-      unvisited.
+    returns: >-
+      Iterator over body nodes, leaving nested declaration bodies unvisited.
     """
     pending: list[ast.AST] = list(reversed(statements))
     while pending:
@@ -191,12 +191,11 @@ class _FuncExtractor(ast.NodeVisitor):
     """
     title: AST visitor that collects FuncInfo for each docstring site.
     attributes:
-      results: Collected module, class, and function docstring sites
-        in visit order.
-      in_class: Whether the current declaration is directly inside a
-        class.
-      _class_attrs_map: Previously visited class attributes used for
-        same-file inheritance.
+      results: >-
+        Collected module, class, and function docstring sites in visit order.
+      in_class: Whether the current declaration is directly inside a class.
+      _class_attrs_map: >-
+        Previously visited class attributes used for same-file inheritance.
     """
 
     results: list[FuncInfo]

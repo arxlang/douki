@@ -356,7 +356,6 @@ def test_format_source_compacts_description_only_fields() -> None:
     assert format_source(formatted) == formatted
 
 
-
 def test_format_source_uses_block_styles_only_for_descriptions() -> None:
     """
     title: Format descriptions as folded prose or literal line breaks.
@@ -405,22 +404,23 @@ def test_format_source_uses_block_styles_only_for_descriptions() -> None:
     formatted_class = formatted_tree.body[0]
     assert isinstance(original_class, ast.ClassDef)
     assert isinstance(formatted_class, ast.ClassDef)
-    original_attrs = yaml.safe_load(
-        ast.get_docstring(original_class)
-    )['attributes']
+    original_attrs = yaml.safe_load(ast.get_docstring(original_class))[
+        'attributes'
+    ]
     attr_doc = ast.get_docstring(formatted_class)
     assert attr_doc is not None
     attrs = yaml.safe_load(attr_doc)['attributes']
     assert attrs == {
         'short': 'Short attribute.',
         'prose': original_attrs['prose'],
-        'lines': original_attrs['lines'],
+        'lines': original_attrs['lines']['description'],
     }
     assert 'short: Short attribute.' in attr_doc
     assert 'description: >-' in attr_doc
-    assert 'description: |-' in attr_doc
+    assert 'lines: |-' in attr_doc
     render = next(
-        node for node in formatted_class.body
+        node
+        for node in formatted_class.body
         if isinstance(node, ast.FunctionDef)
     )
     render_doc = ast.get_docstring(render)

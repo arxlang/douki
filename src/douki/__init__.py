@@ -41,8 +41,8 @@ if TYPE_CHECKING:
 def get_version() -> str:
     """
     title: Return the program version.
-    returns: Installed package version, or the source version when
-      not installed.
+    returns: >-
+      Installed package version, or the source version when not installed.
     """
     try:
         return importlib_metadata.version(__name__)

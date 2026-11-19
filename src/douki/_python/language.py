@@ -77,8 +77,9 @@ class PythonLanguage(BaseLanguage):
           source: Source code whose docstrings are being processed.
           migrate:
             optional: true
-            description: Docstring format to convert before formatting; None
-              disables migration.
+            description: >-
+              Docstring format to convert before formatting; None disables
+              migration.
         returns: Python source with validated, formatted Douki YAML docstrings.
         """
         return py_sync_source(source, migrate=migrate)

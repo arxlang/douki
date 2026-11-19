@@ -35,8 +35,8 @@ def _validator(enriched: bool = False) -> Any:
     """
     title: Reuse a schema-checked JSON Schema validator across docstrings.
     parameters:
-      enriched: Whether to allow annotation-derived type fields in generated
-        output.
+      enriched: >-
+        Whether to allow annotation-derived type fields in generated output.
     returns: Cached validator for authored or enriched documentation.
     """
     schema = _schema()
@@ -59,8 +59,8 @@ def validate_schema(doc: dict[str, Any], *, enriched: bool = False) -> None:
     title: Validate *doc* against the Douki JSON schema.
     parameters:
       doc: Parsed documentation mapping to validate.
-      enriched: Whether to allow annotation-derived type fields in generated
-        output.
+      enriched: >-
+        Whether to allow annotation-derived type fields in generated output.
     """
     try:
         _validator(enriched).validate(doc)

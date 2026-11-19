@@ -189,8 +189,8 @@ def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
     title: Read container members without evaluating property descriptors.
     parameters:
       obj: Object whose documentation or members are being inspected.
-    returns: Member names, objects, and flags indicating implicit method
-      receivers.
+    returns: >-
+      Member names, objects, and flags indicating implicit method receivers.
     """
     values: dict[str, object] = {}
     if isinstance(obj, type):
@@ -227,14 +227,12 @@ def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
 @typechecked
 def contains_douki(obj: object, seen: set[int]) -> bool:
     """
-    title: Leave ordinary Python help unchanged outside documented
-      objects.
+    title: Leave ordinary Python help unchanged outside documented objects.
     parameters:
       obj: Object whose documentation or members are being inspected.
-      seen: Visited object identities, updated to prevent recursive
-        traversal.
-    returns: Whether the object or any inspected member contains
-      Douki documentation.
+      seen: Visited object identities, updated to prevent recursive traversal.
+    returns: >-
+      Whether the object or any inspected member contains Douki documentation.
     """
     if not is_registered(obj) or id(obj) in seen:
         return False
@@ -278,8 +276,8 @@ class Renderer:
         parameters:
           obj: Object whose documentation or members are being inspected.
           name: Display name for the object in the rendered help.
-          skip_receiver: Whether to omit the first parameter of an unbound
-            method.
+          skip_receiver: >-
+            Whether to omit the first parameter of an unbound method.
         returns: Help text for the object and any supported documented members.
         """
         return str(pydoc.plaintext.document(obj, name))
@@ -297,8 +295,8 @@ class Renderer:
         parameters:
           obj: Object whose documentation or members are being inspected.
           name: Display name for the object in the rendered help.
-          skip_receiver: Whether to omit the first parameter of an unbound
-            method.
+          skip_receiver: >-
+            Whether to omit the first parameter of an unbound method.
         returns: Help text for the object and any supported documented members.
         """
         sections: list[str] = []
@@ -332,8 +330,8 @@ class Renderer:
         parameters:
           obj: Object whose documentation or members are being inspected.
           name: Display name for the object in the rendered help.
-          skip_receiver: Whether to omit the first parameter of an unbound
-            method.
+          skip_receiver: >-
+            Whether to omit the first parameter of an unbound method.
         returns: Help text for the object and any supported documented members.
         """
         return f'{name} (property)\n{render_doc(obj, own_doc(obj) or "")}'
@@ -351,8 +349,8 @@ class Renderer:
         parameters:
           obj: Object whose documentation or members are being inspected.
           name: Display name for the object in the rendered help.
-          skip_receiver: Whether to omit the first parameter of an unbound
-            method.
+          skip_receiver: >-
+            Whether to omit the first parameter of an unbound method.
         returns: Help text for the object and any supported documented members.
         """
         if id(obj) in self.seen:
@@ -384,12 +382,11 @@ class Renderer:
 @typechecked
 def help(request: object = no_request) -> None:
     """
-    title: Route registered objects to Douki and other requests to Python
-      help.
+    title: Route registered objects to Douki and other requests to Python help.
     summary: No-argument interactive help and string topics use Python help.
     parameters:
-      request: Object or topic to document; omitting it opens interactive
-        Python help.
+      request: >-
+        Object or topic to document; omitting it opens interactive Python help.
     """
     if request is no_request:
         fallback_help()

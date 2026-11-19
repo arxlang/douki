@@ -499,12 +499,11 @@ def test_exclude_files_via_pyproject(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: Files matching exclude patterns in pyproject.toml are
-      skipped.
+    title: Files matching exclude patterns in pyproject.toml are skipped.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -569,8 +568,8 @@ def test_exclude_files_via_pyproject_windows_separator(
     title: Backslash separators in exclude patterns work on all platforms.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -609,8 +608,8 @@ def test_gitignore_files_are_ignored_by_default(
     title: Files listed in .gitignore are skipped by default.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -647,12 +646,12 @@ def test_nested_gitignore_respected_unless_disabled(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """
-    title: Nested .gitignore is respected unless --no-respect-gitignore
-      is passed.
+    title: Nested .gitignore is respected unless --no-respect-gitignore is
+      passed.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -696,8 +695,8 @@ def test_pyproject_can_disable_gitignore(
       gitignore filtering.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -739,8 +738,8 @@ def test_cli_flag_overrides_pyproject_gitignore_setting(
     title: CLI --respect-gitignore flag overrides pyproject.toml.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     monkeypatch.chdir(tmp_path)
 
@@ -854,8 +853,8 @@ def test_sync_generic_exception(
     title: Generic exception during sync should exit 2.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     p = _write(
         tmp_path,
@@ -876,14 +875,14 @@ def test_sync_generic_exception(
         parameters:
           a:
             variadic: positional
-            description: Positional arguments accepted by the failing
-              backend stub.
+            description: >-
+              Positional arguments accepted by the failing backend stub.
           kw:
             variadic: keyword
-            description: Keyword arguments accepted by the failing
-              backend stub.
-        returns: Never returns; raises an error to exercise CLI failure
-          handling.
+            description: >-
+              Keyword arguments accepted by the failing backend stub.
+        returns: >-
+          Never returns; raises an error to exercise CLI failure handling.
         """
         raise RuntimeError('boom')
 
@@ -902,8 +901,8 @@ def test_check_generic_exception(
     title: Generic exception during check should exit 2.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     p = _write(
         tmp_path,
@@ -924,14 +923,14 @@ def test_check_generic_exception(
         parameters:
           a:
             variadic: positional
-            description: Positional arguments accepted by the failing
-              backend stub.
+            description: >-
+              Positional arguments accepted by the failing backend stub.
           kw:
             variadic: keyword
-            description: Keyword arguments accepted by the failing
-              backend stub.
-        returns: Never returns; raises an error to exercise CLI failure
-          handling.
+            description: >-
+              Keyword arguments accepted by the failing backend stub.
+        returns: >-
+          Never returns; raises an error to exercise CLI failure handling.
         """
         raise RuntimeError('boom')
 
@@ -950,8 +949,8 @@ def test_migrate_generic_exception(
     title: Generic exception during migrate should exit 2.
     parameters:
       tmp_path: Temporary directory for this test's files.
-      monkeypatch: Fixture for temporarily replacing functions and
-        configuration.
+      monkeypatch: >-
+        Fixture for temporarily replacing functions and configuration.
     """
     p = _write(
         tmp_path,
@@ -972,14 +971,14 @@ def test_migrate_generic_exception(
         parameters:
           a:
             variadic: positional
-            description: Positional arguments accepted by the failing
-              backend stub.
+            description: >-
+              Positional arguments accepted by the failing backend stub.
           kw:
             variadic: keyword
-            description: Keyword arguments accepted by the failing
-              backend stub.
-        returns: Never returns; raises an error to exercise CLI failure
-          handling.
+            description: >-
+              Keyword arguments accepted by the failing backend stub.
+        returns: >-
+          Never returns; raises an error to exercise CLI failure handling.
         """
         raise RuntimeError('boom')
 

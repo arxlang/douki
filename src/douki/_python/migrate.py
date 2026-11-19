@@ -182,8 +182,9 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
     title: Convert a NumPy-style docstring to Douki YAML format.
     parameters:
       raw: Original NumPy-style docstring text.
-    returns: The YAML string (without triple-quotes). If *raw* is not a valid
-      NumPy docstring, returns it unchanged.
+    returns: >-
+      The YAML string (without triple-quotes). If *raw* is not a valid NumPy
+      docstring, returns it unchanged.
     """
     if not _is_numpydoc_docstring(raw):
         return raw

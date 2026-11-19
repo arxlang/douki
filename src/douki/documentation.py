@@ -57,10 +57,10 @@ class Parameter:
     title: A parameter or attribute with a display annotation.
     attributes:
       name: Parameter or attribute name without variadic prefixes.
-      annotation: Display annotation; an empty value is rejected
-        during enrichment.
-      kind: Calling convention used to identify positional and keyword
-        variadics.
+      annotation: >-
+        Display annotation; an empty value is rejected during enrichment.
+      kind: >-
+        Calling convention used to identify positional and keyword variadics.
     """
 
     name: str
@@ -83,12 +83,11 @@ class Parameter:
 @dataclass(frozen=True)
 class Signature:
     """
-    title: Types supplied by a language adapter without importing
-      its source.
+    title: Types supplied by a language adapter without importing its source.
     summary: Null parameters means this declaration is not a callable.
     attributes:
-      parameters: Explicit parameters; None identifies a non-callable
-        declaration.
+      parameters: >-
+        Explicit parameters; None identifies a non-callable declaration.
       returns: Display return annotation; required for callable declarations.
       attributes: Declared attributes and their display annotations.
     """
@@ -151,8 +150,8 @@ def merge_fields(
       existing: Authored entries keyed by parameter or attribute name.
       parameters: Annotated fields to merge with their authored descriptions.
       strict: Whether to reject authored names absent from the signature.
-    returns: New field mapping combining descriptions with annotation-derived
-      types.
+    returns: >-
+      New field mapping combining descriptions with annotation-derived types.
     """
     names = {parameter.name for parameter in parameters}
     if strict and (unknown := set(existing) - names):
@@ -187,8 +186,8 @@ def validate_annotations(
       to guess their types.
     parameters:
       signature: Annotation metadata supplied by the language adapter.
-      documentation: Authored mapping used to check that documented attributes
-        are declared.
+      documentation: >-
+        Authored mapping used to check that documented attributes are declared.
     """
     missing: list[str] = []
     if signature.parameters is not None:
@@ -226,11 +225,13 @@ def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
       objects or source files are modified. Missing annotations
       raise DocumentationError.
     parameters:
-      raw_docstring: Authored Douki YAML containing descriptions
-        and no type fields.
+      raw_docstring: >-
+        Authored Douki YAML containing descriptions and no
+        type fields.
       signature: Annotation metadata supplied by the language
         adapter.
-    returns: New documentation mapping with authored descriptions
+    returns: >-
+      New documentation mapping with authored descriptions
       and annotation-derived types.
     """
     try:
@@ -282,8 +283,8 @@ def represent_string(
     parameters:
       dumper: Active YAML dumper to create the scalar node.
       value: String whose whitespace and line breaks must be preserved.
-    returns: YAML scalar node with quoting or block style chosen for the
-      content.
+    returns: >-
+      YAML scalar node with quoting or block style chosen for the content.
     """
     return dumper.represent_scalar(
         'tag:yaml.org,2002:str',
@@ -432,8 +433,8 @@ def format_documentation(
     parameters:
       data: Documentation mapping to validate and serialize.
       width: Target line width for the serialized YAML.
-      enriched: Whether to allow annotation-derived type fields in generated
-        output.
+      enriched: >-
+        Whether to allow annotation-derived type fields in generated output.
     returns: Serialized YAML with canonical field order and preserved values.
     """
     try:
