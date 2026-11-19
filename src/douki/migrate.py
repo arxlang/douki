@@ -21,10 +21,8 @@ def migrate_source(
     title: Migrate docstrings from another format to Douki YAML.
     summary: Dispatches to ``sync_source`` with the *migrate* parameter set.
     parameters:
-      source:
-        description: Source code whose docstrings are being processed.
-      from_format:
-        description: Original docstring format to convert to Douki YAML.
+      source: Source code whose docstrings are being processed.
+      from_format: Original docstring format to convert to Douki YAML.
       lang:
         optional: true
         description: Registered language backend used to process the source.

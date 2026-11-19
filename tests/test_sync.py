@@ -14,9 +14,9 @@ from douki._base.sync import (
     DocstringValidationError,
     ParamInfo,
     _extract_returns_desc,
-    normalize_documentation,
     _load_docstring_yaml,
     _yaml_scalar,
+    normalize_documentation,
     sync_docstring,
     validate_docstring,
 )
@@ -187,12 +187,9 @@ def _p(
     """
     title: Shorthand ParamInfo constructor for tests.
     parameters:
-      name:
-        description: Parameter name to use in the test signature.
-      ann:
-        description: Annotation text to use in the test signature.
-      kind:
-        description: Calling convention to use in the test signature.
+      name: Parameter name to use in the test signature.
+      ann: Annotation text to use in the test signature.
+      kind: Calling convention to use in the test signature.
     returns: Parameter metadata for a synchronization test.
     """
     return ParamInfo(name=name, annotation=ann, kind=kind)

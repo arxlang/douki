@@ -50,7 +50,8 @@ douki check                # Validate files in the current directory
 `sync` adds missing parameter, attribute and result descriptions as
 `...` placeholders without writing type fields. It preserves authored
 entries and reports stale parameters instead of removing them. `format`
-normalizes YAML formatting without changing documentation content;
+normalizes YAML formatting, shortening description-only parameter and
+attribute mappings to strings while retaining entries with extra fields;
 `format --check` checks presentation without writing. `check` validates
 schemas, annotations, stale names and missing or placeholder descriptions.
 Both `sync` and `check` require annotated parameters and return values;

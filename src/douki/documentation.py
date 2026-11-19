@@ -42,12 +42,8 @@ class DocumentationError(ValueError):
         """
         title: Record the phase and diagnostic message.
         parameters:
-          phase:
-            description: Processing phase in which documentation validation
-              failed.
-          message:
-            description: Diagnostic explaining the invalid documentation
-              or metadata.
+          phase: Processing phase in which documentation validation failed.
+          message: Diagnostic explaining the invalid documentation or metadata.
         """
         self.phase: str = phase
         self.message: str = message
@@ -60,14 +56,11 @@ class Parameter:
     """
     title: A parameter or attribute with a display annotation.
     attributes:
-      name:
-        description: Parameter or attribute name without variadic prefixes.
-      annotation:
-        description: Display annotation; an empty value is rejected during
-          enrichment.
-      kind:
-        description: Calling convention used to identify positional and
-          keyword variadics.
+      name: Parameter or attribute name without variadic prefixes.
+      annotation: Display annotation; an empty value is rejected
+        during enrichment.
+      kind: Calling convention used to identify positional and keyword
+        variadics.
     """
 
     name: str
@@ -94,14 +87,10 @@ class Signature:
       its source.
     summary: Null parameters means this declaration is not a callable.
     attributes:
-      parameters:
-        description: Explicit parameters; None identifies a non-callable
-          declaration.
-      returns:
-        description: Display return annotation; required for callable
-          declarations.
-      attributes:
-        description: Declared attributes and their display annotations.
+      parameters: Explicit parameters; None identifies a non-callable
+        declaration.
+      returns: Display return annotation; required for callable declarations.
+      attributes: Declared attributes and their display annotations.
     """
 
     parameters: tuple[Parameter, ...] | None = None
@@ -136,9 +125,7 @@ def entry(value: object) -> dict[str, object]:
     """
     title: Copy a schema-validated field while retaining authored metadata.
     parameters:
-      value:
-        description: Validated description string, entry mapping, or absent
-          value.
+      value: Validated description string, entry mapping, or absent value.
     returns: New mapping retaining the authored entry metadata.
     """
     if isinstance(value, str):
@@ -161,15 +148,9 @@ def merge_fields(
     """
     title: Merge annotation types without deleting descriptions.
     parameters:
-      existing:
-        description: Authored entries keyed by parameter or attribute
-          name.
-      parameters:
-        description: Annotated fields to merge with their authored
-          descriptions.
-      strict:
-        description: Whether to reject authored names absent from
-          the signature.
+      existing: Authored entries keyed by parameter or attribute name.
+      parameters: Annotated fields to merge with their authored descriptions.
+      strict: Whether to reject authored names absent from the signature.
     returns: New field mapping combining descriptions with annotation-derived
       types.
     """
@@ -205,11 +186,9 @@ def validate_annotations(
       Documented attributes must have declarations; values are never used
       to guess their types.
     parameters:
-      signature:
-        description: Annotation metadata supplied by the language adapter.
-      documentation:
-        description: Authored mapping used to check that documented attributes
-          are declared.
+      signature: Annotation metadata supplied by the language adapter.
+      documentation: Authored mapping used to check that documented attributes
+        are declared.
     """
     missing: list[str] = []
     if signature.parameters is not None:
@@ -247,12 +226,10 @@ def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
       objects or source files are modified. Missing annotations
       raise DocumentationError.
     parameters:
-      raw_docstring:
-        description: Authored Douki YAML containing descriptions
-          and no type fields.
-      signature:
-        description: Annotation metadata supplied by the
-          language adapter.
+      raw_docstring: Authored Douki YAML containing descriptions
+        and no type fields.
+      signature: Annotation metadata supplied by the language
+        adapter.
     returns: New documentation mapping with authored descriptions
       and annotation-derived types.
     """
@@ -303,10 +280,8 @@ def represent_string(
     """
     title: Quote ambiguous scalars and preserve embedded newlines.
     parameters:
-      dumper:
-        description: Active YAML dumper to create the scalar node.
-      value:
-        description: String whose whitespace and line breaks must be preserved.
+      dumper: Active YAML dumper to create the scalar node.
+      value: String whose whitespace and line breaks must be preserved.
     returns: YAML scalar node with quoting or block style chosen for the
       content.
     """
@@ -338,18 +313,13 @@ def format_documentation(
 ) -> str:
     """
     title: Serialize validated source or explicitly enriched documentation.
-    summary: Only generated output may contain annotation-derived
-      type fields.
+    summary: Only generated output may contain annotation-derived type fields.
     parameters:
-      data:
-        description: Documentation mapping to validate and serialize.
-      width:
-        description: Target line width for the serialized YAML.
-      enriched:
-        description: Whether to allow annotation-derived type fields
-          in generated output.
-    returns: Serialized YAML with canonical field order and preserved
-      values.
+      data: Documentation mapping to validate and serialize.
+      width: Target line width for the serialized YAML.
+      enriched: Whether to allow annotation-derived type fields in generated
+        output.
+    returns: Serialized YAML with canonical field order and preserved values.
     """
     try:
         validate_schema(data, enriched=enriched)

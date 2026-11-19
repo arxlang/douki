@@ -60,8 +60,7 @@ class BaseLanguage(ABC):
         """
         title: Synchronize docstrings in the given source code.
         parameters:
-          source:
-            description: Source code whose docstrings are being processed.
+          source: Source code whose docstrings are being processed.
           migrate:
             optional: true
             description: Docstring format to convert before formatting; None
@@ -83,9 +82,7 @@ def register_language(lang_class: type[BaseLanguage]) -> None:
     """
     title: Register a language plugin class.
     parameters:
-      lang_class:
-        description: Backend class to register under its declared language
-          name.
+      lang_class: Backend class to register under its declared language name.
     """
     # Create a temporary instance just to get its name
     instance = lang_class()
@@ -96,8 +93,7 @@ def get_language(name: str) -> BaseLanguage:
     """
     title: Get an initialized language plugin by name.
     parameters:
-      name:
-        description: Name of a registered language backend.
+      name: Name of a registered language backend.
     returns: New instance of the requested language backend.
     """
     if name not in _REGISTRY:

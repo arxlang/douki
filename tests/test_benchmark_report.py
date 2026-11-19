@@ -17,13 +17,9 @@ def _write_result(
     """
     title: Write a minimal ASV results fixture.
     parameters:
-      directory:
-        description: Temporary directory in which to write the ASV result
-          fixture.
-      sha:
-        description: Commit hash recorded in the fixture.
-      results:
-        description: Benchmark results to encode in the fixture.
+      directory: Temporary directory in which to write the ASV result fixture.
+      sha: Commit hash recorded in the fixture.
+      results: Benchmark results to encode in the fixture.
     """
     destination = directory / 'github-ubuntu-python311'
     destination.mkdir(parents=True, exist_ok=True)
@@ -44,8 +40,7 @@ def test_build_report_includes_changes_and_speedups(
     """
     title: PR report compares exact revisions in a Markdown table.
     parameters:
-      tmp_path:
-        description: Temporary directory for this test's files.
+      tmp_path: Temporary directory for this test's files.
     """
     base = 'a' * 40
     head = 'b' * 40
@@ -76,8 +71,7 @@ def test_report_warns_on_failed_or_missing_measurements(
     """
     title: Do not invent measurements for a failed benchmark.
     parameters:
-      tmp_path:
-        description: Temporary directory for this test's files.
+      tmp_path: Temporary directory for this test's files.
     """
     base = 'c' * 40
     head = 'd' * 40
@@ -97,8 +91,7 @@ def test_collect_results_filters_other_commits(
     """
     title: Never compare timing records from a different revision.
     parameters:
-      tmp_path:
-        description: Temporary directory for this test's files.
+      tmp_path: Temporary directory for this test's files.
     """
     base = 'e' * 40
     other = 'f' * 40

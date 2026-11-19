@@ -188,8 +188,7 @@ def members(obj: type | ModuleType) -> list[tuple[str, object, bool]]:
     """
     title: Read container members without evaluating property descriptors.
     parameters:
-      obj:
-        description: Object whose documentation or members are being inspected.
+      obj: Object whose documentation or members are being inspected.
     returns: Member names, objects, and flags indicating implicit method
       receivers.
     """
@@ -231,12 +230,9 @@ def contains_douki(obj: object, seen: set[int]) -> bool:
     title: Leave ordinary Python help unchanged outside documented
       objects.
     parameters:
-      obj:
-        description: Object whose documentation or members are being
-          inspected.
-      seen:
-        description: Visited object identities, updated to prevent
-          recursive traversal.
+      obj: Object whose documentation or members are being inspected.
+      seen: Visited object identities, updated to prevent recursive
+        traversal.
     returns: Whether the object or any inspected member contains
       Douki documentation.
     """
@@ -280,14 +276,10 @@ class Renderer:
         """
         title: Use standard Python documentation for other member types.
         parameters:
-          obj:
-            description: Object whose documentation or members are being
-              inspected.
-          name:
-            description: Display name for the object in the rendered help.
-          skip_receiver:
-            description: Whether to omit the first parameter of an unbound
-              method.
+          obj: Object whose documentation or members are being inspected.
+          name: Display name for the object in the rendered help.
+          skip_receiver: Whether to omit the first parameter of an unbound
+            method.
         returns: Help text for the object and any supported documented members.
         """
         return str(pydoc.plaintext.document(obj, name))
@@ -303,14 +295,10 @@ class Renderer:
         """
         title: Render each callable variant with its own annotation types.
         parameters:
-          obj:
-            description: Object whose documentation or members are being
-              inspected.
-          name:
-            description: Display name for the object in the rendered help.
-          skip_receiver:
-            description: Whether to omit the first parameter of an unbound
-              method.
+          obj: Object whose documentation or members are being inspected.
+          name: Display name for the object in the rendered help.
+          skip_receiver: Whether to omit the first parameter of an unbound
+            method.
         returns: Help text for the object and any supported documented members.
         """
         sections: list[str] = []
@@ -342,14 +330,10 @@ class Renderer:
         """
         title: Show property documentation without invoking its getter.
         parameters:
-          obj:
-            description: Object whose documentation or members are being
-              inspected.
-          name:
-            description: Display name for the object in the rendered help.
-          skip_receiver:
-            description: Whether to omit the first parameter of an unbound
-              method.
+          obj: Object whose documentation or members are being inspected.
+          name: Display name for the object in the rendered help.
+          skip_receiver: Whether to omit the first parameter of an unbound
+            method.
         returns: Help text for the object and any supported documented members.
         """
         return f'{name} (property)\n{render_doc(obj, own_doc(obj) or "")}'
@@ -365,14 +349,10 @@ class Renderer:
         """
         title: Include documented members and guard against recursive aliases.
         parameters:
-          obj:
-            description: Object whose documentation or members are being
-              inspected.
-          name:
-            description: Display name for the object in the rendered help.
-          skip_receiver:
-            description: Whether to omit the first parameter of an unbound
-              method.
+          obj: Object whose documentation or members are being inspected.
+          name: Display name for the object in the rendered help.
+          skip_receiver: Whether to omit the first parameter of an unbound
+            method.
         returns: Help text for the object and any supported documented members.
         """
         if id(obj) in self.seen:
@@ -408,9 +388,8 @@ def help(request: object = no_request) -> None:
       help.
     summary: No-argument interactive help and string topics use Python help.
     parameters:
-      request:
-        description: Object or topic to document; omitting it opens interactive
-          Python help.
+      request: Object or topic to document; omitting it opens interactive
+        Python help.
     """
     if request is no_request:
         fallback_help()

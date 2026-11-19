@@ -23,9 +23,8 @@ def test_source_docstring_is_parsed_once(
     """
     title: Source synchronization parses each docstring once.
     parameters:
-      monkeypatch:
-        description: Fixture for temporarily replacing functions
-          and configuration.
+      monkeypatch: Fixture for temporarily replacing functions and
+        configuration.
     """
     original_load = core_sync._safe_load
     calls: list[str] = []
@@ -34,8 +33,7 @@ def test_source_docstring_is_parsed_once(
         """
         title: Record and parse one document.
         parameters:
-          raw:
-            description: YAML input forwarded to the original loader.
+          raw: YAML input forwarded to the original loader.
         returns: YAML value returned by the original loader.
         """
         calls.append(raw)
@@ -74,9 +72,8 @@ def test_safe_python_yaml_loader_fallback(
     """
     title: Retain compatibility without the LibYAML C extension.
     parameters:
-      monkeypatch:
-        description: Fixture for temporarily replacing functions
-          and configuration.
+      monkeypatch: Fixture for temporarily replacing functions and
+        configuration.
     """
     monkeypatch.setattr(core_sync, '_SAFE_LOADER', yaml.SafeLoader)
     assert core_sync.validate_docstring('title: safe', 'safe')
@@ -89,11 +86,9 @@ def test_prunes_ignored_directories(
     """
     title: Ignore whole directories before walking their children.
     parameters:
-      tmp_path:
-        description: Temporary directory for this test's files.
-      monkeypatch:
-        description: Fixture for temporarily replacing functions
-          and configuration.
+      tmp_path: Temporary directory for this test's files.
+      monkeypatch: Fixture for temporarily replacing functions and
+        configuration.
     """
     (tmp_path / '.gitignore').write_text('ignored/\n')
     ignored = tmp_path / 'ignored'
@@ -113,18 +108,15 @@ def test_prunes_ignored_directories(
         """
         title: Record directories reached by discovery.
         parameters:
-          top:
-            description: Root directory passed to the original filesystem
-              walk.
-          topdown:
-            description: Whether to visit parent directories before their
-              children.
-          onerror:
-            description: Optional callback for errors raised while scanning
-              directories.
-          followlinks:
-            description: Whether to descend through directory symbolic links.
-        returns: Iterator over directory paths, subdirectories, and filenames.
+          top: Root directory passed to the original filesystem walk.
+          topdown: Whether to visit parent directories before their
+            children.
+          onerror: Optional callback for errors raised while scanning
+            directories.
+          followlinks: Whether to descend through directory symbolic
+            links.
+        returns: Iterator over directory paths, subdirectories, and
+          filenames.
         """
         for root, dirs, names in original_walk(
             top, topdown=topdown, onerror=onerror, followlinks=followlinks
@@ -146,8 +138,7 @@ def test_negation_retains_reincluded_files(tmp_path: Path) -> None:
     """
     title: An inherited negation keeps an ignored subtree traversable.
     parameters:
-      tmp_path:
-        description: Temporary directory for this test's files.
+      tmp_path: Temporary directory for this test's files.
     """
     (tmp_path / '.gitignore').write_text('ignored/\n!ignored/\n')
     ignored = tmp_path / 'ignored'
@@ -165,8 +156,7 @@ def test_prunes_configured_directory(tmp_path: Path) -> None:
     """
     title: Whole-directory exclusions prune descendants.
     parameters:
-      tmp_path:
-        description: Temporary directory for this test's files.
+      tmp_path: Temporary directory for this test's files.
     """
     smoke = tmp_path / 'tests' / 'smoke'
     smoke.mkdir(parents=True)

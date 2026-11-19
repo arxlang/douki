@@ -78,8 +78,7 @@ def __getattr__(name: str) -> object:
     """
     title: Load optional runtime helpers only when explicitly requested.
     parameters:
-      name:
-        description: Public runtime helper to import on first access.
+      name: Public runtime helper to import on first access.
     returns: Requested helper, cached on the package for subsequent access.
     """
     from importlib import import_module

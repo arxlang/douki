@@ -305,7 +305,6 @@ def test_shorthand_parameters_and_attributes_are_normalized() -> None:
         normalize_documentation({'parameters': {'bad': 123}})
 
 
-
 def test_format_source_compacts_description_only_fields() -> None:
     """
     title: Format uses string shorthand without losing other metadata.
@@ -345,7 +344,8 @@ def test_format_source_compacts_description_only_fields() -> None:
         'count': {'description': 'Current count.', 'default': 1234},
     }
     render = next(
-        node for node in widget.body
+        node
+        for node in widget.body
         if isinstance(node, ast.FunctionDef) and node.name == 'render'
     )
     parameters = yaml.safe_load(ast.get_docstring(render))['parameters']

@@ -34,9 +34,7 @@ class BaseConfig(ABC):
         """
         title: Load shared discovery settings from project configuration.
         parameters:
-          cwd:
-            description: Starting directory for the upward project
-              configuration search.
+          cwd: Starting directory for the upward project configuration search.
         returns: Discovery settings from the nearest project configuration.
         """
         return load_douki_discovery_config(cwd)
@@ -49,11 +47,9 @@ class BaseConfig(ABC):
         """
         title: Expand paths into source files, filtering excluded ones.
         parameters:
-          paths:
-            description: Files or directories to expand into source files.
-          discovery:
-            description: Project root and exclusion settings used during
-              file discovery.
+          paths: Files or directories to expand into source files.
+          discovery: Project root and exclusion settings used during file
+            discovery.
         returns: Sorted, unique source paths after applying exclusion rules.
         """
         return collect_source_files(

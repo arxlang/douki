@@ -218,7 +218,7 @@ def format_source(source: str) -> str:
       source: Python source code with YAML docstrings.
     returns: Source with canonical YAML presentation only.
     """
-    return process_source(source, scaffold=False)
+    return process_source(source, scaffold=False, compact=True)
 
 
 @typechecked
@@ -243,15 +243,15 @@ def process_source(
     source: str,
     *,
     scaffold: bool,
+    compact: bool = False,
     migrate: Optional[str] = None,
 ) -> str:
     """
     title: Format or scaffold documentation without storing types.
     parameters:
-      source:
-        description: Python source code.
-      scaffold:
-        description: Whether to scaffold missing documentation entries.
+      source: Python source code.
+      scaffold: Whether to scaffold missing documentation entries.
+      compact: Whether to shorten description-only fields.
       migrate:
         optional: true
         description: Convert NumPy docstrings before processing when set.
@@ -353,7 +353,7 @@ def process_source(
 
         try:
             synced = format_documentation(
-                compact_documentation(parsed),
+                compact_documentation(parsed) if compact else parsed,
                 width=79 - len(content_indent),
             )
         except ValueError as e:
@@ -396,8 +396,7 @@ def _migrate_numpydoc(source: str) -> str:
     """
     title: Replace numpydoc-style docstrings with Douki YAML.
     parameters:
-      source:
-        description: Source code whose docstrings are being processed.
+      source: Source code whose docstrings are being processed.
     returns: Source with recognized NumPy docstrings converted to Douki YAML.
     """
     from douki._python.migrate import numpydoc_to_douki_yaml

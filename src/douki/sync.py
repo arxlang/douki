@@ -48,11 +48,9 @@ def resolve_files(
     """
     title: Resolve paths into source files for the given language.
     parameters:
-      files:
-        description: Files or directories to process; an empty value uses
-          the current directory.
-      lang:
-        description: Registered language backend used to process the source.
+      files: Files or directories to process; an empty value uses the current
+        directory.
+      lang: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
         description: Override gitignore filtering; None uses the project
@@ -84,10 +82,8 @@ def sync_source(
     title: Synchronize documentation structure with source declarations.
     summary: Dispatches to the appropriate language plugin based on *lang*.
     parameters:
-      source:
-        description: Source code whose docstrings are being processed.
-      lang:
-        description: Registered language backend used to process the source.
+      source: Source code whose docstrings are being processed.
+      lang: Registered language backend used to process the source.
       migrate:
         optional: true
         description: Docstring format to convert before formatting; None

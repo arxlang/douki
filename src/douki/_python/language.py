@@ -24,8 +24,7 @@ class PythonLanguage(BaseLanguage):
     """
     title: The Douki Python language backend.
     attributes:
-      _config:
-        description: Configuration loader used for Python source discovery.
+      _config: Configuration loader used for Python source discovery.
     """
 
     _config: PythonConfig
@@ -75,8 +74,7 @@ class PythonLanguage(BaseLanguage):
         """
         title: Synchronize Python source code using the AST extractor.
         parameters:
-          source:
-            description: Source code whose docstrings are being processed.
+          source: Source code whose docstrings are being processed.
           migrate:
             optional: true
             description: Docstring format to convert before formatting; None
