@@ -14,6 +14,7 @@ from douki._base.sync import (
     DocstringValidationError,
     ParamInfo,
     _extract_returns_desc,
+    normalize_documentation,
     _load_docstring_yaml,
     _yaml_scalar,
     sync_docstring,
@@ -36,6 +37,19 @@ def source_documents(source: str) -> list[object]:
         yaml.safe_load(f.docstring_node.value)
         for f in extract_functions(source)
         if f.docstring_node is not None
+    ]
+
+
+def normalized_source_documents(source: str) -> list[object]:
+    """
+    title: Compare YAML meaning regardless of shorthand or mapping syntax.
+    parameters:
+      source: Python source with documentation to compare.
+    returns: Normalized documentation mappings for semantic comparison.
+    """
+    return [
+        normalize_documentation(doc) if isinstance(doc, dict) else doc
+        for doc in source_documents(source)
     ]
 
 
@@ -512,7 +526,9 @@ class MyClass:
         self.name: str = name
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 
@@ -535,7 +551,9 @@ class MyClass:
         self.name = name
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
@@ -559,7 +577,9 @@ class MyClass:
     count: int
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
@@ -628,7 +648,9 @@ class MyClass:
         self._name: str = "default"
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
@@ -654,7 +676,9 @@ class MyClass:
         self.count = count
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {'count': 'float'}
@@ -679,7 +703,9 @@ class Derived(Base):
     z: float
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
     assert {a.name: a.annotation for a in info.attrs} == {
@@ -713,7 +739,9 @@ class C(B):
     c: float
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'C')
     assert {a.name: a.annotation for a in info.attrs} == {
@@ -741,7 +769,9 @@ class Derived(Base):
     value: float  # override with narrower type
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
     assert {a.name: a.annotation for a in info.attrs} == {'value': 'float'}
@@ -767,7 +797,9 @@ class Outer:
             return True
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 
@@ -1166,7 +1198,9 @@ def sub(x: int, y: int) -> int:
     return x - y
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 
@@ -1710,7 +1744,9 @@ class Calculator:
         return a - b
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 
@@ -1732,7 +1768,9 @@ class Point:
         self.y: float = y
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 
@@ -1754,7 +1792,9 @@ class Utils:
         return max(lo, min(value, hi))
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 
@@ -1859,7 +1899,9 @@ def flexible_func(*args: int, **kwargs: str) -> None:
     pass
 '''
     result = format_source(src)
-    assert source_documents(result) == source_documents(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
     assert format_source(result) == result
 
 

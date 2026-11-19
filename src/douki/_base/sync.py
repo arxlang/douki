@@ -208,6 +208,36 @@ def normalize_documentation(
     return result
 
 
+@private
+@typechecked
+def compact_documentation(
+    documentation: dict[str, object],
+) -> dict[str, object]:
+    """
+    title: Shorten description-only parameter and attribute entries.
+    summary: Format output without changing the original input mapping.
+    parameters:
+      documentation: Validated authored documentation to format.
+    returns: A copy with description-only mappings replaced by strings.
+    """
+    result = dict(documentation)
+    for section in ('parameters', 'attributes'):
+        fields = result.get(section)
+        if not isinstance(fields, dict):
+            continue
+        result[section] = {
+            name: value['description']
+            if (
+                isinstance(value, dict)
+                and len(value) == 1
+                and isinstance(value.get('description'), str)
+            )
+            else value
+            for name, value in fields.items()
+        }
+    return result
+
+
 def validate_docstring(raw: str, func_name: str) -> bool:
     """
     title: Check whether *raw* is a valid Douki YAML docstring.

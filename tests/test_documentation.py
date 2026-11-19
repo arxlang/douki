@@ -17,6 +17,7 @@ from douki import (
     enrich,
     format_documentation,
 )
+from douki._base.sync import normalize_documentation
 from douki.sync import format_source
 from typeguard import TypeCheckError
 
@@ -170,7 +171,9 @@ def test_format_source_does_not_add_or_remove_signature_fields() -> None:
     formatted_tree = ast.parse(formatted)
     raw = ast.get_docstring(original_tree.body[0])
     result = ast.get_docstring(formatted_tree.body[0])
-    assert yaml.safe_load(raw) == yaml.safe_load(result)
+    assert normalize_documentation(yaml.safe_load(raw)) == (
+        normalize_documentation(yaml.safe_load(result))
+    )
     assert 'current:' not in result
     assert format_source(formatted) == formatted
     assert ast.dump(original_tree.body[0].args) == ast.dump(
@@ -300,3 +303,54 @@ def test_shorthand_parameters_and_attributes_are_normalized() -> None:
     }
     with pytest.raises(ValueError, match='invalid'):
         normalize_documentation({'parameters': {'bad': 123}})
+
+
+
+def test_format_source_compacts_description_only_fields() -> None:
+    """
+    title: Format uses string shorthand without losing other metadata.
+    """
+    source = '''class Widget:
+    """
+    title: Widget
+    attributes:
+      label:
+        description: Label to display.
+      count:
+        description: Current count.
+        default: 1234
+    """
+    label: str
+    count: int
+
+    def render(self, text: str, options: int) -> str:
+        """
+        title: Render the widget.
+        parameters:
+          text:
+            description: Content to render.
+          options:
+            description: Rendering options.
+            default: 1
+        returns: Rendered content.
+        """
+        return text
+'''
+    formatted = format_source(source)
+    widget = ast.parse(formatted).body[0]
+    assert isinstance(widget, ast.ClassDef)
+    attrs = yaml.safe_load(ast.get_docstring(widget))['attributes']
+    assert attrs == {
+        'label': 'Label to display.',
+        'count': {'description': 'Current count.', 'default': 1234},
+    }
+    render = next(
+        node for node in widget.body
+        if isinstance(node, ast.FunctionDef) and node.name == 'render'
+    )
+    parameters = yaml.safe_load(ast.get_docstring(render))['parameters']
+    assert parameters == {
+        'text': 'Content to render.',
+        'options': {'description': 'Rendering options.', 'default': 1},
+    }
+    assert format_source(formatted) == formatted

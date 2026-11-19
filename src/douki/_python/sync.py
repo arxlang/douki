@@ -22,6 +22,7 @@ from douki._base.sync import (
     DocstringValidationError,
     FuncInfo,
     _parse_validated_docstring,
+    compact_documentation,
     normalize_documentation,
     validate_docstring,
 )
@@ -352,7 +353,7 @@ def process_source(
 
         try:
             synced = format_documentation(
-                parsed,
+                compact_documentation(parsed),
                 width=79 - len(content_indent),
             )
         except ValueError as e:
