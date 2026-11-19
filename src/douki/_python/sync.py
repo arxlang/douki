@@ -189,7 +189,9 @@ def check_source(source: str) -> None:
             continue
         try:
             raw = inspect.cleandoc(str(node.value))
-            data = _parse_validated_docstring(raw)
+            data = normalize_documentation(
+                _parse_validated_docstring(raw)
+            )
             validate_annotations(signature_for(func), data)
             errors.extend(
                 f'- {prefix}: {problem}'

@@ -21,7 +21,11 @@ from douki._base.sync import (
 )
 from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
-from douki._python.sync import format_source, sync_source
+from douki._python.sync import (
+    check_source,
+    format_source,
+    sync_source,
+)
 
 
 def source_documents(source: str) -> list[object]:
@@ -1901,4 +1905,35 @@ def test_sync_keeps_existing_descriptions() -> None:
     assert documented['parameters']['name'] == 'The recipient.'
     assert documented['parameters']['times'] == {'description': 'TODO'}
     assert documented['returns'] == 'Greeting message.'
+    assert 'type:' not in synced
+
+
+def test_sync_and_check_preserve_shorthand_descriptions() -> None:
+    """
+    title: Source tools accept shorthand and preserve its authored form.
+    """
+    source = '''class Example:
+    """
+    title: Example
+    attributes:
+      label: Describes the label.
+    """
+    label: str
+
+    def greet(self, name: str) -> str:
+        """
+        title: Greet
+        parameters:
+          name: Name to greet.
+        returns: Greeting text.
+        """
+        return name
+'''
+    check_source(source)
+    synced = sync_source(source)
+    check_source(synced)
+    documents = source_documents(synced)
+    assert documents[0]['attributes']['label'] == 'Describes the label.'
+    assert documents[1]['parameters']['name'] == 'Name to greet.'
+    assert documents[1]['returns'] == 'Greeting text.'
     assert 'type:' not in synced

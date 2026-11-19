@@ -14,7 +14,11 @@ import yaml
 from public import private, public
 from typeguard import CollectionCheckStrategy, check_type
 
-from douki._base.sync import _KEY_ORDER, _parse_validated_docstring
+from douki._base.sync import (
+    _KEY_ORDER,
+    _parse_validated_docstring,
+    normalize_documentation,
+)
 from douki._base.validation import validate_schema
 from douki.typechecking import typechecked
 
@@ -253,9 +257,11 @@ def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
       and annotation-derived types.
     """
     try:
-        data = cast(
-            dict[str, object],
-            _parse_validated_docstring(inspect.cleandoc(raw_docstring)),
+        data = normalize_documentation(
+            cast(
+                dict[str, object],
+                _parse_validated_docstring(inspect.cleandoc(raw_docstring)),
+            )
         )
     except ValueError as error:
         raise DocumentationError('schema', str(error)) from error

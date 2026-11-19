@@ -252,3 +252,51 @@ def test_inline_unicode_docstring_keeps_surrounding_code() -> None:
     exec(result, namespace)
     assert namespace['café'](3) == 3
     assert format_source(result) == result
+
+
+def test_shorthand_parameters_and_attributes_are_normalized() -> None:
+    """
+    title: Internal entries are dictionaries, while authored YAML stays short.
+    """
+    from douki._base.sync import normalize_documentation
+
+    authored: dict[str, object] = {
+        'title': 'Example',
+        'parameters': {
+            'a': 'this is a',
+            'b': {'description': 'this is b', 'default': 1234},
+            'c': '...',
+        },
+        'attributes': {
+            'label': 'An attribute.',
+        },
+    }
+    previous = copy.deepcopy(authored)
+    normalized = normalize_documentation(authored)
+    assert normalized['parameters'] == {
+        'a': {'description': 'this is a'},
+        'b': {'description': 'this is b', 'default': 1234},
+        'c': {'description': '...'},
+    }
+    assert normalized['attributes'] == {
+        'label': {'description': 'An attribute.'},
+    }
+    assert authored == previous
+    assert normalize_documentation(normalized) == normalized
+    assert yaml.safe_load(format_documentation(authored)) == authored
+
+    signature = Signature(
+        (Parameter('a', 'str'), Parameter('b', 'int'), Parameter('c', 'str')),
+        'None',
+        attributes=(Parameter('label', 'str'),),
+    )
+    enriched = enrich(yaml.safe_dump(authored), signature)
+    assert enriched['parameters']['a']['description'] == 'this is a'
+    assert enriched['parameters']['b']['default'] == 1234
+    assert enriched['parameters']['c']['description'] == '...'
+    assert enriched['attributes']['label'] == {
+        'description': 'An attribute.',
+        'type': 'str',
+    }
+    with pytest.raises(ValueError, match='invalid'):
+        normalize_documentation({'parameters': {'bad': 123}})

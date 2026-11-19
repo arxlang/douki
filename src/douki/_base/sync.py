@@ -17,8 +17,11 @@ from typing import Any, Optional, Sequence
 
 import yaml
 
+from public import private
+
 from douki._base.defaults import LanguageDefaults
 from douki._base.validation import validate_schema
+from douki.typechecking import typechecked
 
 _SAFE_LOADER = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
 
@@ -165,6 +168,46 @@ def _parse_validated_docstring(raw: str) -> dict[str, Any]:
 
     validate_schema(data)
     return data
+
+
+@private
+@typechecked
+def normalize_documentation(
+    documentation: dict[str, object],
+) -> dict[str, object]:
+    """
+    title: Normalize parameter and attribute shorthand in memory.
+    summary: The authored mapping and its nested entries remain unchanged.
+    parameters:
+      documentation:
+        description: Parsed, schema-validated source documentation.
+    returns: A copy with string entries represented by description mappings.
+    """
+    result = dict(documentation)
+    for section in ('parameters', 'attributes'):
+        entries = result.get(section)
+        if entries is None:
+            continue
+        if not isinstance(entries, dict):
+            raise ValueError(f"schema: '{section}' must be a mapping")
+        normalized: dict[str, dict[str, object]] = {}
+        for name, value in entries.items():
+            if not isinstance(name, str):
+                raise ValueError(f"schema: invalid '{section}' name")
+            if isinstance(value, str):
+                normalized[name] = {'description': value}
+            elif isinstance(value, dict):
+                if not all(isinstance(key, str) for key in value):
+                    raise ValueError(
+                        f"schema: invalid '{section}' entry '{name}'"
+                    )
+                normalized[name] = dict(value)
+            else:
+                raise ValueError(
+                    f"schema: invalid '{section}' entry '{name}'"
+                )
+        result[section] = normalized
+    return result
 
 
 def validate_docstring(raw: str, func_name: str) -> bool:
