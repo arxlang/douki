@@ -509,7 +509,7 @@ class MyClass:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 def test_sync_source_classdef_auto_attributes() -> None:
@@ -532,7 +532,7 @@ class MyClass:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
         'value': 'int',
@@ -556,7 +556,7 @@ class MyClass:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
         'MAX': 'ClassVar[int]',
@@ -625,7 +625,7 @@ class MyClass:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
         '_value': 'int',
@@ -651,7 +651,7 @@ class MyClass:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {'count': 'float'}
 
@@ -676,7 +676,7 @@ class Derived(Base):
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
     assert {a.name: a.annotation for a in info.attrs} == {
         'x': 'int',
@@ -710,7 +710,7 @@ class C(B):
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'C')
     assert {a.name: a.annotation for a in info.attrs} == {
         'a': 'int',
@@ -738,7 +738,7 @@ class Derived(Base):
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
     assert {a.name: a.annotation for a in info.attrs} == {'value': 'float'}
 
@@ -764,7 +764,7 @@ class Outer:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 # -------------------------------------------------------------------
@@ -1163,7 +1163,7 @@ def sub(x: int, y: int) -> int:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 def test_sync_source_with_no_return_annotation() -> None:
@@ -1707,7 +1707,7 @@ class Calculator:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 def test_sync_source_class_with_init() -> None:
@@ -1729,7 +1729,7 @@ class Point:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 def test_sync_source_staticmethod() -> None:
@@ -1751,7 +1751,7 @@ class Utils:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 def test_sync_source_class_with_attributes() -> None:
@@ -1856,7 +1856,7 @@ def flexible_func(*args: int, **kwargs: str) -> None:
 '''
     result = format_source(src)
     assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    assert format_source(result) == result
 
 
 def test_sync_scaffolds_attributes_and_reports_stale_entries() -> None:

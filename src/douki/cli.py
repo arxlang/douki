@@ -299,8 +299,10 @@ def check(
             check_source(
                 filepath.read_text(encoding='utf-8'), lang=lang
             )
-        except (OSError, ValueError) as exc:
-            console.print(f'[red]Invalid documentation in {filepath}:[/] {exc}')
+        except Exception as exc:
+            console.print(
+                f'[red]Error checking {filepath}:[/] {exc}'
+            )
             errors = True
     if errors:
         raise typer.Exit(code=2)

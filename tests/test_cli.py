@@ -713,7 +713,7 @@ def test_nested_gitignore_respected_unless_disabled(
         app,
         ['check', '--no-respect-gitignore', str(tmp_path)],
     )
-    assert result2.exit_code == 1
+    assert result2.exit_code == 2
 
 
 def test_pyproject_can_disable_gitignore(
@@ -759,7 +759,7 @@ def test_pyproject_can_disable_gitignore(
     )
 
     result = runner.invoke(app, ['check'])
-    assert result.exit_code == 1
+    assert result.exit_code == 2
 
 
 def test_cli_flag_overrides_pyproject_gitignore_setting(
@@ -975,7 +975,7 @@ def test_check_generic_exception(
         raise RuntimeError('boom')
 
     monkeypatch.setattr(
-        douki._python.language.PythonLanguage, 'sync_source', _boom
+        douki._python.language.PythonLanguage, 'check_source', _boom
     )
     result = runner.invoke(app, ['check', str(p)])
     assert result.exit_code == 2

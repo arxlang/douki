@@ -16,6 +16,8 @@ import re
 
 from typing import Optional
 
+from public import private
+
 from douki._base.sync import (
     DocstringValidationError,
     FuncInfo,
@@ -23,14 +25,13 @@ from douki._base.sync import (
     validate_docstring,
 )
 from douki._python.extractor import extract_functions
-from douki.typechecking import typechecked
-from public import private
 from douki.documentation import (
     Parameter,
     Signature,
     format_documentation,
     validate_annotations,
 )
+from douki.typechecking import typechecked
 
 
 @private
@@ -78,7 +79,10 @@ def scaffold_fields(data: dict[str, object], func: FuncInfo) -> None:
       func: Source metadata defining the expected names.
     """
     if func.is_callable:
-        existing = dict(data.get('parameters', {}))
+        raw_params = data.get('parameters')
+        if raw_params is not None and not isinstance(raw_params, dict):
+            raise ValueError('schema: parameters must be a mapping')
+        existing = dict(raw_params) if raw_params is not None else {}
         expected = {param.name for param in func.params}
         stale = sorted(set(existing) - expected)
         if stale:
@@ -94,7 +98,10 @@ def scaffold_fields(data: dict[str, object], func: FuncInfo) -> None:
             data['returns'] = {'description': 'TODO'}
 
     if func.attrs:
-        existing_attrs = dict(data.get('attributes', {}))
+        raw_attrs = data.get('attributes')
+        if raw_attrs is not None and not isinstance(raw_attrs, dict):
+            raise ValueError('schema: attributes must be a mapping')
+        existing_attrs = dict(raw_attrs) if raw_attrs is not None else {}
         for attr in func.attrs:
             existing_attrs.setdefault(attr.name, {'description': 'TODO'})
         data['attributes'] = existing_attrs
@@ -109,7 +116,9 @@ def has_description(value: object) -> bool:
       value: Source YAML string or documentation entry.
     returns: False for missing, empty or TODO descriptions.
     """
-    description = value.get('description') if isinstance(value, dict) else value
+    description = (
+        value.get('description') if isinstance(value, dict) else value
+    )
     if not isinstance(description, str):
         return False
     content = description.strip()
@@ -163,12 +172,15 @@ def check_source(source: str) -> None:
       DocstringValidationError: Missing or invalid documentation.
     """
     try:
-        ast.parse(source)
+        tree = ast.parse(source)
     except SyntaxError as error:
         raise DocstringValidationError(f'syntax: {error.msg}') from error
 
     funcs = extract_functions(source)
     errors: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef) and ast.get_docstring(node) is None:
+            errors.append(f"- '{node.name}': missing docstring")
     for func in funcs:
         prefix = '<module>' if func.name == '<module>' else f"'{func.name}'"
         node = func.docstring_node
@@ -176,7 +188,8 @@ def check_source(source: str) -> None:
             errors.append(f'- {prefix}: missing docstring')
             continue
         try:
-            data = _parse_validated_docstring(inspect.cleandoc(str(node.value)))
+            raw = inspect.cleandoc(str(node.value))
+            data = _parse_validated_docstring(raw)
             validate_annotations(signature_for(func), data)
             errors.extend(
                 f'- {prefix}: {problem}'
