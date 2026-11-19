@@ -1,8 +1,7 @@
 """
 title: Public API for syncing Douki YAML docstrings.
-summary: Provides the ``sync_source`` and ``resolve_files`` dispatch
-  functions that route to the appropriate language plugin. Also re-exports
-  language-agnostic base types.
+summary: Routes source synchronization, formatting, validation and file
+  discovery through language plugins, and re-exports shared base types.
 """
 
 from __future__ import annotations

@@ -1,10 +1,9 @@
 """
-title: Douki CLI — ``douki sync`` and ``douki check`` commands.
+title: Douki CLI for syncing, formatting and checking YAML docstrings.
 examples:
-- code: >-
-    douki sync  [FILES...]   # apply changes in-place
-
-    douki check [FILES...]   # print diff, exit 1 if changes needed
+  - code: douki sync [FILES...]
+  - code: douki format --check [FILES...]
+  - code: douki check [FILES...]
 """
 
 from __future__ import annotations

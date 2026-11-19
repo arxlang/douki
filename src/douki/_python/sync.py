@@ -241,10 +241,11 @@ def process_source(
     parameters:
       source:
         description: Python source code.
+      scaffold:
+        description: Whether to scaffold missing documentation entries.
       migrate:
         optional: true
-        description: If ``'numpydoc'``, convert NumPy docstrings to Douki
-          YAML before syncing.
+        description: Convert NumPy docstrings before processing when set.
     returns: The (possibly modified) source string.
     """
     # Optional migration pass first

@@ -66,7 +66,7 @@ class BaseLanguage(ABC):
             optional: true
             description: Docstring format to convert before formatting; None
               disables migration.
-        returns: Source code with formatted Douki YAML docstrings.
+        returns: Source with formatted and scaffolded Douki YAML docstrings.
         """
         _ = (source, migrate)
         raise NotImplementedError  # pragma: no cover

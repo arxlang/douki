@@ -1082,3 +1082,25 @@ def test_check_rejects_scaffold_todo(tmp_path: Path) -> None:
     result = runner.invoke(app, ['check', str(path)])
     assert result.exit_code == 2
     assert 'description' in result.output
+
+
+def test_format_does_not_require_annotations(tmp_path: Path) -> None:
+    """
+    title: Formatting is independent of annotation validation.
+    parameters:
+      tmp_path: Temporary source directory.
+    """
+    path = _write(
+        tmp_path,
+        'untyped.py',
+        '''\
+        def example(value):
+            """
+            title:   Example
+            """
+            return value
+        ''',
+    )
+    assert runner.invoke(app, ['format', str(path)]).exit_code == 1
+    assert 'title: Example' in path.read_text(encoding='utf-8')
+    assert runner.invoke(app, ['check', str(path)]).exit_code == 2

@@ -102,12 +102,12 @@ groups:
           rm -rf "$TMPDIR"
 
       check-dirty:
-        help: Test douki check on an unsynced file (exit 1)
+        help: Test douki format --check on a noncanonical file (exit 1)
         backend: bash
         run: |
           TMPDIR=$(mktemp -d)
           cp tests/smoke/dirty_file.py "$TMPDIR/dirty.py"
-          # douki check should exit 1 when changes are needed
+          # The formatter should exit 1 when changes are needed.
           douki format --check "$TMPDIR/dirty.py" && exit 1 || true
           rm -rf "$TMPDIR"
 
