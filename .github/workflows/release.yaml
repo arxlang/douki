@@ -7,16 +7,18 @@ on:
   pull_request:
     branches: [main]
 
+# Default to read-only permissions across all jobs; elevated permissions
+# are granted only to specific jobs that require write access.
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  release:
-    name: Release
+  test:
+    name: Test gate
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
 
     defaults:
       run:
@@ -35,33 +37,142 @@ jobs:
           conda-solver: libmamba
           python-version: "3.13"
 
-      - name: Install deps
+      - name: Install dependencies
+        run: |
+          poetry check
+          poetry install
+
+      - name: Run unit tests
+        run: makim tests.unit
+
+      - name: Run smoke tests
+        run: makim tests.smoke
+
+  dry-run:
+    name: Semantic release dry-run
+    if: github.event_name != 'workflow_dispatch'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          environment-file: conda/dev.yaml
+          channels: conda-forge,nodefaults
+          activate-environment: douki
+          auto-update-conda: true
+          conda-solver: libmamba
+          python-version: "3.13"
+
+      - name: Install dependencies
         run: |
           poetry install
 
-      - name: Run semantic release (for tests)
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+      - name: Run semantic release (dry-run)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           makim release.dry
 
-      - name: Release command
-        if: ${{ github.event_name == 'workflow_dispatch' }}
+  release:
+    name: Release
+    # Restrict publishing strictly to manual dispatch on the main branch after tests pass
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      # contents: write needed to commit release version bump, push git tag, create GitHub Release, and deploy gh-pages
+      contents: write
+      # issues: write and pull-requests: write needed by semantic-release to comment on resolved issues and PRs
+      issues: write
+      pull-requests: write
+      # id-token: write needed for PyPI Trusted Publishing (OIDC token exchange)
+      id-token: write
+
+    env:
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+
+    defaults:
+      run:
+        shell: bash -l {0}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          environment-file: conda/dev.yaml
+          channels: conda-forge,nodefaults
+          activate-environment: douki
+          auto-update-conda: true
+          conda-solver: libmamba
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: |
+          poetry install
+
+      - name: Release command (semantic-release)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
         run: |
-          poetry config pypi-token.pypi ${PYPI_TOKEN}
-          makim release.ci
+          if [ -n "${PYPI_TOKEN:-}" ]; then
+            # Fallback: configure token until PyPI Trusted Publishing is active
+            poetry config pypi-token.pypi "${PYPI_TOKEN}"
+            makim release.ci
+          else
+            # Trusted Publishing (OIDC): semantic-release prepares release artifacts and tags;
+            # poetry publish is skipped so pypa/gh-action-pypi-publish can upload via OIDC.
+            mkdir -p "$HOME/.bin"
+            # shellcheck disable=SC2016
+            printf '%s\n' \
+              '#!/usr/bin/env bash' \
+              'if [ "$1" = "publish" ]; then' \
+              '  echo "Delegating package upload to pypa/gh-action-pypi-publish (OIDC)..."' \
+              '  exit 0' \
+              'fi' \
+              'exec "$(which -a poetry | grep -v "$HOME/.bin/poetry" | head -n 1)" "$@"' \
+              > "$HOME/.bin/poetry"
+            chmod +x "$HOME/.bin/poetry"
+            PATH="$HOME/.bin:$PATH" makim release.ci
+          fi
+
+      - name: Verify package version matches git tag
+        run: |
+          PACKAGE_VERSION=$(poetry version --short)
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          echo "Package version: ${PACKAGE_VERSION}"
+          echo "Latest git tag:   ${LATEST_TAG}"
+          if [ -n "${LATEST_TAG}" ] && [ "${LATEST_TAG}" != "${PACKAGE_VERSION}" ] && [ "${LATEST_TAG}" != "v${PACKAGE_VERSION}" ]; then
+            echo "Error: Git tag (${LATEST_TAG}) does not match package version (${PACKAGE_VERSION})"
+            exit 1
+          fi
+
+      - name: Publish package distributions to PyPI via Trusted Publishing
+        if: env.PYPI_TOKEN == ''
+        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b9a034ebfe128415bbaabdfc # v1.12.4
+        with:
+          packages-dir: dist/
 
       - name: Generate documentation with changes from semantic-release
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
           makim docs.build
 
       - name: GitHub Pages action
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: peaceiris/actions-gh-pages@v3.5.9
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
