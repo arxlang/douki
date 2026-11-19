@@ -17,7 +17,8 @@ from douki import (
     enrich,
     format_documentation,
 )
-from douki.sync import sync_source
+from douki._base.sync import normalize_documentation
+from douki.sync import format_source
 from typeguard import TypeCheckError
 
 
@@ -165,14 +166,16 @@ def test_format_source_does_not_add_or_remove_signature_fields() -> None:
     """
     return None
 '''
-    formatted = sync_source(source)
+    formatted = format_source(source)
     original_tree = ast.parse(source)
     formatted_tree = ast.parse(formatted)
     raw = ast.get_docstring(original_tree.body[0])
     result = ast.get_docstring(formatted_tree.body[0])
-    assert yaml.safe_load(raw) == yaml.safe_load(result)
+    assert normalize_documentation(yaml.safe_load(raw)) == (
+        normalize_documentation(yaml.safe_load(result))
+    )
     assert 'current:' not in result
-    assert sync_source(formatted) == formatted
+    assert format_source(formatted) == formatted
     assert ast.dump(original_tree.body[0].args) == ast.dump(
         formatted_tree.body[0].args,
     )
@@ -234,12 +237,12 @@ def test_source_formatting_preserves_python_string_escaping(
         + literal
         + '  # retain this comment\n    return 1\n'
     )
-    formatted = sync_source(source)
+    formatted = format_source(source)
     before = ast.get_docstring(ast.parse(source).body[0])
     after = ast.get_docstring(ast.parse(formatted).body[0])
     assert yaml.safe_load(before) == yaml.safe_load(after)
     assert '# retain this comment' in formatted
-    assert sync_source(formatted) == formatted
+    assert format_source(formatted) == formatted
 
 
 def test_inline_unicode_docstring_keeps_surrounding_code() -> None:
@@ -247,8 +250,182 @@ def test_inline_unicode_docstring_keeps_surrounding_code() -> None:
     title: UTF-8 AST columns retain inline function definitions and returns.
     """
     source = 'def café(x: int) -> int: """title: Café"""; return x\n'
-    result = sync_source(source)
+    result = format_source(source)
     namespace: dict[str, object] = {}
     exec(result, namespace)
     assert namespace['café'](3) == 3
-    assert sync_source(result) == result
+    assert format_source(result) == result
+
+
+def test_shorthand_parameters_and_attributes_are_normalized() -> None:
+    """
+    title: Internal entries are dictionaries, while authored YAML stays short.
+    """
+    from douki._base.sync import normalize_documentation
+
+    authored: dict[str, object] = {
+        'title': 'Example',
+        'parameters': {
+            'a': 'this is a',
+            'b': {'description': 'this is b', 'default': 1234},
+            'c': '...',
+        },
+        'attributes': {
+            'label': 'An attribute.',
+        },
+    }
+    previous = copy.deepcopy(authored)
+    normalized = normalize_documentation(authored)
+    assert normalized['parameters'] == {
+        'a': {'description': 'this is a'},
+        'b': {'description': 'this is b', 'default': 1234},
+        'c': {'description': '...'},
+    }
+    assert normalized['attributes'] == {
+        'label': {'description': 'An attribute.'},
+    }
+    assert authored == previous
+    assert normalize_documentation(normalized) == normalized
+    assert yaml.safe_load(format_documentation(authored)) == authored
+
+    signature = Signature(
+        (Parameter('a', 'str'), Parameter('b', 'int'), Parameter('c', 'str')),
+        'None',
+        attributes=(Parameter('label', 'str'),),
+    )
+    enriched = enrich(yaml.safe_dump(authored), signature)
+    assert enriched['parameters']['a']['description'] == 'this is a'
+    assert enriched['parameters']['b']['default'] == 1234
+    assert enriched['parameters']['c']['description'] == '...'
+    assert enriched['attributes']['label'] == {
+        'description': 'An attribute.',
+        'type': 'str',
+    }
+    with pytest.raises(ValueError, match='invalid'):
+        normalize_documentation({'parameters': {'bad': 123}})
+
+
+def test_format_source_compacts_description_only_fields() -> None:
+    """
+    title: Format uses string shorthand without losing other metadata.
+    """
+    source = '''class Widget:
+    """
+    title: Widget
+    attributes:
+      label:
+        description: Label to display.
+      count:
+        description: Current count.
+        default: 1234
+    """
+    label: str
+    count: int
+
+    def render(self, text: str, options: int) -> str:
+        """
+        title: Render the widget.
+        parameters:
+          text:
+            description: Content to render.
+          options:
+            description: Rendering options.
+            default: 1
+        returns: Rendered content.
+        """
+        return text
+'''
+    formatted = format_source(source)
+    widget = ast.parse(formatted).body[0]
+    assert isinstance(widget, ast.ClassDef)
+    attrs = yaml.safe_load(ast.get_docstring(widget))['attributes']
+    assert attrs == {
+        'label': 'Label to display.',
+        'count': {'description': 'Current count.', 'default': 1234},
+    }
+    render = next(
+        node
+        for node in widget.body
+        if isinstance(node, ast.FunctionDef) and node.name == 'render'
+    )
+    parameters = yaml.safe_load(ast.get_docstring(render))['parameters']
+    assert parameters == {
+        'text': 'Content to render.',
+        'options': {'description': 'Rendering options.', 'default': 1},
+    }
+    assert format_source(formatted) == formatted
+
+
+def test_format_source_uses_block_styles_only_for_descriptions() -> None:
+    """
+    title: Format descriptions as folded prose or literal line breaks.
+    """
+    long_prose = (
+        'A long description explaining the parameter behavior in enough '
+        'detail that it should be folded across multiple YAML lines.'
+    )
+    source = '''class Widget:
+    """
+    title: Widget
+    attributes:
+      short:
+        description: Short attribute.
+      prose:
+        description: A long description explaining the attribute behavior
+          in enough detail that it should be folded across multiple lines.
+        default: 1234
+      lines:
+        description: |-
+          First line.
+          Second line.
+    """
+    short: str
+    prose: str
+    lines: str
+
+    def render(self, value: str, placeholder: str) -> str:
+        """
+        title: Render.
+        parameters:
+          value:
+            description: >-
+              A long description explaining the parameter behavior in enough
+              detail that it should be folded across multiple YAML lines.
+          placeholder:
+            description: '...'
+        returns: Rendered text.
+        """
+        return value
+'''
+    formatted = format_source(source)
+    original_tree = ast.parse(source)
+    formatted_tree = ast.parse(formatted)
+    original_class = original_tree.body[0]
+    formatted_class = formatted_tree.body[0]
+    assert isinstance(original_class, ast.ClassDef)
+    assert isinstance(formatted_class, ast.ClassDef)
+    original_attrs = yaml.safe_load(ast.get_docstring(original_class))[
+        'attributes'
+    ]
+    attr_doc = ast.get_docstring(formatted_class)
+    assert attr_doc is not None
+    attrs = yaml.safe_load(attr_doc)['attributes']
+    assert attrs == {
+        'short': 'Short attribute.',
+        'prose': original_attrs['prose'],
+        'lines': original_attrs['lines']['description'],
+    }
+    assert 'short: Short attribute.' in attr_doc
+    assert 'description: >-' in attr_doc
+    assert 'lines: |-' in attr_doc
+    render = next(
+        node
+        for node in formatted_class.body
+        if isinstance(node, ast.FunctionDef)
+    )
+    render_doc = ast.get_docstring(render)
+    assert render_doc is not None
+    assert 'value: >-' in render_doc
+    assert "placeholder: '...'" in render_doc
+    assert yaml.safe_load(render_doc)['parameters']['value'] == long_prose
+    assert format_source(formatted) == formatted

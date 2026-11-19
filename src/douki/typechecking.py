@@ -17,8 +17,7 @@ def typechecked(function: Callable[P, R]) -> Callable[P, R]:
     """
     title: Check every argument and collection item without wrapping calls.
     parameters:
-      function:
-        description: Annotated function to instrument for runtime type checks.
+      function: Annotated function to instrument for runtime type checks.
     returns: Instrumented function checking all arguments and collection items.
     """
     return instrument(

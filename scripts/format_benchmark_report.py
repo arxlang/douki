@@ -17,11 +17,9 @@ def _measurement(value: Any) -> float | None:
     """
     title: Extract a finite, positive timing result in seconds.
     parameters:
-      value:
-        description: Raw ASV timing value, optionally enclosed in
-          a one-item list.
-    returns: Positive finite duration in seconds, or None for invalid
-      measurements.
+      value: Raw ASV timing value, optionally enclosed in a one-item list.
+    returns: >-
+      Positive finite duration in seconds, or None for invalid measurements.
     """
     if isinstance(value, list):
         if len(value) != 1:
@@ -40,13 +38,11 @@ def collect_results(
     """
     title: Find results for one exact commit and environment.
     parameters:
-      directory:
-        description: Directory tree containing ASV result JSON files.
-      sha:
-        description: Exact commit hash whose timing results should
-          be collected.
-    returns: Timings keyed by benchmark and environment, with None
-      for missing results.
+      directory: Directory tree containing ASV result JSON files.
+      sha: Exact commit hash whose timing results should be collected.
+    returns: >-
+      Timings keyed by benchmark and environment, with None for missing
+      results.
     """
     collected: dict[tuple[str, str], float | None] = {}
     for path in sorted(directory.rglob('*.json')):
@@ -83,8 +79,7 @@ def _format_seconds(seconds: float) -> str:
     """
     title: Format durations consistently with useful units.
     parameters:
-      seconds:
-        description: Measured execution duration in seconds.
+      seconds: Measured execution duration in seconds.
     returns: Duration with a suitable unit and consistent precision.
     """
     if seconds < 0.001:
@@ -98,8 +93,7 @@ def _escape_cell(value: str) -> str:
     """
     title: Prevent benchmark names breaking Markdown table structure.
     parameters:
-      value:
-        description: Benchmark label to include in a Markdown table cell.
+      value: Benchmark label to include in a Markdown table cell.
     returns: Single-line label with Markdown table delimiters escaped.
     """
     return value.replace('|', '&#124;').replace('\n', ' ')
@@ -115,21 +109,12 @@ def build_report(
     """
     title: Render measured PR performance against its upstream base.
     parameters:
-      directory:
-        description: Directory tree containing ASV result JSON files.
-      base_sha:
-        description: Upstream base commit used for the performance
-          comparison.
-      head_sha:
-        description: Pull request commit used for the performance
-          comparison.
-      run_url:
-        description: Workflow URL linked from the report for logs
-          and artifacts.
-      asv_status:
-        description: Exit status of the ASV benchmark command.
-    returns: Markdown comparison of available base and pull request
-      timings.
+      directory: Directory tree containing ASV result JSON files.
+      base_sha: Upstream base commit used for the performance comparison.
+      head_sha: Pull request commit used for the performance comparison.
+      run_url: Workflow URL linked from the report for logs and artifacts.
+      asv_status: Exit status of the ASV benchmark command.
+    returns: Markdown comparison of available base and pull request timings.
     """
     base_results = collect_results(directory, base_sha)
     head_results = collect_results(directory, head_sha)

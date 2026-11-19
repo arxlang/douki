@@ -14,7 +14,11 @@ import yaml
 from public import private, public
 from typeguard import CollectionCheckStrategy, check_type
 
-from douki._base.sync import _KEY_ORDER, _parse_validated_docstring
+from douki._base.sync import (
+    _KEY_ORDER,
+    _parse_validated_docstring,
+    normalize_documentation,
+)
 from douki._base.validation import validate_schema
 from douki.typechecking import typechecked
 
@@ -38,12 +42,8 @@ class DocumentationError(ValueError):
         """
         title: Record the phase and diagnostic message.
         parameters:
-          phase:
-            description: Processing phase in which documentation validation
-              failed.
-          message:
-            description: Diagnostic explaining the invalid documentation
-              or metadata.
+          phase: Processing phase in which documentation validation failed.
+          message: Diagnostic explaining the invalid documentation or metadata.
         """
         self.phase: str = phase
         self.message: str = message
@@ -56,14 +56,11 @@ class Parameter:
     """
     title: A parameter or attribute with a display annotation.
     attributes:
-      name:
-        description: Parameter or attribute name without variadic prefixes.
-      annotation:
-        description: Display annotation; an empty value is rejected during
-          enrichment.
-      kind:
-        description: Calling convention used to identify positional and
-          keyword variadics.
+      name: Parameter or attribute name without variadic prefixes.
+      annotation: >-
+        Display annotation; an empty value is rejected during enrichment.
+      kind: >-
+        Calling convention used to identify positional and keyword variadics.
     """
 
     name: str
@@ -86,18 +83,13 @@ class Parameter:
 @dataclass(frozen=True)
 class Signature:
     """
-    title: Types supplied by a language adapter without importing
-      its source.
+    title: Types supplied by a language adapter without importing its source.
     summary: Null parameters means this declaration is not a callable.
     attributes:
-      parameters:
-        description: Explicit parameters; None identifies a non-callable
-          declaration.
-      returns:
-        description: Display return annotation; required for callable
-          declarations.
-      attributes:
-        description: Declared attributes and their display annotations.
+      parameters: >-
+        Explicit parameters; None identifies a non-callable declaration.
+      returns: Display return annotation; required for callable declarations.
+      attributes: Declared attributes and their display annotations.
     """
 
     parameters: tuple[Parameter, ...] | None = None
@@ -132,9 +124,7 @@ def entry(value: object) -> dict[str, object]:
     """
     title: Copy a schema-validated field while retaining authored metadata.
     parameters:
-      value:
-        description: Validated description string, entry mapping, or absent
-          value.
+      value: Validated description string, entry mapping, or absent value.
     returns: New mapping retaining the authored entry metadata.
     """
     if isinstance(value, str):
@@ -157,17 +147,11 @@ def merge_fields(
     """
     title: Merge annotation types without deleting descriptions.
     parameters:
-      existing:
-        description: Authored entries keyed by parameter or attribute
-          name.
-      parameters:
-        description: Annotated fields to merge with their authored
-          descriptions.
-      strict:
-        description: Whether to reject authored names absent from
-          the signature.
-    returns: New field mapping combining descriptions with annotation-derived
-      types.
+      existing: Authored entries keyed by parameter or attribute name.
+      parameters: Annotated fields to merge with their authored descriptions.
+      strict: Whether to reject authored names absent from the signature.
+    returns: >-
+      New field mapping combining descriptions with annotation-derived types.
     """
     names = {parameter.name for parameter in parameters}
     if strict and (unknown := set(existing) - names):
@@ -201,11 +185,9 @@ def validate_annotations(
       Documented attributes must have declarations; values are never used
       to guess their types.
     parameters:
-      signature:
-        description: Annotation metadata supplied by the language adapter.
-      documentation:
-        description: Authored mapping used to check that documented attributes
-          are declared.
+      signature: Annotation metadata supplied by the language adapter.
+      documentation: >-
+        Authored mapping used to check that documented attributes are declared.
     """
     missing: list[str] = []
     if signature.parameters is not None:
@@ -243,19 +225,21 @@ def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
       objects or source files are modified. Missing annotations
       raise DocumentationError.
     parameters:
-      raw_docstring:
-        description: Authored Douki YAML containing descriptions
-          and no type fields.
-      signature:
-        description: Annotation metadata supplied by the
-          language adapter.
-    returns: New documentation mapping with authored descriptions
+      raw_docstring: >-
+        Authored Douki YAML containing descriptions and no
+        type fields.
+      signature: Annotation metadata supplied by the language
+        adapter.
+    returns: >-
+      New documentation mapping with authored descriptions
       and annotation-derived types.
     """
     try:
-        data = cast(
-            dict[str, object],
-            _parse_validated_docstring(inspect.cleandoc(raw_docstring)),
+        data = normalize_documentation(
+            cast(
+                dict[str, object],
+                _parse_validated_docstring(inspect.cleandoc(raw_docstring)),
+            )
         )
     except ValueError as error:
         raise DocumentationError('schema', str(error)) from error
@@ -297,12 +281,10 @@ def represent_string(
     """
     title: Quote ambiguous scalars and preserve embedded newlines.
     parameters:
-      dumper:
-        description: Active YAML dumper to create the scalar node.
-      value:
-        description: String whose whitespace and line breaks must be preserved.
-    returns: YAML scalar node with quoting or block style chosen for the
-      content.
+      dumper: Active YAML dumper to create the scalar node.
+      value: String whose whitespace and line breaks must be preserved.
+    returns: >-
+      YAML scalar node with quoting or block style chosen for the content.
     """
     return dumper.represent_scalar(
         'tag:yaml.org,2002:str',
@@ -322,6 +304,121 @@ def represent_string(
 DocumentationDumper.add_representer(str, represent_string)
 
 
+@private
+class BlockDescription(str):
+    """
+    title: Select block YAML formatting for a description without changing it.
+    """
+
+
+@private
+@typechecked
+def represent_block_description(
+    dumper: yaml.SafeDumper,
+    value: BlockDescription,
+) -> yaml.ScalarNode:
+    """
+    title: Fold long prose or preserve explicit newlines in descriptions.
+    parameters:
+      dumper: Active YAML dumper.
+      value: Description text selected for block formatting.
+    returns: Scalar node with the appropriate YAML block style.
+    """
+    return dumper.represent_scalar(
+        'tag:yaml.org,2002:str',
+        str(value),
+        style='|' if '\n' in value else '>',
+    )
+
+
+DocumentationDumper.add_representer(
+    BlockDescription, represent_block_description
+)
+
+
+@private
+@typechecked
+def description_style(
+    value: str,
+    *,
+    width: int,
+    prefix_length: int,
+) -> str:
+    """
+    title: Select block style only when the description requires it.
+    parameters:
+      value: Original description text.
+      width: Target length of a source documentation line.
+      prefix_length: Length of its YAML indentation, key and separator.
+    returns: The unchanged text, optionally marked for block formatting.
+    """
+    if '\n' in value or len(value) + prefix_length > width:
+        return BlockDescription(value)
+    return value
+
+
+@private
+@typechecked
+def style_description_blocks(
+    data: dict[str, object],
+    *,
+    width: int,
+) -> dict[str, object]:
+    """
+    title: Style authored descriptions without mutating their values.
+    parameters:
+      data: Validated authored documentation to format.
+      width: Maximum YAML line length excluding Python source indentation.
+    returns: A copy with long or multiline descriptions marked for blocks.
+    """
+    result = dict(data)
+    for section in ('parameters', 'attributes'):
+        fields = data.get(section)
+        if not isinstance(fields, dict):
+            continue
+        styled: dict[str, object] = {}
+        for name, value in fields.items():
+            if isinstance(value, str):
+                styled[name] = description_style(
+                    value,
+                    width=width,
+                    prefix_length=4 + len(name),
+                )
+            elif isinstance(value, dict):
+                field = dict(value)
+                description = field.get('description')
+                if isinstance(description, str):
+                    field['description'] = description_style(
+                        description,
+                        width=width,
+                        prefix_length=17,
+                    )
+                styled[name] = field
+            else:
+                styled[name] = value
+        result[section] = styled
+
+    for section in ('returns', 'yields', 'receives'):
+        value = data.get(section)
+        if isinstance(value, str):
+            result[section] = description_style(
+                value,
+                width=width,
+                prefix_length=len(section) + 2,
+            )
+        elif isinstance(value, dict):
+            field = dict(value)
+            description = field.get('description')
+            if isinstance(description, str):
+                field['description'] = description_style(
+                    description,
+                    width=width,
+                    prefix_length=15,
+                )
+            result[section] = field
+    return result
+
+
 @public
 @typechecked
 def format_documentation(
@@ -332,18 +429,13 @@ def format_documentation(
 ) -> str:
     """
     title: Serialize validated source or explicitly enriched documentation.
-    summary: Only generated output may contain annotation-derived
-      type fields.
+    summary: Only generated output may contain annotation-derived type fields.
     parameters:
-      data:
-        description: Documentation mapping to validate and serialize.
-      width:
-        description: Target line width for the serialized YAML.
-      enriched:
-        description: Whether to allow annotation-derived type fields
-          in generated output.
-    returns: Serialized YAML with canonical field order and preserved
-      values.
+      data: Documentation mapping to validate and serialize.
+      width: Target line width for the serialized YAML.
+      enriched: >-
+        Whether to allow annotation-derived type fields in generated output.
+    returns: Serialized YAML with canonical field order and preserved values.
     """
     try:
         validate_schema(data, enriched=enriched)

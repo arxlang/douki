@@ -9,15 +9,22 @@ from typing import Optional
 from douki._base.config import BaseConfig
 from douki._base.language import BaseLanguage
 from douki._python.config import PythonConfig
-from douki._python.sync import sync_source as py_sync_source
+from douki._python.sync import (
+    check_source as py_check_source,
+)
+from douki._python.sync import (
+    format_source as py_format_source,
+)
+from douki._python.sync import (
+    sync_source as py_sync_source,
+)
 
 
 class PythonLanguage(BaseLanguage):
     """
     title: The Douki Python language backend.
     attributes:
-      _config:
-        description: Configuration loader used for Python source discovery.
+      _config: Configuration loader used for Python source discovery.
     """
 
     _config: PythonConfig
@@ -44,18 +51,35 @@ class PythonLanguage(BaseLanguage):
         """
         return self._config
 
+    def format_source(self, source: str) -> str:
+        """
+        title: Format Python YAML docstrings without injecting metadata.
+        parameters:
+          source: Python source to format.
+        returns: Source with canonical YAML formatting.
+        """
+        return py_format_source(source)
+
+    def check_source(self, source: str) -> None:
+        """
+        title: Check documentation schema, annotations and descriptions.
+        parameters:
+          source: Python source code to validate.
+        """
+        py_check_source(source)
+
     def sync_source(
         self, source: str, *, migrate: Optional[str] = None
     ) -> str:
         """
         title: Synchronize Python source code using the AST extractor.
         parameters:
-          source:
-            description: Source code whose docstrings are being processed.
+          source: Source code whose docstrings are being processed.
           migrate:
             optional: true
-            description: Docstring format to convert before formatting; None
-              disables migration.
+            description: >-
+              Docstring format to convert before formatting; None disables
+              migration.
         returns: Python source with validated, formatted Douki YAML docstrings.
         """
         return py_sync_source(source, migrate=migrate)

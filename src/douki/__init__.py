@@ -35,13 +35,14 @@ if TYPE_CHECKING:
         register as register,
     )
     from douki.introspection import getdoc as getdoc
+    from douki.sync import format_source as format_source
 
 
 def get_version() -> str:
     """
     title: Return the program version.
-    returns: Installed package version, or the source version when
-      not installed.
+    returns: >-
+      Installed package version, or the source version when not installed.
     """
     try:
         return importlib_metadata.version(__name__)
@@ -64,6 +65,7 @@ __all__ = [
     '__version__',
     'enrich',
     'format_documentation',
+    'format_source',
     'getdoc',
     'help',
     'register',
@@ -76,8 +78,7 @@ def __getattr__(name: str) -> object:
     """
     title: Load optional runtime helpers only when explicitly requested.
     parameters:
-      name:
-        description: Public runtime helper to import on first access.
+      name: Public runtime helper to import on first access.
     returns: Requested helper, cached on the package for subsequent access.
     """
     from importlib import import_module
@@ -88,6 +89,7 @@ def __getattr__(name: str) -> object:
         'Signature': 'documentation',
         'enrich': 'documentation',
         'format_documentation': 'documentation',
+        'format_source': 'sync',
         'validate_annotations': 'documentation',
         'getdoc': 'introspection',
         'help': 'helping',

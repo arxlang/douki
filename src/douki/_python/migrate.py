@@ -55,8 +55,7 @@ def _is_numpydoc_docstring(raw: str) -> bool:
     """
     title: 'Heuristic: does *raw* look like a NumPy-style docstring?'
     parameters:
-      raw:
-        description: Original NumPy-style docstring text.
+      raw: Original NumPy-style docstring text.
     returns: Whether the text contains a NumPy-style section heading.
     """
     # Must have at least one section header with dashes underline
@@ -75,8 +74,7 @@ def _split_sections(
     """
     title: Split a NumPy docstring into (narrative, sections).
     parameters:
-      raw:
-        description: Original NumPy-style docstring text.
+      raw: Original NumPy-style docstring text.
     returns: Each section is (header_lower, body_text).
     """
     lines = raw.splitlines()
@@ -124,8 +122,7 @@ def _parse_map_section(
     """
     title: Parse a numpy map section (Parameters, Raises, etc).
     parameters:
-      body:
-        description: Section text after removing its heading and underline.
+      body: Section text after removing its heading and underline.
     returns: 'A dict of `{name: {type: ..., description: ...}}`.'
     """
     result: dict[str, dict[str, str]] = {}
@@ -174,8 +171,7 @@ def _parse_simple_section(body: str) -> str:
     """
     title: Parse a simple text section (returns, notes, etc).
     parameters:
-      body:
-        description: Section text after removing its heading and underline.
+      body: Section text after removing its heading and underline.
     returns: Section text with surrounding whitespace removed.
     """
     return textwrap.dedent(body).strip()
@@ -185,10 +181,10 @@ def numpydoc_to_douki_yaml(raw: str) -> str:
     """
     title: Convert a NumPy-style docstring to Douki YAML format.
     parameters:
-      raw:
-        description: Original NumPy-style docstring text.
-    returns: The YAML string (without triple-quotes). If *raw* is not a valid
-      NumPy docstring, returns it unchanged.
+      raw: Original NumPy-style docstring text.
+    returns: >-
+      The YAML string (without triple-quotes). If *raw* is not a valid NumPy
+      docstring, returns it unchanged.
     """
     if not _is_numpydoc_docstring(raw):
         return raw
@@ -251,9 +247,7 @@ def _serialize_douki_yaml(data: dict[str, Any]) -> str:
     """
     title: Serialize a Douki data dict to YAML text.
     parameters:
-      data:
-        description: Converted documentation mapping to serialize as Douki
-          YAML.
+      data: Converted documentation mapping to serialize as Douki YAML.
     returns: Formatted Douki YAML without surrounding string delimiters.
     """
     lines: list[str] = []

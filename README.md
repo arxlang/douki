@@ -47,13 +47,15 @@ not install it. Original `__doc__` strings remain authored text.
 Tools can call `douki.getdoc(add)` directly without registration to obtain
 enriched YAML. Documentation generators can also use the static enrichment API.
 
-## Format and validate source
+## Synchronize, format and validate source
 
 ```bash
 pip install douki
 
-douki check src/  # Report formatting differences and schema errors
-douki sync src/   # Apply YAML formatting
+douki sync src/            # Add missing descriptions
+douki format src/          # Normalize YAML formatting
+douki format --check src/  # Preview formatting differences
+douki check src/           # Validate documentation
 ```
 
 `check` and `sync` require annotations for parameters, return values and
@@ -63,8 +65,10 @@ by the schema. Remove only those fields from existing docstrings and put
 types in annotations instead. Keep `parameters`, `returns` and `attributes`
 with their descriptions: annotations supply types, not explanations.
 
-`sync` formats YAML without inserting annotation types or changing parameter
-entries. It preserves descriptions, examples and explicit null defaults.
+`sync` adds missing parameter, attribute and return entries with `...`
+placeholders, without storing types. It preserves existing descriptions
+and reports stale parameter names. `format` only changes presentation;
+`check` reports missing or incomplete descriptions.
 Dynamic inspection raises `DocumentationError` for missing annotations.
 
 The CLI can remain a development dependency. Install Douki in the running

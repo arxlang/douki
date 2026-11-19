@@ -89,6 +89,7 @@ groups:
         run: |
           douki --help
           douki sync --help
+          douki format --help
           douki check --help
 
       check-clean:
@@ -101,13 +102,13 @@ groups:
           rm -rf "$TMPDIR"
 
       check-dirty:
-        help: Test douki check on an unsynced file (exit 1)
+        help: Test douki format --check on a noncanonical file (exit 1)
         backend: bash
         run: |
           TMPDIR=$(mktemp -d)
           cp tests/smoke/dirty_file.py "$TMPDIR/dirty.py"
-          # douki check should exit 1 when changes are needed
-          douki check "$TMPDIR/dirty.py" && exit 1 || true
+          # The formatter should exit 1 when changes are needed.
+          douki format --check "$TMPDIR/dirty.py" && exit 1 || true
           rm -rf "$TMPDIR"
 
       sync-and-idempotent:
@@ -120,8 +121,8 @@ groups:
           douki sync "$TMPDIR/test.py" && exit 1 || true
           # Second sync should be a no-op (exit 0)
           douki sync "$TMPDIR/test.py"
-          # Check should now pass (exit 0)
-          douki check "$TMPDIR/test.py"
+          # Formatting stays idempotent with description placeholders.
+          douki format --check "$TMPDIR/test.py"
           rm -rf "$TMPDIR"
 
       migrate-numpy:
@@ -149,11 +150,11 @@ groups:
           douki sync "$TMPDIR/dirty_class.py" && exit 1 || true
           # Source formatting must not materialize signature metadata.
           if grep -q 'type:' "$TMPDIR/dirty_class.py"; then exit 1; fi
-          if grep -q 'parameters:' "$TMPDIR/dirty_class.py"; then exit 1; fi
-          if grep -q 'attributes:' "$TMPDIR/dirty_class.py"; then exit 1; fi
+          grep -q 'parameters:' "$TMPDIR/dirty_class.py"
+          grep -q 'attributes:' "$TMPDIR/dirty_class.py"
           # Second sync should be idempotent (exit 0)
           douki sync "$TMPDIR/dirty_class.py"
-          douki check "$TMPDIR/dirty_class.py"
+          douki format --check "$TMPDIR/dirty_class.py"
           rm -rf "$TMPDIR"
 
   package:

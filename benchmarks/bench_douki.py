@@ -88,9 +88,8 @@ class SourceBenchmarks:
         """
         title: Produce source with documented function signatures.
         parameters:
-          count:
-            description: Number of documented functions to include in the
-              synthetic module.
+          count: >-
+            Number of documented functions to include in the synthetic module.
         returns: Synthetic Python source for the source-formatting benchmark.
         """
         functions = ['"""title: Benchmark module"""\n']

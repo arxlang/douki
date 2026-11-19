@@ -40,19 +40,22 @@ Use plain parameter names for variadics (`args`, not `*args`).
 ## Formatting and validation
 
 ```bash
-douki check src/     # Preview formatting differences
-douki sync src/      # Apply formatting
-douki check         # Discover Python files in the current directory
+douki sync src/            # Scaffold missing descriptions
+douki format src/          # Format YAML presentation
+douki format --check src/  # Preview formatting changes
+douki check src/           # Validate documentation
+douki check                # Validate files in the current directory
 ```
 
-`sync` normalizes YAML formatting without copying types from annotations
-into the file. It preserves authored fields, including descriptions,
-empty entries, null defaults and multiline examples. It does not add or
-remove parameter or attribute entries, even after a signature changes.
-The enrichment API reports unknown documented parameters when those
-objects are inspected. Both source checks and enrichment require annotations
-for every parameter (including undocumented parameters and variadics) and
-every callable's return value. Use `-> None` when a function returns nothing.
+`sync` adds missing parameter, attribute and result descriptions as
+`...` placeholders without writing type fields. It preserves authored
+entries and reports stale parameters instead of removing them. `format`
+normalizes YAML formatting, shortening description-only parameter and
+attribute mappings to strings while retaining entries with extra fields;
+`format --check` checks presentation without writing. `check` validates
+schemas, annotations, stale names and missing or placeholder descriptions.
+Both `sync` and `check` require annotated parameters and return values;
+use `-> None` when a function returns nothing.
 Only the actual method receiver is exempt; a static method's first argument
 still requires an annotation, even when named `self` or `cls`.
 

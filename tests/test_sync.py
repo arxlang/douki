@@ -16,12 +16,17 @@ from douki._base.sync import (
     _extract_returns_desc,
     _load_docstring_yaml,
     _yaml_scalar,
+    normalize_documentation,
     sync_docstring,
     validate_docstring,
 )
 from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
-from douki._python.sync import sync_source
+from douki._python.sync import (
+    check_source,
+    format_source,
+    sync_source,
+)
 
 
 def source_documents(source: str) -> list[object]:
@@ -32,6 +37,19 @@ def source_documents(source: str) -> list[object]:
         yaml.safe_load(f.docstring_node.value)
         for f in extract_functions(source)
         if f.docstring_node is not None
+    ]
+
+
+def normalized_source_documents(source: str) -> list[object]:
+    """
+    title: Compare YAML meaning regardless of shorthand or mapping syntax.
+    parameters:
+      source: Python source with documentation to compare.
+    returns: Normalized documentation mappings for semantic comparison.
+    """
+    return [
+        normalize_documentation(doc) if isinstance(doc, dict) else doc
+        for doc in source_documents(source)
     ]
 
 
@@ -169,12 +187,9 @@ def _p(
     """
     title: Shorthand ParamInfo constructor for tests.
     parameters:
-      name:
-        description: Parameter name to use in the test signature.
-      ann:
-        description: Annotation text to use in the test signature.
-      kind:
-        description: Calling convention to use in the test signature.
+      name: Parameter name to use in the test signature.
+      ann: Annotation text to use in the test signature.
+      kind: Calling convention to use in the test signature.
     returns: Parameter metadata for a synchronization test.
     """
     return ParamInfo(name=name, annotation=ann, kind=kind)
@@ -377,7 +392,13 @@ def add(x: int, y: int) -> int:
     return x + y
 '''
     result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
+    document = source_documents(result)[0]
+    assert document['parameters'] == {
+        'x': '...',
+        'y': '...',
+    }
+    assert document['returns'] == '...'
+    assert 'type:' not in result
     assert sync_source(result) == result
 
 
@@ -501,9 +522,11 @@ class MyClass:
         self.count: int = count
         self.name: str = name
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
 
 
 def test_sync_source_classdef_auto_attributes() -> None:
@@ -524,9 +547,11 @@ class MyClass:
         self.value = value
         self.name = name
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
         'value': 'int',
@@ -548,9 +573,11 @@ class MyClass:
     MAX: ClassVar[int] = 100
     count: int
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
         'MAX': 'ClassVar[int]',
@@ -617,9 +644,11 @@ class MyClass:
         self._value: int = 0
         self._name: str = "default"
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {
         '_value': 'int',
@@ -643,9 +672,11 @@ class MyClass:
         """
         self.count = count
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
     assert {a.name: a.annotation for a in info.attrs} == {'count': 'float'}
 
@@ -668,9 +699,11 @@ class Derived(Base):
     """
     z: float
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
     assert {a.name: a.annotation for a in info.attrs} == {
         'x': 'int',
@@ -702,9 +735,11 @@ class C(B):
     """
     c: float
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'C')
     assert {a.name: a.annotation for a in info.attrs} == {
         'a': 'int',
@@ -730,9 +765,11 @@ class Derived(Base):
     """
     value: float  # override with narrower type
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
     assert {a.name: a.annotation for a in info.attrs} == {'value': 'float'}
 
@@ -756,9 +793,11 @@ class Outer:
             """
             return True
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
 
 
 # -------------------------------------------------------------------
@@ -1155,9 +1194,11 @@ def sub(x: int, y: int) -> int:
     """
     return x - y
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
 
 
 def test_sync_source_with_no_return_annotation() -> None:
@@ -1193,8 +1234,8 @@ def test_sync_with_old_flat_params_preserved() -> None:
 def _long_title_src() -> str:
     """
     title: Build test source with a long | title.
-    returns: Python source with a docstring title exceeding the line-width
-      limit.
+    returns: >-
+      Python source with a docstring title exceeding the line-width limit.
     """
     long_title = (
         'Everything we need to know about'
@@ -1699,9 +1740,11 @@ class Calculator:
         """
         return a - b
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
 
 
 def test_sync_source_class_with_init() -> None:
@@ -1721,9 +1764,11 @@ class Point:
         self.x: float = x
         self.y: float = y
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
 
 
 def test_sync_source_staticmethod() -> None:
@@ -1743,9 +1788,11 @@ class Utils:
         """
         return max(lo, min(value, hi))
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
 
 
 def test_sync_source_class_with_attributes() -> None:
@@ -1848,6 +1895,84 @@ def flexible_func(*args: int, **kwargs: str) -> None:
     """
     pass
 '''
-    result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
-    assert sync_source(result) == result
+    result = format_source(src)
+    assert normalized_source_documents(result) == (
+        normalized_source_documents(src)
+    )
+    assert format_source(result) == result
+
+
+def test_sync_scaffolds_attributes_and_reports_stale_entries() -> None:
+    """
+    title: Synchronization adds attribute placeholders and rejects stale names.
+    """
+    source = '''class Example:
+    """title: Example"""
+    count: int
+'''
+    synced = sync_source(source)
+    documented = source_documents(synced)[0]
+    assert documented['attributes']['count'] == '...'
+    assert sync_source(synced) == synced
+    stale = '''def example(value: int) -> int:
+    """
+    title: Example
+    parameters:
+      old: Old parameter.
+    """
+    return value
+'''
+    with pytest.raises(DocstringValidationError, match='old'):
+        sync_source(stale)
+
+
+def test_sync_keeps_existing_descriptions() -> None:
+    """
+    title: Synchronizing retains authored descriptions.
+    """
+    source = '''def greet(name: str, *, times: int) -> str:
+    """
+    title: Greet
+    parameters:
+      name: The recipient.
+    returns: Greeting message.
+    """
+    return name * times
+'''
+    synced = sync_source(source)
+    documented = source_documents(synced)[0]
+    assert documented['parameters']['name'] == 'The recipient.'
+    assert documented['parameters']['times'] == '...'
+    assert documented['returns'] == 'Greeting message.'
+    assert 'type:' not in synced
+
+
+def test_sync_and_check_preserve_shorthand_descriptions() -> None:
+    """
+    title: Source tools accept shorthand and preserve its authored form.
+    """
+    source = '''class Example:
+    """
+    title: Example
+    attributes:
+      label: Describes the label.
+    """
+    label: str
+
+    def greet(self, name: str) -> str:
+        """
+        title: Greet
+        parameters:
+          name: Name to greet.
+        returns: Greeting text.
+        """
+        return name
+'''
+    check_source(source)
+    synced = sync_source(source)
+    check_source(synced)
+    documents = source_documents(synced)
+    assert documents[0]['attributes']['label'] == 'Describes the label.'
+    assert documents[1]['parameters']['name'] == 'Name to greet.'
+    assert documents[1]['returns'] == 'Greeting text.'
+    assert 'type:' not in synced

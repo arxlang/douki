@@ -1,10 +1,9 @@
 """
-title: Douki CLI — ``douki sync`` and ``douki check`` commands.
+title: Douki CLI for syncing, formatting and checking YAML docstrings.
 examples:
-- code: >-
-    douki sync  [FILES...]   # apply changes in-place
-
-    douki check [FILES...]   # print diff, exit 1 if changes needed
+- code: douki sync [FILES...]
+- code: douki format --check [FILES...]
+- code: douki check [FILES...]
 """
 
 from __future__ import annotations
@@ -21,6 +20,8 @@ from rich.console import Console
 
 from douki.sync import (
     DocstringValidationError,
+    check_source,
+    format_source,
     resolve_files,
     sync_source,
 )
@@ -59,14 +60,12 @@ def _resolve_files(
     """
     title: Turn the optional argument into a list of paths for the language.
     parameters:
-      files:
-        description: Files or directories to process; an empty value uses
-          the current directory.
-      lang:
-        description: Registered language backend used to process the source.
-      respect_gitignore:
-        description: Override gitignore filtering; None uses the project
-          setting.
+      files: >-
+        Files or directories to process; an empty value uses the current
+        directory.
+      lang: Registered language backend used to process the source.
+      respect_gitignore: >-
+        Override gitignore filtering; None uses the project setting.
     returns: Source paths to process, after applying discovery rules.
     """
     target_files = resolve_files(
@@ -88,12 +87,9 @@ def _print_diff(
     """
     title: Print a coloured unified diff.
     parameters:
-      path:
-        description: Source path used to label both sides of the diff.
-      original:
-        description: File contents before formatting.
-      updated:
-        description: File contents after formatting.
+      path: Source path used to label both sides of the diff.
+      original: File contents before formatting.
+      updated: File contents after formatting.
     returns: True if there is a diff.
     """
     if original == updated:
@@ -142,17 +138,16 @@ def sync(
     ),
 ) -> None:
     """
-    title: Format YAML docstrings in-place without inserting annotation types.
+    title: Scaffold undocumented parameters, attributes and return values.
     parameters:
-      files:
-        description: Files or directories to process; an empty value uses
-          the current directory.
-      lang:
-        description: Registered language backend used to process the source.
+      files: >-
+        Files or directories to process; an empty value uses the current
+        directory.
+      lang: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
+        description: >-
+          Override gitignore filtering; None uses the project setting.
     """
     target_files = _resolve_files(
         files,
@@ -211,6 +206,61 @@ def sync(
     raise typer.Exit(code=0)
 
 
+@app.command(name='format')
+def format_command(
+    files: Optional[list[Path]] = typer.Argument(
+        default=None,
+        help='Files or directories (default: ".").',
+    ),
+    lang: str = typer.Option(
+        'python',
+        '--lang',
+        help='Programming language to process (e.g. "python").',
+    ),
+    respect_gitignore: Optional[bool] = typer.Option(
+        None,
+        '--respect-gitignore/--no-respect-gitignore',
+        help='Respect .gitignore patterns during file discovery.',
+    ),
+    check_only: bool = typer.Option(
+        False,
+        '--check',
+        help='Report formatting differences without modifying files.',
+    ),
+) -> None:
+    """
+    title: Format YAML docstrings without changing their content.
+    parameters:
+      files: Files or directories to format.
+      lang: Registered source language.
+      respect_gitignore: Whether to respect gitignore discovery.
+      check_only: Only report proposed formatting changes.
+    """
+    target_files = _resolve_files(files, lang, respect_gitignore)
+    changed = 0
+    errors = False
+    for filepath in target_files:
+        try:
+            original = filepath.read_text(encoding='utf-8')
+            updated = format_source(original, lang=lang)
+        except (OSError, ValueError) as exc:
+            console.print(f'[red]Error processing {filepath}:[/] {exc}')
+            errors = True
+            continue
+        if original == updated:
+            continue
+        changed += 1
+        if check_only:
+            _print_diff(filepath, original, updated)
+        else:
+            filepath.write_text(updated, encoding='utf-8')
+            console.print(f'[green]Formatted[/] {filepath}')
+    if errors:
+        raise typer.Exit(code=2)
+    if changed:
+        raise typer.Exit(code=1)
+
+
 @app.command()
 def check(
     files: Optional[list[Path]] = typer.Argument(
@@ -229,59 +279,22 @@ def check(
     ),
 ) -> None:
     """
-    title: Print a diff of proposed changes. Exit 1 if any.
+    title: Check schemas, annotations and documentation completeness.
     parameters:
-      files:
-        description: Files or directories to process; an empty value uses
-          the current directory.
-      lang:
-        description: Registered language backend used to process the source.
-      respect_gitignore:
-        optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
+      files: Files or directories to validate.
+      lang: Registered source language.
+      respect_gitignore: Whether to respect gitignore discovery.
     """
-    target_files = _resolve_files(
-        files,
-        lang=lang,
-        respect_gitignore=respect_gitignore,
-    )
-    any_diff = False
+    target_files = _resolve_files(files, lang, respect_gitignore)
     errors = False
-
     for filepath in target_files:
         try:
-            original = filepath.read_text(encoding='utf-8')
-        except OSError as exc:
-            console.print(
-                f'[red]Error reading {filepath}:[/] {exc}',
-            )
-            errors = True
-            continue
-
-        try:
-            updated = sync_source(original, lang=lang)
-        except DocstringValidationError as exc:
-            console.print(
-                f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
-            )
-            errors = True
-            continue
+            check_source(filepath.read_text(encoding='utf-8'), lang=lang)
         except Exception as exc:
-            console.print(
-                f'[red]Error processing {filepath}:[/] {exc}',
-            )
+            console.print(f'[red]Error checking {filepath}:[/] {exc}')
             errors = True
-            continue
-
-        if _print_diff(filepath, original, updated):
-            any_diff = True
-
     if errors:
         raise typer.Exit(code=2)
-    if any_diff:
-        raise typer.Exit(code=1)
-    raise typer.Exit(code=0)
 
 
 @app.command()
@@ -309,17 +322,15 @@ def migrate(
     """
     title: Migrate docstrings from another format to Douki YAML.
     parameters:
-      files:
-        description: Files or directories to process; an empty value uses
-          the current directory.
-      from_format:
-        description: Original docstring format to convert to Douki YAML.
-      lang:
-        description: Registered language backend used to process the source.
+      files: >-
+        Files or directories to process; an empty value uses the current
+        directory.
+      from_format: Original docstring format to convert to Douki YAML.
+      lang: Registered language backend used to process the source.
       respect_gitignore:
         optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
+        description: >-
+          Override gitignore filtering; None uses the project setting.
     """
     migrate_val = from_format.value
     target_files = _resolve_files(
