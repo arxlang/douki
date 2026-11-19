@@ -82,7 +82,7 @@ def test_check_reports_missing_descriptions(tmp_path: Path) -> None:
 
 def test_check_shows_output(tmp_path: Path) -> None:
     """
-    title: Diff output should contain file path.
+    title: Validation output should describe incomplete documentation.
     parameters:
       tmp_path:
         description: Temporary directory for this test's files.
@@ -99,7 +99,8 @@ def test_check_shows_output(tmp_path: Path) -> None:
         ''',
     )
     result = runner.invoke(app, ['check', str(p)])
-    assert str(p) in result.output or 'title' in result.output
+    assert result.exit_code == 2
+    assert 'missing description for parameter' in result.output
 
 
 # -------------------------------------------------------------------
