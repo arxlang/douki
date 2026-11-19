@@ -31,6 +31,7 @@ from douki.documentation import (
     Parameter,
     Signature,
     format_documentation,
+    style_description_blocks,
     validate_annotations,
 )
 from douki.typechecking import typechecked
@@ -352,8 +353,16 @@ def process_source(
                 break
 
         try:
+            formatted_data = (
+                compact_documentation(parsed) if compact else parsed
+            )
+            if compact:
+                formatted_data = style_description_blocks(
+                    formatted_data,
+                    width=79 - len(content_indent),
+                )
             synced = format_documentation(
-                compact_documentation(parsed) if compact else parsed,
+                formatted_data,
                 width=79 - len(content_indent),
             )
         except ValueError as e:

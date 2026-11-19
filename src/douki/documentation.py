@@ -303,6 +303,121 @@ def represent_string(
 DocumentationDumper.add_representer(str, represent_string)
 
 
+@private
+class BlockDescription(str):
+    """
+    title: Select block YAML formatting for a description without changing it.
+    """
+
+
+@private
+@typechecked
+def represent_block_description(
+    dumper: yaml.SafeDumper,
+    value: BlockDescription,
+) -> yaml.ScalarNode:
+    """
+    title: Fold long prose or preserve explicit newlines in descriptions.
+    parameters:
+      dumper: Active YAML dumper.
+      value: Description text selected for block formatting.
+    returns: Scalar node with the appropriate YAML block style.
+    """
+    return dumper.represent_scalar(
+        'tag:yaml.org,2002:str',
+        str(value),
+        style='|' if '\n' in value else '>',
+    )
+
+
+DocumentationDumper.add_representer(
+    BlockDescription, represent_block_description
+)
+
+
+@private
+@typechecked
+def description_style(
+    value: str,
+    *,
+    width: int,
+    prefix_length: int,
+) -> str:
+    """
+    title: Select block style only when the description requires it.
+    parameters:
+      value: Original description text.
+      width: Target length of a source documentation line.
+      prefix_length: Length of its YAML indentation, key and separator.
+    returns: The unchanged text, optionally marked for block formatting.
+    """
+    if '\n' in value or len(value) + prefix_length > width:
+        return BlockDescription(value)
+    return value
+
+
+@private
+@typechecked
+def style_description_blocks(
+    data: dict[str, object],
+    *,
+    width: int,
+) -> dict[str, object]:
+    """
+    title: Style authored descriptions without mutating their values.
+    parameters:
+      data: Validated authored documentation to format.
+      width: Maximum YAML line length excluding Python source indentation.
+    returns: A copy with long or multiline descriptions marked for blocks.
+    """
+    result = dict(data)
+    for section in ('parameters', 'attributes'):
+        fields = data.get(section)
+        if not isinstance(fields, dict):
+            continue
+        styled: dict[str, object] = {}
+        for name, value in fields.items():
+            if isinstance(value, str):
+                styled[name] = description_style(
+                    value,
+                    width=width,
+                    prefix_length=4 + len(name),
+                )
+            elif isinstance(value, dict):
+                field = dict(value)
+                description = field.get('description')
+                if isinstance(description, str):
+                    field['description'] = description_style(
+                        description,
+                        width=width,
+                        prefix_length=17,
+                    )
+                styled[name] = field
+            else:
+                styled[name] = value
+        result[section] = styled
+
+    for section in ('returns', 'yields', 'receives'):
+        value = data.get(section)
+        if isinstance(value, str):
+            result[section] = description_style(
+                value,
+                width=width,
+                prefix_length=len(section) + 2,
+            )
+        elif isinstance(value, dict):
+            field = dict(value)
+            description = field.get('description')
+            if isinstance(description, str):
+                field['description'] = description_style(
+                    description,
+                    width=width,
+                    prefix_length=15,
+                )
+            result[section] = field
+    return result
+
+
 @public
 @typechecked
 def format_documentation(

@@ -354,3 +354,78 @@ def test_format_source_compacts_description_only_fields() -> None:
         'options': {'description': 'Rendering options.', 'default': 1},
     }
     assert format_source(formatted) == formatted
+
+
+
+def test_format_source_uses_block_styles_only_for_descriptions() -> None:
+    """
+    title: Format descriptions as folded prose or literal line breaks.
+    """
+    long_prose = (
+        'A long description explaining the parameter behavior in enough '
+        'detail that it should be folded across multiple YAML lines.'
+    )
+    source = '''class Widget:
+    """
+    title: Widget
+    attributes:
+      short:
+        description: Short attribute.
+      prose:
+        description: A long description explaining the attribute behavior
+          in enough detail that it should be folded across multiple lines.
+        default: 1234
+      lines:
+        description: |-
+          First line.
+          Second line.
+    """
+    short: str
+    prose: str
+    lines: str
+
+    def render(self, value: str, placeholder: str) -> str:
+        """
+        title: Render.
+        parameters:
+          value:
+            description: >-
+              A long description explaining the parameter behavior in enough
+              detail that it should be folded across multiple YAML lines.
+          placeholder:
+            description: '...'
+        returns: Rendered text.
+        """
+        return value
+'''
+    formatted = format_source(source)
+    original_tree = ast.parse(source)
+    formatted_tree = ast.parse(formatted)
+    original_class = original_tree.body[0]
+    formatted_class = formatted_tree.body[0]
+    assert isinstance(original_class, ast.ClassDef)
+    assert isinstance(formatted_class, ast.ClassDef)
+    original_attrs = yaml.safe_load(
+        ast.get_docstring(original_class)
+    )['attributes']
+    attr_doc = ast.get_docstring(formatted_class)
+    assert attr_doc is not None
+    attrs = yaml.safe_load(attr_doc)['attributes']
+    assert attrs == {
+        'short': 'Short attribute.',
+        'prose': original_attrs['prose'],
+        'lines': original_attrs['lines'],
+    }
+    assert 'short: Short attribute.' in attr_doc
+    assert 'description: >-' in attr_doc
+    assert 'description: |-' in attr_doc
+    render = next(
+        node for node in formatted_class.body
+        if isinstance(node, ast.FunctionDef)
+    )
+    render_doc = ast.get_docstring(render)
+    assert render_doc is not None
+    assert 'value: >-' in render_doc
+    assert "placeholder: '...'" in render_doc
+    assert yaml.safe_load(render_doc)['parameters']['value'] == long_prose
+    assert format_source(formatted) == formatted
