@@ -17,7 +17,7 @@ from douki import (
     enrich,
     format_documentation,
 )
-from douki.sync import sync_source
+from douki.sync import format_source
 from typeguard import TypeCheckError
 
 
@@ -165,14 +165,14 @@ def test_format_source_does_not_add_or_remove_signature_fields() -> None:
     """
     return None
 '''
-    formatted = sync_source(source)
+    formatted = format_source(source)
     original_tree = ast.parse(source)
     formatted_tree = ast.parse(formatted)
     raw = ast.get_docstring(original_tree.body[0])
     result = ast.get_docstring(formatted_tree.body[0])
     assert yaml.safe_load(raw) == yaml.safe_load(result)
     assert 'current:' not in result
-    assert sync_source(formatted) == formatted
+    assert format_source(formatted) == formatted
     assert ast.dump(original_tree.body[0].args) == ast.dump(
         formatted_tree.body[0].args,
     )
@@ -234,12 +234,12 @@ def test_source_formatting_preserves_python_string_escaping(
         + literal
         + '  # retain this comment\n    return 1\n'
     )
-    formatted = sync_source(source)
+    formatted = format_source(source)
     before = ast.get_docstring(ast.parse(source).body[0])
     after = ast.get_docstring(ast.parse(formatted).body[0])
     assert yaml.safe_load(before) == yaml.safe_load(after)
     assert '# retain this comment' in formatted
-    assert sync_source(formatted) == formatted
+    assert format_source(formatted) == formatted
 
 
 def test_inline_unicode_docstring_keeps_surrounding_code() -> None:
@@ -247,8 +247,8 @@ def test_inline_unicode_docstring_keeps_surrounding_code() -> None:
     title: UTF-8 AST columns retain inline function definitions and returns.
     """
     source = 'def café(x: int) -> int: """title: Café"""; return x\n'
-    result = sync_source(source)
+    result = format_source(source)
     namespace: dict[str, object] = {}
     exec(result, namespace)
     assert namespace['café'](3) == 3
-    assert sync_source(result) == result
+    assert format_source(result) == result

@@ -58,9 +58,9 @@ def test_check_exit_2_when_invalid(tmp_path: Path) -> None:
     assert result.exit_code == 2
 
 
-def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
+def test_check_reports_missing_descriptions(tmp_path: Path) -> None:
     """
-    title: Unsynced file should produce exit 1 with diff.
+    title: Incomplete documentation should produce validation exit 2.
     parameters:
       tmp_path:
         description: Temporary directory for this test's files.
@@ -77,7 +77,7 @@ def test_check_exit_1_when_dirty(tmp_path: Path) -> None:
         ''',
     )
     result = runner.invoke(app, ['check', str(p)])
-    assert result.exit_code == 1
+    assert result.exit_code == 2
 
 
 def test_check_shows_output(tmp_path: Path) -> None:
@@ -242,7 +242,9 @@ def test_sync_updates_file(tmp_path: Path) -> None:
     assert result.exit_code == 1
     content = p.read_text(encoding='utf-8')
     assert 'title: Add two numbers' in content
-    assert 'parameters:' not in content
+    assert 'parameters:' in content
+    assert 'returns:' in content
+    assert 'type:' not in content
 
 
 def test_sync_idempotent(tmp_path: Path) -> None:
@@ -305,7 +307,7 @@ def test_multiple_files(tmp_path: Path) -> None:
         ['check', str(p1), str(p2)],
     )
     # Both files should be processed
-    assert result.exit_code in (0, 1)
+    assert result.exit_code == 2
 
 
 # -------------------------------------------------------------------
@@ -349,7 +351,7 @@ def test_directory_discovers_py_files(tmp_path: Path) -> None:
         ['check', str(tmp_path)],
     )
     # Should find mod.py and show diff (exit 1)
-    assert result.exit_code in (0, 1)
+    assert result.exit_code == 2
 
 
 # -------------------------------------------------------------------
@@ -1031,3 +1033,52 @@ def test_migrate_generic_exception(
     )
     assert result.exit_code == 2
     assert 'Error' in result.output
+
+
+def test_format_has_independent_check_mode(tmp_path: Path) -> None:
+    """
+    title: Formatting changes presentation without modifying documentation.
+    parameters:
+      tmp_path: Temporary source directory.
+    """
+    path = _write(
+        tmp_path,
+        'format.py',
+        '''\
+        def add(a: int) -> int:
+            """
+            title:   Add number
+            parameters:
+              a: The input.
+            returns: The result.
+            """
+            return a
+        ''',
+    )
+    original = path.read_text(encoding='utf-8')
+    assert runner.invoke(app, ['format', '--check', str(path)]).exit_code == 1
+    assert path.read_text(encoding='utf-8') == original
+    assert runner.invoke(app, ['format', str(path)]).exit_code == 1
+    assert runner.invoke(app, ['format', '--check', str(path)]).exit_code == 0
+    assert runner.invoke(app, ['check', str(path)]).exit_code == 0
+
+
+def test_check_rejects_scaffold_todo(tmp_path: Path) -> None:
+    """
+    title: Generated placeholders require authored descriptions.
+    parameters:
+      tmp_path: Temporary source directory.
+    """
+    path = _write(
+        tmp_path,
+        'todo.py',
+        '''\
+        def greet(name: str) -> str:
+            """title: Greet"""
+            return name
+        ''',
+    )
+    assert runner.invoke(app, ['sync', str(path)]).exit_code == 1
+    result = runner.invoke(app, ['check', str(path)])
+    assert result.exit_code == 2
+    assert 'description' in result.output

@@ -21,7 +21,7 @@ from douki._base.sync import (
 )
 from douki._python.defaults import PYTHON_DEFAULTS
 from douki._python.extractor import extract_functions
-from douki._python.sync import sync_source
+from douki._python.sync import format_source, sync_source
 
 
 def source_documents(source: str) -> list[object]:
@@ -377,7 +377,13 @@ def add(x: int, y: int) -> int:
     return x + y
 '''
     result = sync_source(src)
-    assert source_documents(result) == source_documents(src)
+    document = source_documents(result)[0]
+    assert document['parameters'] == {
+        'x': {'description': 'TODO'},
+        'y': {'description': 'TODO'},
+    }
+    assert document['returns'] == {'description': 'TODO'}
+    assert 'type:' not in result
     assert sync_source(result) == result
 
 
@@ -501,7 +507,7 @@ class MyClass:
         self.count: int = count
         self.name: str = name
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
 
@@ -524,7 +530,7 @@ class MyClass:
         self.value = value
         self.name = name
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
@@ -548,7 +554,7 @@ class MyClass:
     MAX: ClassVar[int] = 100
     count: int
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
@@ -617,7 +623,7 @@ class MyClass:
         self._value: int = 0
         self._name: str = "default"
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
@@ -643,7 +649,7 @@ class MyClass:
         """
         self.count = count
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'MyClass')
@@ -668,7 +674,7 @@ class Derived(Base):
     """
     z: float
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
@@ -702,7 +708,7 @@ class C(B):
     """
     c: float
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'C')
@@ -730,7 +736,7 @@ class Derived(Base):
     """
     value: float  # override with narrower type
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
     info = next(f for f in extract_functions(src) if f.name == 'Derived')
@@ -756,7 +762,7 @@ class Outer:
             """
             return True
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
 
@@ -1155,7 +1161,7 @@ def sub(x: int, y: int) -> int:
     """
     return x - y
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
 
@@ -1699,7 +1705,7 @@ class Calculator:
         """
         return a - b
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
 
@@ -1721,7 +1727,7 @@ class Point:
         self.x: float = x
         self.y: float = y
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
 
@@ -1743,7 +1749,7 @@ class Utils:
         """
         return max(lo, min(value, hi))
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
 
@@ -1848,6 +1854,51 @@ def flexible_func(*args: int, **kwargs: str) -> None:
     """
     pass
 '''
-    result = sync_source(src)
+    result = format_source(src)
     assert source_documents(result) == source_documents(src)
     assert sync_source(result) == result
+
+
+def test_sync_scaffolds_attributes_and_reports_stale_entries() -> None:
+    """
+    title: Synchronization adds attribute placeholders and rejects stale names.
+    """
+    source = '''class Example:
+    """title: Example"""
+    count: int
+'''
+    synced = sync_source(source)
+    documented = source_documents(synced)[0]
+    assert documented['attributes']['count'] == {'description': 'TODO'}
+    assert sync_source(synced) == synced
+    stale = '''def example(value: int) -> int:
+    """
+    title: Example
+    parameters:
+      old: Old parameter.
+    """
+    return value
+'''
+    with pytest.raises(DocstringValidationError, match='old'):
+        sync_source(stale)
+
+
+def test_sync_keeps_existing_descriptions() -> None:
+    """
+    title: Synchronizing retains authored descriptions.
+    """
+    source = '''def greet(name: str, *, times: int) -> str:
+    """
+    title: Greet
+    parameters:
+      name: The recipient.
+    returns: Greeting message.
+    """
+    return name * times
+'''
+    synced = sync_source(source)
+    documented = source_documents(synced)[0]
+    assert documented['parameters']['name'] == 'The recipient.'
+    assert documented['parameters']['times'] == {'description': 'TODO'}
+    assert documented['returns'] == 'Greeting message.'
+    assert 'type:' not in synced

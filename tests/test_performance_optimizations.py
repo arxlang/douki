@@ -51,7 +51,9 @@ def test_source_docstring_is_parsed_once(
     )
     updated = sync_source(source)
     assert len(calls) == 1
-    assert 'parameters:' not in updated
+    assert 'parameters:' in updated
+    assert 'description: TODO' in updated
+    assert 'type:' not in updated
     assert sync_source(updated) == updated
 
 
