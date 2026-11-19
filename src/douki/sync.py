@@ -1,7 +1,8 @@
 """
 title: Public API for syncing Douki YAML docstrings.
-summary: Routes source synchronization, formatting, validation and file
-  discovery through language plugins, and re-exports shared base types.
+summary: Routes source synchronization, formatting, validation and
+  file discovery through language plugins, and re-exports shared
+  base types.
 """
 
 from __future__ import annotations
@@ -22,9 +23,9 @@ __all__ = [
     'DocstringValidationError',
     'FuncInfo',
     'ParamInfo',
-    'resolve_files',
-    'format_source',
     'check_source',
+    'format_source',
+    'resolve_files',
     'sync_docstring',
     'sync_source',
     'validate_docstring',

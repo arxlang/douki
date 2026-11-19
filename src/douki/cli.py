@@ -1,9 +1,9 @@
 """
 title: Douki CLI for syncing, formatting and checking YAML docstrings.
 examples:
-  - code: douki sync [FILES...]
-  - code: douki format --check [FILES...]
-  - code: douki check [FILES...]
+- code: douki sync [FILES...]
+- code: douki format --check [FILES...]
+- code: douki check [FILES...]
 """
 
 from __future__ import annotations
@@ -295,13 +295,9 @@ def check(
     errors = False
     for filepath in target_files:
         try:
-            check_source(
-                filepath.read_text(encoding='utf-8'), lang=lang
-            )
+            check_source(filepath.read_text(encoding='utf-8'), lang=lang)
         except Exception as exc:
-            console.print(
-                f'[red]Error checking {filepath}:[/] {exc}'
-            )
+            console.print(f'[red]Error checking {filepath}:[/] {exc}')
             errors = True
     if errors:
         raise typer.Exit(code=2)

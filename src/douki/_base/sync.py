@@ -203,9 +203,7 @@ def normalize_documentation(
                     )
                 normalized[name] = dict(value)
             else:
-                raise ValueError(
-                    f"schema: invalid '{section}' entry '{name}'"
-                )
+                raise ValueError(f"schema: invalid '{section}' entry '{name}'")
         result[section] = normalized
     return result
 

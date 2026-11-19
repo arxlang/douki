@@ -22,6 +22,7 @@ from douki._base.sync import (
     DocstringValidationError,
     FuncInfo,
     _parse_validated_docstring,
+    normalize_documentation,
     validate_docstring,
 )
 from douki._python.extractor import extract_functions
@@ -64,8 +65,12 @@ def needs_returns(func: FuncInfo) -> bool:
     returns: Whether a result description is needed.
     """
     return func.is_callable and func.return_annotation not in (
-        'None', 'NoneType', 'NoReturn', 'Never',
-        'typing.NoReturn', 'typing.Never',
+        'None',
+        'NoneType',
+        'NoReturn',
+        'Never',
+        'typing.NoReturn',
+        'typing.Never',
     )
 
 
@@ -87,8 +92,7 @@ def scaffold_fields(data: dict[str, object], func: FuncInfo) -> None:
         stale = sorted(set(existing) - expected)
         if stale:
             raise ValueError(
-                'signature: Unknown documented parameters: '
-                + ', '.join(stale)
+                'signature: Unknown documented parameters: ' + ', '.join(stale)
             )
         for param in func.params:
             existing.setdefault(param.name, '...')
@@ -132,9 +136,7 @@ def has_description(value: object) -> bool:
 
 @private
 @typechecked
-def completeness_errors(
-    data: dict[str, object], func: FuncInfo
-) -> list[str]:
+def completeness_errors(data: dict[str, object], func: FuncInfo) -> list[str]:
     """
     title: Report missing, stale and placeholder descriptions.
     parameters:
@@ -186,15 +188,16 @@ def check_source(source: str) -> None:
             errors.append(f"- '{node.name}': missing docstring")
     for func in funcs:
         prefix = '<module>' if func.name == '<module>' else f"'{func.name}'"
-        node = func.docstring_node
-        if node is None:
+        doc_node = func.docstring_node
+        if doc_node is None:
             errors.append(f'- {prefix}: missing docstring')
             continue
+        if not isinstance(doc_node, ast.Constant):
+            errors.append(f'- {prefix}: invalid docstring node')
+            continue
         try:
-            raw = inspect.cleandoc(str(node.value))
-            data = normalize_documentation(
-                _parse_validated_docstring(raw)
-            )
+            raw = inspect.cleandoc(str(doc_node.value))
+            data = normalize_documentation(_parse_validated_docstring(raw))
             validate_annotations(signature_for(func), data)
             errors.extend(
                 f'- {prefix}: {problem}'

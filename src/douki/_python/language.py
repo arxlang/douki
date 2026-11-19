@@ -11,7 +11,11 @@ from douki._base.language import BaseLanguage
 from douki._python.config import PythonConfig
 from douki._python.sync import (
     check_source as py_check_source,
+)
+from douki._python.sync import (
     format_source as py_format_source,
+)
+from douki._python.sync import (
     sync_source as py_sync_source,
 )
 
