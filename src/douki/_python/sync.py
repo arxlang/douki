@@ -18,10 +18,13 @@ from typing import Optional
 
 from douki._base.sync import (
     DocstringValidationError,
+    FuncInfo,
     _parse_validated_docstring,
     validate_docstring,
 )
 from douki._python.extractor import extract_functions
+from douki.typechecking import typechecked
+from public import private
 from douki.documentation import (
     Parameter,
     Signature,
@@ -30,13 +33,198 @@ from douki.documentation import (
 )
 
 
+@private
+@typechecked
+def signature_for(func: FuncInfo) -> Signature:
+    """
+    title: Adapt source annotations to the shared metadata contract.
+    parameters:
+      func: Parsed declaration metadata.
+    returns: Annotation metadata without implicit method receivers.
+    """
+    return Signature(
+        parameters=(
+            tuple(Parameter(p.name, p.annotation) for p in func.params)
+            if func.is_callable
+            else None
+        ),
+        returns=func.return_annotation,
+        attributes=tuple(Parameter(p.name, p.annotation) for p in func.attrs),
+    )
+
+
+@private
+@typechecked
+def needs_returns(func: FuncInfo) -> bool:
+    """
+    title: Determine whether a callable has a result to describe.
+    parameters:
+      func: Parsed function or method.
+    returns: Whether a result description is needed.
+    """
+    return func.is_callable and func.return_annotation not in (
+        'None', 'NoneType', 'NoReturn', 'Never',
+        'typing.NoReturn', 'typing.Never',
+    )
+
+
+@private
+@typechecked
+def scaffold_fields(data: dict[str, object], func: FuncInfo) -> None:
+    """
+    title: Add missing description placeholders without storing types.
+    parameters:
+      data: Authored YAML validated against the source schema.
+      func: Source metadata defining the expected names.
+    """
+    if func.is_callable:
+        existing = dict(data.get('parameters', {}))
+        expected = {param.name for param in func.params}
+        stale = sorted(set(existing) - expected)
+        if stale:
+            raise ValueError(
+                'signature: Unknown documented parameters: '
+                + ', '.join(stale)
+            )
+        for param in func.params:
+            existing.setdefault(param.name, {'description': 'TODO'})
+        if existing or 'parameters' in data:
+            data['parameters'] = existing
+        if needs_returns(func) and 'returns' not in data:
+            data['returns'] = {'description': 'TODO'}
+
+    if func.attrs:
+        existing_attrs = dict(data.get('attributes', {}))
+        for attr in func.attrs:
+            existing_attrs.setdefault(attr.name, {'description': 'TODO'})
+        data['attributes'] = existing_attrs
+
+
+@private
+@typechecked
+def has_description(value: object) -> bool:
+    """
+    title: Check whether a documentation field contains authored prose.
+    parameters:
+      value: Source YAML string or documentation entry.
+    returns: False for missing, empty or TODO descriptions.
+    """
+    description = value.get('description') if isinstance(value, dict) else value
+    if not isinstance(description, str):
+        return False
+    content = description.strip()
+    return bool(content) and content.upper() != 'TODO' and not (
+        content.upper().startswith('TODO:')
+    )
+
+
+@private
+@typechecked
+def completeness_errors(
+    data: dict[str, object], func: FuncInfo
+) -> list[str]:
+    """
+    title: Report missing, stale and placeholder descriptions.
+    parameters:
+      data: Schema-validated authored documentation.
+      func: Parsed declaration metadata.
+    returns: Documentation completeness diagnostics.
+    """
+    errors: list[str] = []
+    if func.is_callable:
+        documented = data.get('parameters', {})
+        entries = documented if isinstance(documented, dict) else {}
+        expected = {param.name for param in func.params}
+        for stale in sorted(set(entries) - expected):
+            errors.append(f"stale documented parameter '{stale}'")
+        for name in sorted(expected):
+            if not has_description(entries.get(name)):
+                errors.append(f"missing description for parameter '{name}'")
+        if needs_returns(func) and not has_description(data.get('returns')):
+            errors.append('missing description for return value')
+
+    documented_attrs = data.get('attributes', {})
+    attr_entries = (
+        documented_attrs if isinstance(documented_attrs, dict) else {}
+    )
+    for attr in func.attrs:
+        if not has_description(attr_entries.get(attr.name)):
+            errors.append(f"missing description for attribute '{attr.name}'")
+    return errors
+
+
+@typechecked
+def check_source(source: str) -> None:
+    """
+    title: Validate annotations and authored documentation without changes.
+    parameters:
+      source: Python source code to validate.
+    raises:
+      DocstringValidationError: Missing or invalid documentation.
+    """
+    try:
+        ast.parse(source)
+    except SyntaxError as error:
+        raise DocstringValidationError(f'syntax: {error.msg}') from error
+
+    funcs = extract_functions(source)
+    errors: list[str] = []
+    for func in funcs:
+        prefix = '<module>' if func.name == '<module>' else f"'{func.name}'"
+        node = func.docstring_node
+        if node is None:
+            errors.append(f'- {prefix}: missing docstring')
+            continue
+        try:
+            data = _parse_validated_docstring(inspect.cleandoc(str(node.value)))
+            validate_annotations(signature_for(func), data)
+            errors.extend(
+                f'- {prefix}: {problem}'
+                for problem in completeness_errors(data, func)
+            )
+        except ValueError as error:
+            errors.append(f'- {prefix}: {error}')
+    if errors:
+        raise DocstringValidationError('\n'.join(errors))
+
+
+@typechecked
+def format_source(source: str) -> str:
+    """
+    title: Format source docstrings without synchronizing declarations.
+    parameters:
+      source: Python source code with YAML docstrings.
+    returns: Source with canonical YAML presentation only.
+    """
+    return process_source(source, scaffold=False)
+
+
+@typechecked
 def sync_source(
     source: str,
     *,
     migrate: Optional[str] = None,
 ) -> str:
     """
-    title: Format all Douki YAML docstrings without materializing annotations.
+    title: Scaffold missing descriptions and format authored documentation.
+    parameters:
+      source: Python source with Douki docstrings.
+      migrate: Optional source documentation format to migrate.
+    returns: Source with missing entries added and no authored types.
+    """
+    return process_source(source, scaffold=True, migrate=migrate)
+
+
+@private
+@typechecked
+def process_source(
+    source: str,
+    *,
+    scaffold: bool,
+    migrate: Optional[str] = None,
+) -> str:
+    """
+    title: Format or scaffold documentation without storing types.
     parameters:
       source:
         description: Python source code.
@@ -61,7 +249,7 @@ def sync_source(
     # Check for missing docstrings — every function, class, and module
     # must have a docstring.
     missing = [f for f in funcs if f.docstring_node is None]
-    if missing:
+    if missing and scaffold:
         errors = []
         for f in missing:
             prefix = '<module>' if f.name == '<module>' else f"'{f.name}'"
@@ -87,23 +275,9 @@ def sync_source(
         # Parse and validate once, then pass the mapping to the sync engine.
         try:
             parsed = _parse_validated_docstring(inspect.cleandoc(raw))
-            validate_annotations(
-                Signature(
-                    parameters=(
-                        tuple(
-                            Parameter(p.name, p.annotation)
-                            for p in func.params
-                        )
-                        if func.is_callable
-                        else None
-                    ),
-                    returns=func.return_annotation,
-                    attributes=tuple(
-                        Parameter(p.name, p.annotation) for p in func.attrs
-                    ),
-                ),
-                parsed,
-            )
+            if scaffold:
+                validate_annotations(signature_for(func), parsed)
+                scaffold_fields(parsed, func)
         except ValueError as e:
             prefix = (
                 '<module>' if func.name == '<module>' else f"'{func.name}'"

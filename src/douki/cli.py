@@ -21,6 +21,8 @@ from rich.console import Console
 
 from douki.sync import (
     DocstringValidationError,
+    check_source,
+    format_source,
     resolve_files,
     sync_source,
 )
@@ -142,7 +144,7 @@ def sync(
     ),
 ) -> None:
     """
-    title: Format YAML docstrings in-place without inserting annotation types.
+    title: Scaffold undocumented parameters, attributes and return values.
     parameters:
       files:
         description: Files or directories to process; an empty value uses
@@ -211,6 +213,61 @@ def sync(
     raise typer.Exit(code=0)
 
 
+@app.command(name='format')
+def format_command(
+    files: Optional[list[Path]] = typer.Argument(
+        default=None,
+        help='Files or directories (default: ".").',
+    ),
+    lang: str = typer.Option(
+        'python',
+        '--lang',
+        help='Programming language to process (e.g. "python").',
+    ),
+    respect_gitignore: Optional[bool] = typer.Option(
+        None,
+        '--respect-gitignore/--no-respect-gitignore',
+        help='Respect .gitignore patterns during file discovery.',
+    ),
+    check_only: bool = typer.Option(
+        False,
+        '--check',
+        help='Report formatting differences without modifying files.',
+    ),
+) -> None:
+    """
+    title: Format YAML docstrings without changing their content.
+    parameters:
+      files: Files or directories to format.
+      lang: Registered source language.
+      respect_gitignore: Whether to respect gitignore discovery.
+      check_only: Only report proposed formatting changes.
+    """
+    target_files = _resolve_files(files, lang, respect_gitignore)
+    changed = 0
+    errors = False
+    for filepath in target_files:
+        try:
+            original = filepath.read_text(encoding='utf-8')
+            updated = format_source(original, lang=lang)
+        except (OSError, ValueError) as exc:
+            console.print(f'[red]Error processing {filepath}:[/] {exc}')
+            errors = True
+            continue
+        if original == updated:
+            continue
+        changed += 1
+        if check_only:
+            _print_diff(filepath, original, updated)
+        else:
+            filepath.write_text(updated, encoding='utf-8')
+            console.print(f'[green]Formatted[/] {filepath}')
+    if errors:
+        raise typer.Exit(code=2)
+    if changed:
+        raise typer.Exit(code=1)
+
+
 @app.command()
 def check(
     files: Optional[list[Path]] = typer.Argument(
@@ -229,59 +286,24 @@ def check(
     ),
 ) -> None:
     """
-    title: Print a diff of proposed changes. Exit 1 if any.
+    title: Check schemas, annotations and documentation completeness.
     parameters:
-      files:
-        description: Files or directories to process; an empty value uses
-          the current directory.
-      lang:
-        description: Registered language backend used to process the source.
-      respect_gitignore:
-        optional: true
-        description: Override gitignore filtering; None uses the project
-          setting.
+      files: Files or directories to validate.
+      lang: Registered source language.
+      respect_gitignore: Whether to respect gitignore discovery.
     """
-    target_files = _resolve_files(
-        files,
-        lang=lang,
-        respect_gitignore=respect_gitignore,
-    )
-    any_diff = False
+    target_files = _resolve_files(files, lang, respect_gitignore)
     errors = False
-
     for filepath in target_files:
         try:
-            original = filepath.read_text(encoding='utf-8')
-        except OSError as exc:
-            console.print(
-                f'[red]Error reading {filepath}:[/] {exc}',
+            check_source(
+                filepath.read_text(encoding='utf-8'), lang=lang
             )
+        except (OSError, ValueError) as exc:
+            console.print(f'[red]Invalid documentation in {filepath}:[/] {exc}')
             errors = True
-            continue
-
-        try:
-            updated = sync_source(original, lang=lang)
-        except DocstringValidationError as exc:
-            console.print(
-                f'\n[red]Invalid docstrings in {filepath}:[/]\n{exc}',
-            )
-            errors = True
-            continue
-        except Exception as exc:
-            console.print(
-                f'[red]Error processing {filepath}:[/] {exc}',
-            )
-            errors = True
-            continue
-
-        if _print_diff(filepath, original, updated):
-            any_diff = True
-
     if errors:
         raise typer.Exit(code=2)
-    if any_diff:
-        raise typer.Exit(code=1)
-    raise typer.Exit(code=0)
 
 
 @app.command()

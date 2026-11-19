@@ -35,6 +35,7 @@ if TYPE_CHECKING:
         register as register,
     )
     from douki.introspection import getdoc as getdoc
+    from douki.sync import format_source as format_source
 
 
 def get_version() -> str:
@@ -64,6 +65,7 @@ __all__ = [
     '__version__',
     'enrich',
     'format_documentation',
+    'format_source',
     'getdoc',
     'help',
     'register',
@@ -88,6 +90,7 @@ def __getattr__(name: str) -> object:
         'Signature': 'documentation',
         'enrich': 'documentation',
         'format_documentation': 'documentation',
+        'format_source': 'sync',
         'validate_annotations': 'documentation',
         'getdoc': 'introspection',
         'help': 'helping',

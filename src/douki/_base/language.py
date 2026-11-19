@@ -36,6 +36,23 @@ class BaseLanguage(ABC):
         """
         ...  # pragma: no cover
 
+    def format_source(self, source: str) -> str:
+        """
+        title: Format authored YAML without changing documentation structure.
+        parameters:
+          source: Source code to format.
+        returns: Formatted source code.
+        """
+        raise NotImplementedError
+
+    def check_source(self, source: str) -> None:
+        """
+        title: Validate source documentation without changing its contents.
+        parameters:
+          source: Source code to validate.
+        """
+        raise NotImplementedError
+
     @abstractmethod
     def sync_source(
         self, source: str, *, migrate: Optional[str] = None

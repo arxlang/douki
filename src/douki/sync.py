@@ -24,6 +24,8 @@ __all__ = [
     'FuncInfo',
     'ParamInfo',
     'resolve_files',
+    'format_source',
+    'check_source',
     'sync_docstring',
     'sync_source',
     'validate_docstring',
@@ -79,7 +81,7 @@ def sync_source(
     migrate: Optional[str] = None,
 ) -> str:
     """
-    title: Format Douki YAML docstrings in *source*.
+    title: Synchronize documentation structure with source declarations.
     summary: Dispatches to the appropriate language plugin based on *lang*.
     parameters:
       source:
@@ -90,11 +92,37 @@ def sync_source(
         optional: true
         description: Docstring format to convert before formatting; None
           disables migration.
-    returns: Source with formatted YAML, preserving authored descriptions
-      without inserting types.
+    returns: Source with scaffolded documentation and no authored types.
     """
     from douki._base.language import get_language
 
     _ensure_plugins()
     language = get_language(lang)
     return language.sync_source(source, migrate=migrate)
+
+
+def format_source(source: str, *, lang: str = 'python') -> str:
+    """
+    title: Format source docstrings without syncing signature metadata.
+    parameters:
+      source: Source code to format.
+      lang: Registered source language.
+    returns: Formatted source code.
+    """
+    from douki._base.language import get_language
+
+    _ensure_plugins()
+    return get_language(lang).format_source(source)
+
+
+def check_source(source: str, *, lang: str = 'python') -> None:
+    """
+    title: Validate annotations and documentation completeness.
+    parameters:
+      source: Source code to validate.
+      lang: Registered source language.
+    """
+    from douki._base.language import get_language
+
+    _ensure_plugins()
+    get_language(lang).check_source(source)
