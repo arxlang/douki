@@ -65,7 +65,7 @@ by the schema. Remove only those fields from existing docstrings and put
 types in annotations instead. Keep `parameters`, `returns` and `attributes`
 with their descriptions: annotations supply types, not explanations.
 
-`sync` adds missing parameter, attribute and return entries with `TODO`
+`sync` adds missing parameter, attribute and return entries with `...`
 placeholders, without storing types. It preserves existing descriptions
 and reports stale parameter names. `format` only changes presentation;
 `check` reports missing or incomplete descriptions.

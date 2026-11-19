@@ -383,10 +383,10 @@ def add(x: int, y: int) -> int:
     result = sync_source(src)
     document = source_documents(result)[0]
     assert document['parameters'] == {
-        'x': {'description': 'TODO'},
-        'y': {'description': 'TODO'},
+        'x': '...',
+        'y': '...',
     }
-    assert document['returns'] == {'description': 'TODO'}
+    assert document['returns'] == '...'
     assert 'type:' not in result
     assert sync_source(result) == result
 
@@ -1873,7 +1873,7 @@ def test_sync_scaffolds_attributes_and_reports_stale_entries() -> None:
 '''
     synced = sync_source(source)
     documented = source_documents(synced)[0]
-    assert documented['attributes']['count'] == {'description': 'TODO'}
+    assert documented['attributes']['count'] == '...'
     assert sync_source(synced) == synced
     stale = '''def example(value: int) -> int:
     """
@@ -1903,7 +1903,7 @@ def test_sync_keeps_existing_descriptions() -> None:
     synced = sync_source(source)
     documented = source_documents(synced)[0]
     assert documented['parameters']['name'] == 'The recipient.'
-    assert documented['parameters']['times'] == {'description': 'TODO'}
+    assert documented['parameters']['times'] == '...'
     assert documented['returns'] == 'Greeting message.'
     assert 'type:' not in synced
 

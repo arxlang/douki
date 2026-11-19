@@ -48,11 +48,11 @@ douki check                # Validate files in the current directory
 ```
 
 `sync` adds missing parameter, attribute and result descriptions as
-`TODO` placeholders without writing type fields. It preserves authored
+`...` placeholders without writing type fields. It preserves authored
 entries and reports stale parameters instead of removing them. `format`
 normalizes YAML formatting without changing documentation content;
 `format --check` checks presentation without writing. `check` validates
-schemas, annotations, stale names and missing or TODO descriptions.
+schemas, annotations, stale names and missing or placeholder descriptions.
 Both `sync` and `check` require annotated parameters and return values;
 use `-> None` when a function returns nothing.
 Only the actual method receiver is exempt; a static method's first argument

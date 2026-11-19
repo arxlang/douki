@@ -121,7 +121,7 @@ groups:
           douki sync "$TMPDIR/test.py" && exit 1 || true
           # Second sync should be a no-op (exit 0)
           douki sync "$TMPDIR/test.py"
-          # Formatting stays idempotent with TODO placeholders.
+          # Formatting stays idempotent with description placeholders.
           douki format --check "$TMPDIR/test.py"
           rm -rf "$TMPDIR"
 

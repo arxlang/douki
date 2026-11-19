@@ -1063,7 +1063,7 @@ def test_format_has_independent_check_mode(tmp_path: Path) -> None:
     assert runner.invoke(app, ['check', str(path)]).exit_code == 0
 
 
-def test_check_rejects_scaffold_todo(tmp_path: Path) -> None:
+def test_check_rejects_scaffold_placeholder(tmp_path: Path) -> None:
     """
     title: Generated placeholders require authored descriptions.
     parameters:
@@ -1071,7 +1071,7 @@ def test_check_rejects_scaffold_todo(tmp_path: Path) -> None:
     """
     path = _write(
         tmp_path,
-        'todo.py',
+        'placeholder.py',
         '''\
         def greet(name: str) -> str:
             """title: Greet"""
@@ -1079,6 +1079,7 @@ def test_check_rejects_scaffold_todo(tmp_path: Path) -> None:
         ''',
     )
     assert runner.invoke(app, ['sync', str(path)]).exit_code == 1
+    assert "name: '...'" in path.read_text(encoding='utf-8')
     result = runner.invoke(app, ['check', str(path)])
     assert result.exit_code == 2
     assert 'description' in result.output

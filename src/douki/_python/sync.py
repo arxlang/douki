@@ -91,11 +91,11 @@ def scaffold_fields(data: dict[str, object], func: FuncInfo) -> None:
                 + ', '.join(stale)
             )
         for param in func.params:
-            existing.setdefault(param.name, {'description': 'TODO'})
+            existing.setdefault(param.name, '...')
         if existing or 'parameters' in data:
             data['parameters'] = existing
         if needs_returns(func) and 'returns' not in data:
-            data['returns'] = {'description': 'TODO'}
+            data['returns'] = '...'
 
     if func.attrs:
         raw_attrs = data.get('attributes')
@@ -103,7 +103,7 @@ def scaffold_fields(data: dict[str, object], func: FuncInfo) -> None:
             raise ValueError('schema: attributes must be a mapping')
         existing_attrs = dict(raw_attrs) if raw_attrs is not None else {}
         for attr in func.attrs:
-            existing_attrs.setdefault(attr.name, {'description': 'TODO'})
+            existing_attrs.setdefault(attr.name, '...')
         data['attributes'] = existing_attrs
 
 
@@ -114,7 +114,7 @@ def has_description(value: object) -> bool:
     title: Check whether a documentation field contains authored prose.
     parameters:
       value: Source YAML string or documentation entry.
-    returns: False for missing, empty or TODO descriptions.
+    returns: False for missing, empty or placeholder descriptions.
     """
     description = (
         value.get('description') if isinstance(value, dict) else value
@@ -122,8 +122,11 @@ def has_description(value: object) -> bool:
     if not isinstance(description, str):
         return False
     content = description.strip()
-    return bool(content) and content.upper() != 'TODO' and not (
-        content.upper().startswith('TODO:')
+    return (
+        bool(content)
+        and content != '...'
+        and content.upper() != 'TODO'
+        and not content.upper().startswith('TODO:')
     )
 
 
