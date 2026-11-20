@@ -1,14 +1,28 @@
 {
-  "branches": ["main"],
+  "branches": [
+    "main"
+  ],
   "tagFormat": "${version}",
   "plugins": [
-    "@semantic-release/commit-analyzer",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "releaseRules": [
+          {
+            "breaking": true,
+            "release": "minor"
+          }
+        ]
+      }
+    ],
     [
       "@google/semantic-release-replace-plugin",
       {
         "replacements": [
           {
-            "files": ["src/douki/__init__.py"],
+            "files": [
+              "src/douki/__init__.py"
+            ],
             "from": "return '.*'  # semantic-release",
             "to": "return '${nextRelease.version}'  # semantic-release",
             "results": [
@@ -22,7 +36,9 @@
             "countMatches": true
           },
           {
-            "files": ["pyproject.toml"],
+            "files": [
+              "pyproject.toml"
+            ],
             "from": "version = \".*\"  # semantic-release",
             "to": "version = \"${nextRelease.version}\"  # semantic-release",
             "results": [
@@ -56,7 +72,10 @@
     [
       "@semantic-release/github",
       {
-        "assets": ["dist/*.whl", "dist/*.tar.gz"]
+        "assets": [
+          "dist/*.whl",
+          "dist/*.tar.gz"
+        ]
       }
     ],
     [
