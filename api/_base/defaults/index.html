@@ -470,6 +470,14 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1131,6 +1139,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../helping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> helping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> introspection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../migrate/" class="md-nav__link">
         
   
@@ -1167,6 +1259,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../typechecking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> typechecking
   
 
     
@@ -1352,30 +1472,17 @@
 
 
 
-        <p>Each language plugin provides an instance of this class. Fields whose
-  values match these defaults are omitted from the emitted YAML.
+        <p>whose values match these defaults are omitted from the emitted YAML.
 attributes:
-  visibility:
-    type: str
-  mutability:
-    type: str
-  scope_function:
-    type: str
-    description: Default scope for stand-alone functions.
-  scope_method:
-    type: str
-    description: Default scope for class methods.
-  file_extensions:
-    type: tuple[str, Ellipsis]
-    description: File extensions to collect (e.g. ('.py',)).
-  config_files:
-    type: tuple[str, Ellipsis]
-    description: Config files to search for exclude patterns.
-  field_defaults:
-    type: dict[str, Any]
-    description: &gt;-
-      Mapping of top-level YAML key to the default value that should be
-      omitted when emitting.</p>
+  scope_function: Default scope for stand-alone functions.
+  scope_method: Default scope for class methods.
+  file_extensions: File extensions to collect (e.g. ('.py',)).
+  config_files: Config files to search for exclude patterns.
+  field_defaults: &gt;-
+    Mapping of top-level YAML key to the default value that should be
+    omitted when emitting.
+  visibility: Default visibility to omit from emitted documentation.
+  mutability: Default mutability to omit from emitted documentation.</p>
 
 
 
@@ -1428,35 +1535,29 @@ attributes:
 
     <div class="doc doc-contents ">
 
-        <p>Return the mapping of top-level YAML key to the default value that
-  should be omitted.
-returns:
-  type: dict[str, Any]</p>
+        <p>that should be omitted.
+returns: Built-in defaults combined with language-specific overrides.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/_base/defaults.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_field_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">37</span>
+<span class="normal">38</span>
+<span class="normal">39</span>
+<span class="normal">40</span>
+<span class="normal">41</span>
+<span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_field_defaults</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    title: &gt;-</span>
-<span class="sd">      Return the mapping of top-level YAML key to the default value that</span>
-<span class="sd">      should be omitted.</span>
-<span class="sd">    returns:</span>
-<span class="sd">      type: dict[str, Any]</span>
+<span class="sd">    title: Return the mapping of top-level YAML key to the default value</span>
+<span class="sd">      that should be omitted.</span>
+<span class="sd">    returns: Built-in defaults combined with language-specific overrides.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">defaults</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">&#39;visibility&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">visibility</span><span class="p">,</span>

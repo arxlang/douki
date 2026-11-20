@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://osl-incubator.github.io/douki/api/migrate/">
       
       
-        <link rel="prev" href="../cli/">
+        <link rel="prev" href="../introspection/">
       
       
         <link rel="next" href="../sync/">
@@ -458,6 +458,14 @@
       
         
           
+        
+      
+        
+      
+        
+      
+        
+      
         
       
         
@@ -1051,6 +1059,90 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> helping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> introspection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1161,6 +1253,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../typechecking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> typechecking
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1245,8 +1365,7 @@
 
     <div class="doc doc-contents first">
 
-        <p>Provides the <code class="language-python highlight"><span class="n">migrate_source</span></code> dispatch function that routes to the
-  appropriate language plugin.</p>
+        <p>to the appropriate language plugin.</p>
 
 
 
@@ -1300,12 +1419,13 @@
 
     <div class="doc doc-contents ">
 
-        
+        <p>Source with supported docstrings converted to formatted Douki YAML.</p>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/migrate.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">15</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">14</span>
+<span class="normal">15</span>
 <span class="normal">16</span>
 <span class="normal">17</span>
 <span class="normal">18</span>
@@ -1324,10 +1444,7 @@
 <span class="normal">31</span>
 <span class="normal">32</span>
 <span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">migrate_source</span><span class="p">(</span>
+<span class="normal">34</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">migrate_source</span><span class="p">(</span>
     <span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="o">*</span><span class="p">,</span>
     <span class="n">from_format</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1337,15 +1454,13 @@
 <span class="sd">    title: Migrate docstrings from another format to Douki YAML.</span>
 <span class="sd">    summary: Dispatches to ``sync_source`` with the *migrate* parameter set.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      source:</span>
-<span class="sd">        type: str</span>
-<span class="sd">      from_format:</span>
-<span class="sd">        type: str</span>
+<span class="sd">      source: Source code whose docstrings are being processed.</span>
+<span class="sd">      from_format: Original docstring format to convert to Douki YAML.</span>
 <span class="sd">      lang:</span>
-<span class="sd">        type: str</span>
 <span class="sd">        optional: true</span>
-<span class="sd">    returns:</span>
-<span class="sd">      type: str</span>
+<span class="sd">        description: Registered language backend used to process the source.</span>
+<span class="sd">    returns: &gt;-</span>
+<span class="sd">      Source with supported docstrings converted to formatted Douki YAML.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">douki.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">sync_source</span>
 

@@ -295,10 +295,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#why-douki" class="md-nav__link">
+  <a href="#inspect-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why Douki?
+        Inspect documentation
       
     </span>
   </a>
@@ -306,21 +306,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#synchronize-format-and-validate-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Start
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What's Next?
+        Synchronize, format and validate source
       
     </span>
   </a>
@@ -532,6 +521,14 @@
       
         
           
+        
+      
+        
+      
+        
+      
+        
+      
         
       
         
@@ -1128,6 +1125,90 @@
   
   
     <li class="md-nav__item">
+      <a href="api/documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/helping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> helping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/introspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> introspection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="api/migrate/" class="md-nav__link">
         
   
@@ -1164,6 +1245,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="api/typechecking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> typechecking
   
 
     
@@ -1219,10 +1328,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#why-douki" class="md-nav__link">
+  <a href="#inspect-documentation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Why Douki?
+        Inspect documentation
       
     </span>
   </a>
@@ -1230,21 +1339,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#synchronize-format-and-validate-source" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quick Start
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#whats-next" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        What's Next?
+        Synchronize, format and validate source
       
     </span>
   </a>
@@ -1272,63 +1370,72 @@
 
 
 <h1 id="douki">Douki</h1>
-<p><strong>Language-agnostic YAML docstrings for Python.</strong></p>
-<p>Douki is a developer tool that uses a structured YAML format inside Python
-docstrings. It keeps your docstrings in sync with your function signatures and
-validates them against a schema — all without adding a runtime dependency to
-your package.</p>
-<h2 id="why-douki">Why Douki?</h2>
-<ul>
-<li><strong>Structured</strong> — docstrings are YAML, not free-form text. Parameters have
-  <code class="language-python highlight"><span class="nb">type</span></code>, <code class="language-python highlight"><span class="n">description</span></code>, <code class="language-python highlight"><span class="n">optional</span></code>, and <code class="language-python highlight"><span class="n">default</span></code> fields.</li>
-<li><strong>Auto-synced</strong> — <code class="language-python highlight"><span class="n">douki</span> <span class="n">sync</span></code> adds new parameters, removes stale ones, and
-  updates return types automatically.</li>
-<li><strong>Validated</strong> — every docstring is checked against a JSON Schema so typos and
-  invalid fields are caught early.</li>
-<li><strong>Dev-only</strong> — Douki is a development tool. It does <strong>not</strong> need to be a
-  runtime dependency of your package.</li>
-<li><strong>Migratable</strong> — convert existing NumPy-style docstrings with
-  <code class="language-python highlight"><span class="n">douki</span> <span class="n">migrate</span> <span class="n">numpydoc</span></code>.</li>
-</ul>
-<h2 id="quick-start">Quick Start</h2>
-<p>Install Douki as a dev dependency:</p>
-<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>douki
-</code></pre></div>
-<p>Write a docstring in Douki YAML format:</p>
+<p><strong>YAML docstrings with types supplied by annotations.</strong></p>
+<p>Write descriptions in your docstrings and types in Python annotations.
+Douki enriches documentation when you inspect it, while its CLI validates
+and formats the YAML in your source files.</p>
 <div class="language-python highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    title: Add two integers</span>
+<span class="sd">    title: Add two integers.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      a:</span>
-<span class="sd">        type: int</span>
-<span class="sd">        description: First value.</span>
-<span class="sd">      b:</span>
-<span class="sd">        type: int</span>
-<span class="sd">        description: Second value.</span>
-<span class="sd">        default: 0</span>
-<span class="sd">    returns:</span>
-<span class="sd">      type: int</span>
-<span class="sd">      description: Sum of a and b.</span>
+<span class="sd">      a: First value.</span>
+<span class="sd">      b: Second value.</span>
+<span class="sd">    returns: Sum of a and b.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
 </code></pre></div>
-<p>Sync your docstrings with the actual signatures:</p>
-<div class="language-bash highlight"><pre><span></span><code><span class="c1"># Preview changes</span>
-douki<span class="w"> </span>check<span class="w"> </span>src/
+<h2 id="inspect-documentation">Inspect documentation</h2>
+<p>Register the library once in its <code class="language-python highlight"><span class="fm">__init__</span><span class="o">.</span><span class="n">py</span></code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="c1"># mylib/__init__.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">douki</span>
 
-<span class="c1"># Apply changes in-place</span>
-douki<span class="w"> </span>sync<span class="w"> </span>src/
+<span class="n">douki</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 </code></pre></div>
-<p>By default, Douki respects <code class="language-python highlight"><span class="o">.</span><span class="n">gitignore</span></code> during file discovery. You can
-disable that per run with <code class="language-python highlight"><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span></code>, or set
-<code class="language-python highlight"><span class="p">[</span><span class="n">tool</span><span class="o">.</span><span class="n">douki</span><span class="p">]</span> <span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span> <span class="o">=</span> <span class="n">false</span></code> in <code class="language-python highlight"><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span></code>.</p>
-<h2 id="whats-next">What's Next?</h2>
+<p>Users then call ordinary Python help:</p>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">mylib</span>
+
+<span class="n">help</span><span class="p">(</span><span class="n">mylib</span><span class="o">.</span><span class="n">add</span><span class="p">)</span>  <span class="c1"># Douki descriptions enriched with annotation types</span>
+<span class="n">help</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span>        <span class="c1"># Regular Python help</span>
+</code></pre></div>
+<p>Registration covers the package and its submodules, including future imports.
+Objects defined in other libraries retain regular help, even when re-exported
+by your package. No per-function decorators or user activation calls are needed.
+The shared help wrapper routes by defining package; importing Douki alone does
+not install it. Original <code class="language-python highlight"><span class="vm">__doc__</span></code> strings remain authored text.</p>
+<p>Tools can call <code class="language-python highlight"><span class="n">douki</span><span class="o">.</span><span class="n">getdoc</span><span class="p">(</span><span class="n">add</span><span class="p">)</span></code> directly without registration to obtain
+enriched YAML. Documentation generators can also use the static enrichment API.</p>
+<h2 id="synchronize-format-and-validate-source">Synchronize, format and validate source</h2>
+<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>douki
+
+douki<span class="w"> </span>sync<span class="w"> </span>src/<span class="w">            </span><span class="c1"># Add missing descriptions</span>
+douki<span class="w"> </span>format<span class="w"> </span>src/<span class="w">          </span><span class="c1"># Normalize YAML formatting</span>
+douki<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>src/<span class="w">  </span><span class="c1"># Preview formatting differences</span>
+douki<span class="w"> </span>check<span class="w"> </span>src/<span class="w">           </span><span class="c1"># Validate documentation</span>
+</code></pre></div>
+<p><code class="language-python highlight"><span class="n">check</span></code> and <code class="language-python highlight"><span class="n">sync</span></code> require annotations for parameters, return values and
+documented attributes. Use <code class="language-python highlight"><span class="o">-&gt;</span> <span class="kc">None</span></code> for functions without a result;
+implicit method receivers are exempt. Authored <code class="language-python highlight"><span class="nb">type</span></code> fields are rejected
+by the schema. Remove only those fields from existing docstrings and put
+types in annotations instead. Keep <code class="language-python highlight"><span class="n">parameters</span></code>, <code class="language-python highlight"><span class="n">returns</span></code> and <code class="language-python highlight"><span class="n">attributes</span></code>
+with their descriptions: annotations supply types, not explanations.</p>
+<p><code class="language-python highlight"><span class="n">sync</span></code> adds missing parameter, attribute and return entries with <code class="language-python highlight"><span class="o">...</span></code>
+placeholders, without storing types. It preserves existing descriptions
+and reports stale parameter names. <code class="language-python highlight"><span class="nb">format</span></code> only changes presentation;
+<code class="language-python highlight"><span class="n">check</span></code> reports missing or incomplete descriptions.
+Dynamic inspection raises <code class="language-python highlight"><span class="n">DocumentationError</span></code> for missing annotations.</p>
+<p>The CLI can remain a development dependency. Install Douki in the running
+interpreter when using <code class="language-python highlight"><span class="n">getdoc</span></code>, <code class="language-python highlight"><span class="n">help</span></code> or library registration.</p>
+<p>Documentation generators can use the public <code class="language-python highlight"><span class="n">enrich</span></code>, <code class="language-python highlight"><span class="n">Signature</span></code> and
+<code class="language-python highlight"><span class="n">Parameter</span></code> API with statically collected types, without importing the
+project being documented. See the <a href="usage/">usage guide</a>.</p>
+<p>Douki respects <code class="language-python highlight"><span class="o">.</span><span class="n">gitignore</span></code> by default. Override it with
+<code class="language-python highlight"><span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span></code> or <code class="language-python highlight"><span class="p">[</span><span class="n">tool</span><span class="o">.</span><span class="n">douki</span><span class="p">]</span> <span class="n">respect</span><span class="o">-</span><span class="n">gitignore</span> <span class="o">=</span> <span class="n">false</span></code>.</p>
 <ul>
-<li><a href="installation/">Installation</a> — install via pip, conda, or from source</li>
-<li><a href="usage/">Usage Guide</a> — CLI commands, YAML schema, and migration</li>
-<li><a href="performance/">Performance benchmarks</a> — ASV history and PR comparisons</li>
-<li><a href="changelog/">Changelog</a> — release history</li>
-<li><a href="contributing/">Contributing</a> — how to contribute</li>
+<li><a href="installation/">Installation</a></li>
+<li><a href="usage/">Usage guide</a></li>
+<li><a href="performance/">Performance benchmarks</a></li>
+<li><a href="changelog/">Changelog</a></li>
+<li><a href="contributing/">Contributing</a></li>
 </ul>
 
 

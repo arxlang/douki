@@ -557,6 +557,14 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1141,6 +1149,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../api/documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/helping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> helping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/introspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> introspection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../api/migrate/" class="md-nav__link">
         
   
@@ -1177,6 +1269,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/typechecking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> typechecking
   
 
     
@@ -1391,6 +1511,13 @@ large-repository cases as well as single-docstring cases. If the
 benchmark suite evolves, ASV can compare only the cases that exist
 in both revisions; changes to benchmark definitions should be clearly
 identified in the PR discussion.</p>
+<p>ASV loads the current benchmark definitions against both installed revisions.
+Keep module-level imports compatible with the baseline. Benchmarks for new
+APIs belong in a separate class whose <code class="language-python highlight"><span class="n">setup</span><span class="p">()</span></code> checks for the API and raises
+<code class="language-python highlight"><span class="ne">NotImplementedError</span></code> when it is unavailable. This skips only that benchmark
+on older revisions; shared benchmarks must still run and produce comparable
+measurements. The report shows new-API rows as <code class="language-python highlight"><span class="n">n</span><span class="o">/</span><span class="n">a</span></code> on the baseline instead
+of treating them as speed improvements.</p>
 <p>Do not update <code class="language-python highlight"><span class="n">poetry</span><span class="o">.</span><span class="n">lock</span></code> solely for ASV: it is installed by the
 dedicated performance workflow and is not a runtime dependency.</p>
 

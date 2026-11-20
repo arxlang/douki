@@ -470,6 +470,14 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -1153,6 +1161,90 @@
   
   
     <li class="md-nav__item">
+      <a href="../../documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../helping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> helping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../introspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> introspection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../migrate/" class="md-nav__link">
         
   
@@ -1189,6 +1281,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../typechecking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> typechecking
   
 
     
@@ -1494,7 +1614,11 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/_base/config.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">42</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
 <span class="normal">47</span>
 <span class="normal">48</span>
 <span class="normal">49</span>
@@ -1507,13 +1631,7 @@
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">collect_files</span><span class="p">(</span>
+<span class="normal">59</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">collect_files</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
     <span class="n">discovery</span><span class="p">:</span> <span class="n">DiscoveryConfig</span><span class="p">,</span>
@@ -1521,12 +1639,10 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    title: Expand paths into source files, filtering excluded ones.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      paths:</span>
-<span class="sd">        type: list[Path]</span>
-<span class="sd">      discovery:</span>
-<span class="sd">        type: DiscoveryConfig</span>
-<span class="sd">    returns:</span>
-<span class="sd">      type: list[Path]</span>
+<span class="sd">      paths: Files or directories to expand into source files.</span>
+<span class="sd">      discovery: &gt;-</span>
+<span class="sd">        Project root and exclusion settings used during file discovery.</span>
+<span class="sd">    returns: Sorted, unique source paths after applying exclusion rules.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">collect_source_files</span><span class="p">(</span>
         <span class="n">paths</span><span class="p">,</span>
@@ -1562,23 +1678,19 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/_base/config.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
 <span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_discovery_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiscoveryConfig</span><span class="p">:</span>
+<span class="normal">40</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_discovery_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cwd</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DiscoveryConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    title: Load shared discovery settings from project configuration.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      cwd:</span>
-<span class="sd">        type: Path</span>
-<span class="sd">    returns:</span>
-<span class="sd">      type: DiscoveryConfig</span>
+<span class="sd">      cwd: Starting directory for the upward project configuration search.</span>
+<span class="sd">    returns: Discovery settings from the nearest project configuration.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">load_douki_discovery_config</span><span class="p">(</span><span class="n">cwd</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>

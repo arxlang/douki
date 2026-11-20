@@ -14,7 +14,7 @@
         <link rel="prev" href="../_python/sync/">
       
       
-        <link rel="next" href="../migrate/">
+        <link rel="next" href="../documentation/">
       
       
         
@@ -458,6 +458,14 @@
       
         
           
+        
+      
+        
+      
+        
+      
+        
+      
         
       
         
@@ -1108,6 +1116,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#douki.cli.format_command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;format_command
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#douki.cli.migrate" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1133,6 +1152,90 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../documentation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../helping/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> helping
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../introspection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> introspection
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1181,6 +1284,34 @@
     
   
     <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> sync
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../typechecking/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class="doc-symbol doc-symbol-nav doc-symbol-module"></code> typechecking
   
 
     
@@ -1258,6 +1389,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#douki.cli.format_command" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;format_command
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#douki.cli.migrate" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1312,9 +1454,9 @@
     <div class="doc doc-contents first">
 
         <ul>
-<li>code: |
-      douki sync  [FILES...]   # apply changes in-place
-      douki check [FILES...]   # print diff, exit 1 if changes needed</li>
+<li>code: douki sync [FILES...]</li>
+<li>code: douki format --check [FILES...]</li>
+<li>code: douki check [FILES...]</li>
 </ul>
 
 
@@ -1344,6 +1486,13 @@
     <ul>
           <li class="doc-section-item field-body">
             <b><code><a class="autorefs autorefs-internal" title="            check (douki.cli.check)" href="#douki.cli.check">check</a></code></b>
+            –
+            <div class="doc-md-description">
+              
+            </div>
+          </li>
+          <li class="doc-section-item field-body">
+            <b><code><a class="autorefs autorefs-internal" title="            format_command (douki.cli.format_command)" href="#douki.cli.format_command">format_command</a></code></b>
             –
             <div class="doc-md-description">
               
@@ -1466,7 +1615,121 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/cli.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">212</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">264</span>
+<span class="normal">265</span>
+<span class="normal">266</span>
+<span class="normal">267</span>
+<span class="normal">268</span>
+<span class="normal">269</span>
+<span class="normal">270</span>
+<span class="normal">271</span>
+<span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span>
+<span class="normal">281</span>
+<span class="normal">282</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span>
+<span class="normal">287</span>
+<span class="normal">288</span>
+<span class="normal">289</span>
+<span class="normal">290</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span>
+<span class="normal">294</span>
+<span class="normal">295</span>
+<span class="normal">296</span>
+<span class="normal">297</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+        <span class="s1">&#39;python&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--lang&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Programming language to process (e.g. &quot;python&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">respect_gitignore</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;--respect-gitignore/--no-respect-gitignore&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Respect .gitignore patterns during file discovery.&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    title: Check schemas, annotations and documentation completeness.</span>
+<span class="sd">    parameters:</span>
+<span class="sd">      files: Files or directories to validate.</span>
+<span class="sd">      lang: Registered source language.</span>
+<span class="sd">      respect_gitignore: Whether to respect gitignore discovery.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">target_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">respect_gitignore</span><span class="p">)</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">target_files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">check_source</span><span class="p">(</span><span class="n">filepath</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">),</span> <span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[red]Error checking </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="douki.cli.format_command" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">format_command</span>
+
+
+</h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">format_command</span><span class="p">(</span>
+    <span class="n">files</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="pathlib.Path" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path">Path</a></span><span class="p">]]</span> <span class="o">=</span> <span class="n"><span title="typer.Argument">Argument</span></span><span class="p">(</span>
+        <span class="n"><span title="typer.Argument(default)">default</span></span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n"><span title="typer.Argument(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">lang</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
+        <span class="s1">&#39;python&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;--lang&#39;</span><span class="p">,</span>
+        <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Programming language to process (e.g. &quot;python&quot;).&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">respect_gitignore</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span><span class="p">]</span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;--respect-gitignore/--no-respect-gitignore&#39;</span><span class="p">,</span>
+        <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Respect .gitignore patterns during file discovery.&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+    <span class="n">check_only</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="n"><span title="typer.Option">Option</span></span><span class="p">(</span>
+        <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;--check&#39;</span><span class="p">,</span>
+        <span class="n"><span title="typer.Option(help)">help</span></span><span class="o">=</span><span class="s1">&#39;Report formatting differences without modifying files.&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>src/douki/cli.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
 <span class="normal">213</span>
 <span class="normal">214</span>
 <span class="normal">215</span>
@@ -1515,27 +1778,8 @@
 <span class="normal">258</span>
 <span class="normal">259</span>
 <span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
-<span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span>
+<span class="normal">261</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;format&#39;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_command</span><span class="p">(</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Files or directories (default: &quot;.&quot;).&#39;</span><span class="p">,</span>
@@ -1550,59 +1794,43 @@
         <span class="s1">&#39;--respect-gitignore/--no-respect-gitignore&#39;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Respect .gitignore patterns during file discovery.&#39;</span><span class="p">,</span>
     <span class="p">),</span>
+    <span class="n">check_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span>
+        <span class="kc">False</span><span class="p">,</span>
+        <span class="s1">&#39;--check&#39;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Report formatting differences without modifying files.&#39;</span><span class="p">,</span>
+    <span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    title: Print a diff of proposed changes. Exit 1 if any.</span>
+<span class="sd">    title: Format YAML docstrings without changing their content.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      files:</span>
-<span class="sd">        type: Optional[list[Path]]</span>
-<span class="sd">      lang:</span>
-<span class="sd">        type: str</span>
-<span class="sd">      respect_gitignore:</span>
-<span class="sd">        type: Optional[bool]</span>
-<span class="sd">        optional: true</span>
+<span class="sd">      files: Files or directories to format.</span>
+<span class="sd">      lang: Registered source language.</span>
+<span class="sd">      respect_gitignore: Whether to respect gitignore discovery.</span>
+<span class="sd">      check_only: Only report proposed formatting changes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">target_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span>
-        <span class="n">files</span><span class="p">,</span>
-        <span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">,</span>
-        <span class="n">respect_gitignore</span><span class="o">=</span><span class="n">respect_gitignore</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">any_diff</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">target_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">lang</span><span class="p">,</span> <span class="n">respect_gitignore</span><span class="p">)</span>
+    <span class="n">changed</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">errors</span> <span class="o">=</span> <span class="kc">False</span>
-
     <span class="k">for</span> <span class="n">filepath</span> <span class="ow">in</span> <span class="n">target_files</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">original</span> <span class="o">=</span> <span class="n">filepath</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;[red]Error reading </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
+            <span class="n">updated</span> <span class="o">=</span> <span class="n">format_source</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[red]Error processing </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
             <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">continue</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">updated</span> <span class="o">=</span> <span class="n">sync_source</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">lang</span><span class="o">=</span><span class="n">lang</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">DocstringValidationError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">[red]Invalid docstrings in </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/]</span><span class="se">\n</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">original</span> <span class="o">==</span> <span class="n">updated</span><span class="p">:</span>
             <span class="k">continue</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s1">&#39;[red]Error processing </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">:[/] </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span>
-            <span class="p">)</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="k">continue</span>
-
-        <span class="k">if</span> <span class="n">_print_diff</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="n">updated</span><span class="p">):</span>
-            <span class="n">any_diff</span> <span class="o">=</span> <span class="kc">True</span>
-
+        <span class="n">changed</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">check_only</span><span class="p">:</span>
+            <span class="n">_print_diff</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="n">original</span><span class="p">,</span> <span class="n">updated</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filepath</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">updated</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+            <span class="n">console</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;[green]Formatted[/] </span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">any_diff</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">raise</span> <span class="n">typer</span><span class="o">.</span><span class="n">Exit</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1647,24 +1875,7 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/cli.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">283</span>
-<span class="normal">284</span>
-<span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
-<span class="normal">289</span>
-<span class="normal">290</span>
-<span class="normal">291</span>
-<span class="normal">292</span>
-<span class="normal">293</span>
-<span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
-<span class="normal">297</span>
-<span class="normal">298</span>
-<span class="normal">299</span>
-<span class="normal">300</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">300</span>
 <span class="normal">301</span>
 <span class="normal">302</span>
 <span class="normal">303</span>
@@ -1741,7 +1952,24 @@
 <span class="normal">374</span>
 <span class="normal">375</span>
 <span class="normal">376</span>
-<span class="normal">377</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="normal">377</span>
+<span class="normal">378</span>
+<span class="normal">379</span>
+<span class="normal">380</span>
+<span class="normal">381</span>
+<span class="normal">382</span>
+<span class="normal">383</span>
+<span class="normal">384</span>
+<span class="normal">385</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">migrate</span><span class="p">(</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1766,15 +1994,15 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    title: Migrate docstrings from another format to Douki YAML.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      files:</span>
-<span class="sd">        type: Optional[list[Path]]</span>
-<span class="sd">      from_format:</span>
-<span class="sd">        type: MigrateFormat</span>
-<span class="sd">      lang:</span>
-<span class="sd">        type: str</span>
+<span class="sd">      files: &gt;-</span>
+<span class="sd">        Files or directories to process; an empty value uses the current</span>
+<span class="sd">        directory.</span>
+<span class="sd">      from_format: Original docstring format to convert to Douki YAML.</span>
+<span class="sd">      lang: Registered language backend used to process the source.</span>
 <span class="sd">      respect_gitignore:</span>
-<span class="sd">        type: Optional[bool]</span>
 <span class="sd">        optional: true</span>
+<span class="sd">        description: &gt;-</span>
+<span class="sd">          Override gitignore filtering; None uses the project setting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">migrate_val</span> <span class="o">=</span> <span class="n">from_format</span><span class="o">.</span><span class="n">value</span>
     <span class="n">target_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span>
@@ -1875,7 +2103,11 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>src/douki/cli.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">127</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
@@ -1954,10 +2186,7 @@
 <span class="normal">203</span>
 <span class="normal">204</span>
 <span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
+<span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">command</span><span class="p">()</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">sync</span><span class="p">(</span>
     <span class="n">files</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="n">typer</span><span class="o">.</span><span class="n">Argument</span><span class="p">(</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1975,15 +2204,16 @@
     <span class="p">),</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    title: Apply docstring sync changes to files in-place.</span>
+<span class="sd">    title: Scaffold undocumented parameters, attributes and return values.</span>
 <span class="sd">    parameters:</span>
-<span class="sd">      files:</span>
-<span class="sd">        type: Optional[list[Path]]</span>
-<span class="sd">      lang:</span>
-<span class="sd">        type: str</span>
+<span class="sd">      files: &gt;-</span>
+<span class="sd">        Files or directories to process; an empty value uses the current</span>
+<span class="sd">        directory.</span>
+<span class="sd">      lang: Registered language backend used to process the source.</span>
 <span class="sd">      respect_gitignore:</span>
-<span class="sd">        type: Optional[bool]</span>
 <span class="sd">        optional: true</span>
+<span class="sd">        description: &gt;-</span>
+<span class="sd">          Override gitignore filtering; None uses the project setting.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">target_files</span> <span class="o">=</span> <span class="n">_resolve_files</span><span class="p">(</span>
         <span class="n">files</span><span class="p">,</span>
