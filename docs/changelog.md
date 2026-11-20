@@ -1,6 +1,13 @@
 # Release Notes
 ---
 
+## [0.14.1](https://github.com/arxlang/douki/compare/0.14.0...0.14.1) (2026-11-20)
+
+
+### Bug Fixes
+
+* **docs:** preserve cleaned YAML continuation indentation ([#31](https://github.com/arxlang/douki/issues/31)) ([9c1f4c8](https://github.com/arxlang/douki/commit/9c1f4c8e7ce4af905d85110b3d381da4ff898ff6))
+
 # [0.14.0](https://github.com/arxlang/douki/compare/0.13.0...0.14.0) (2026-11-20)
 
 
