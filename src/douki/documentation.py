@@ -235,12 +235,15 @@ def enrich(raw_docstring: str, signature: Signature) -> dict[str, object]:
       and annotation-derived types.
     """
     try:
-        data = normalize_documentation(
-            cast(
-                dict[str, object],
-                _parse_validated_docstring(inspect.cleandoc(raw_docstring)),
+        try:
+            # Already-cleaned YAML must retain its significant indentation.
+            parsed = _parse_validated_docstring(raw_docstring)
+        except ValueError:
+            # Raw Python docstrings may still need indentation cleanup.
+            parsed = _parse_validated_docstring(
+                inspect.cleandoc(raw_docstring)
             )
-        )
+        data = normalize_documentation(cast(dict[str, object], parsed))
     except ValueError as error:
         raise DocumentationError('schema', str(error)) from error
     validate_annotations(signature, data)
