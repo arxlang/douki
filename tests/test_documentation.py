@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import inspect
 
 import pytest
 import yaml
@@ -16,6 +17,7 @@ from douki import (
     Signature,
     enrich,
     format_documentation,
+    getdoc,
 )
 from douki._base.sync import normalize_documentation
 from douki.sync import format_source
@@ -73,6 +75,33 @@ notes: Keep this note.
     with pytest.raises(DocumentationError, match='schema'):
         enrich(format_documentation(result, enriched=True), signature)
     assert signature == before
+
+
+def test_cleaned_yaml_continuation_keeps_indentation() -> None:
+    """
+    title: Preserve significant YAML indentation after docstring cleaning.
+    """
+
+    class Temporal:
+        """
+        title: Base class for temporal data types (date, time, timestamp,
+          datetime).
+        """
+
+    expected = (
+        'Base class for temporal data types (date, time, timestamp, datetime).'
+    )
+    cleaned = inspect.getdoc(Temporal)
+    assert cleaned is not None
+    assert enrich(cleaned, Signature())['title'] == expected
+    assert enrich(Temporal.__doc__ or '', Signature())['title'] == expected
+
+    generated = getdoc(Temporal)
+    assert generated is not None
+    assert yaml.safe_load(generated)['title'] == expected
+
+    raw = 'title: Example\n    summary: Indented raw docstring.'
+    assert enrich(raw, Signature())['summary'] == 'Indented raw docstring.'
 
 
 def test_unknown_parameters_fail_at_the_shared_boundary() -> None:
